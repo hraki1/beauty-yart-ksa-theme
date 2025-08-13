@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import ProductItem from "./ProductItem";
+import ProductItem from "../productItem/ProductItem";
 import { FrontendProduct } from "@/models/forntEndProduct";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import { useRouter } from "next/navigation";
@@ -130,8 +130,11 @@ export default function HorizontalProductList({
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-row justify-between items-center sm:items-center px-3 mb-8 gap-4"
+        className="flex flex-row justify-center items-center sm:items-center px-3 mb-8 gap-4"
       >
+
+
+
         <motion.h2
           className="text-2xl md:text-3xl font-bold text-gray-900"
           whileHover={{ scale: 1.02 }}
@@ -141,7 +144,7 @@ export default function HorizontalProductList({
 
         <motion.button
           onClick={viewAllHandler}
-          className="flex items-center gap-2 px-3 py-1.5 text-black font-medium border transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 text-black font-medium underline transition-all"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
         >
@@ -153,6 +156,9 @@ export default function HorizontalProductList({
             {isRTL ? "←" : "→"}
           </motion.span> */}
         </motion.button>
+
+
+
       </motion.header>
 
       {/* Product Carousel */}

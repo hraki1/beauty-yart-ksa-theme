@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { FiHeart } from "react-icons/fi";
 
-import ProductItem from "@/components/homePage/products/ProductItem";
+import ProductItem from "@/components/homePage/productItem/ProductItem";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 
 export default function WishlistPage() {

@@ -4,8 +4,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ProductsResponse } from "@/lib/models/productsModal";
-import ProductItem from "./ProductItem";
-import Spinner from "../../UI/SpinnerLoading";
+import ProductItem from "./productItem/ProductItem";
+import Spinner from "../UI/SpinnerLoading";
 import { getProducts } from "@/lib/axios/getProductsAxios";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import { useTranslations } from "next-intl";
@@ -14,7 +14,7 @@ import { useCurrency } from "@/store/CurrencyContext";
 
 const ITEMS_PER_PAGE = 10;
 
-export default function Products() {
+export default function NewArrivalsProducts() {
   const t = useTranslations("Products");
 
   const [likedProducts, setLikedProducts] = useState<number[]>([]);

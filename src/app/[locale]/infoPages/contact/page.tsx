@@ -3,7 +3,7 @@
 import { useSettings } from "@/store/SettingsContext";
 import { motion } from "framer-motion";
 import { FiSend, FiHelpCircle } from "react-icons/fi";
-import { Lexend, Poppins } from "next/font/google";
+ 
 import { AiOutlineHome } from "react-icons/ai";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { FaFacebook, FaTwitter, FaInstagram, FaPinterest } from "react-icons/fa";
@@ -23,11 +23,7 @@ import {
   CountryCode,
 } from 'libphonenumber-js/core';
 
-const lexend = Lexend({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-const poppins = Poppins({ subsets: ["latin"], weight: "400" });
+ 
 
 type FormData = {
   name: string;
@@ -118,7 +114,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className={`${lexend.className} text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 px-4`}
+            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 px-4`}
             style={{ color: "#222529" }}
           >
             {t("title")}
@@ -154,10 +150,10 @@ export default function ContactPage() {
                   <FiHelpCircle className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" />
                 </div>
                 <div className={`text-${isRTL ? 'right' : 'left'}`}>
-                  <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 ${lexend.className}`}>
+                  <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1`}>
                     {t("needHelpTitle")}
                   </h2>
-                  <p className={`text-gray-300 text-opacity-90 text-sm sm:text-base ${poppins.className}`}>
+                  <p className={`text-gray-300 text-opacity-90 text-sm sm:text-base`}>
                     {t("needHelpText")}
                   </p>
                 </div>

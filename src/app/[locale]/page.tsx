@@ -2,8 +2,8 @@
 
 import Carousel from "@/components/homePage/Carousel";
 import CategoriesList from "@/components/homePage/CategoriesList";
-import Collections from "@/components/homePage/products/Collections";
-import Products from "@/components/homePage/products/Products";
+import Collections from "@/components/homePage/Collections";
+import NewArrivalsProducts from "@/components/homePage/NewArrivalsProducts";
 import ModernHelpButton from "@/components/shared/HelpButton";
 import Spinner from "@/components/UI/SpinnerLoading";
 import { getCollections } from "@/lib/axios/collectionsAxios";
@@ -70,7 +70,6 @@ export default function Home() {
   return (
     <div className="bg-white">
       <Carousel collections={banners} />
-      <FeaturesSection />
       <CategoriesList />
       {/* <BrandsSection /> */}
       {data?.collections?.length === 0 ? (
@@ -78,11 +77,13 @@ export default function Home() {
           <p>No Collection available</p>
         </div>
       ) : (
-        <Collections collections={collections} banners={banners}  />
+        <Collections collections={collections} banners={banners} />
       )}
       {/* <Collections collections={collections} /> */}
-      <Products />
+      <NewArrivalsProducts />
       <ModernHelpButton />
+      <FeaturesSection />
+
     </div>
   );
 }

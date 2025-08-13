@@ -1,6 +1,6 @@
 // app/[locale]/layout.tsx
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import {  Poppins } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { defaultSettings } from "@/utils/defaultSettings";
 import { AuthProvider } from "@/store/AuthContext";
@@ -27,10 +27,12 @@ import ClientLayoutPart from "./ClientLayoutPart";
 import { Language } from "@/lib/models/languagesModal";
 // import Notification from "@/components/shared/Notification";
 
-const poppins = Poppins({
+// Fonts: Europa via globals.css, Playfair via next/font variable
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "500", "700"], // Add weights you need
-  variable: "--font-poppins",    // Optional: for CSS variable usage
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
   display: "swap",
 });
 
@@ -88,7 +90,7 @@ const settings = (parseSettings(rawSettings) ?? defaultSettings) as Settings;
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
-      <body className={`${poppins.className} antialiased`}>
+      <body className={`${playfair.variable} antialiased`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SettingsProvider settings={settings}>
             <CurrencyProvider

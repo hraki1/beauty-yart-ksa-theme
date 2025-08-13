@@ -2,10 +2,10 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import ProductItem from "./ProductItem";
 import { FrontendProduct } from "@/models/forntEndProduct";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import { useTranslations } from "next-intl";
+import ProductItem from "../productItem/ProductItem";
 
 export default function HorizontalBundleProducts({
 

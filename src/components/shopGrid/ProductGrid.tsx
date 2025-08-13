@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import ProductItem from "@/components/homePage/products/ProductItem";
+import ProductItem from "@/components/homePage/productItem/ProductItem";
 import PaginationControls from "./PaginationControls";
 import { Category } from "@/lib/models/categoryModal";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";

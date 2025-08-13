@@ -76,10 +76,10 @@ export default function CategoriesList() {
   };
 
   return (
-    <section className="lg:mx-10 mx-5 relative py-2 md:py-8 text-center pt-10 bg-white">
-      <h2 className={`text-2xl md:text-3xl font-extrabold mb-8 ${isRTL ? 'text-right' : 'text-left'} text-gray-900 relative`}>
+    <section className="lg:px-10 px-5 relative py-2 md:py-28 text-center pt-10 bg-gradient-to-b from-[#FFF2EC]  to-white ">
+      {/* <h2 className={`text-2xl md:text-3xl font-extrabold mb-8 ${isRTL ? 'text-right' : 'text-left'} text-gray-900 relative`}>
         {t("title")}
-      </h2>
+      </h2> */}
       <div className="container mx-auto">
         {!categories && (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-5 gap-6">
@@ -111,7 +111,7 @@ export default function CategoriesList() {
           {/* Scrollable container */}
           <div
             ref={scrollRef}
-            className={`flex gap-3.5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 custom-scroll ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex gap-3.5 md:gap-16 justify-center overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 custom-scroll ${isRTL ? 'flex-row-reverse' : ''}`}
           >
             {categories &&
               categories.map((cat, index) => (
@@ -120,7 +120,7 @@ export default function CategoriesList() {
                   key={index}
                   className="flex flex-col items-center text-center group min-w-[11rem] md:min-w-[14rem] snap-start"
                 >
-                  <div className="w-44 h-44 md:w-56 md:h-56 rounded-xl overflow-hidden border-2 border-[#fff] group-hover:scale-105 transition-transform duration-300 bg-[#F7F7F7]">
+                  <div className="w-44 h-44 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-[#fff] group-hover:scale-105 transition-transform duration-300 bg-[#F7F7F7]">
                     <Image
                       src={cat.description.image ?? "/image/products/img.png"}
                       alt={cat.description.name}
@@ -132,9 +132,9 @@ export default function CategoriesList() {
                   <span className="mt-4 text-lg font-bold text-black hover:text-[#3740EA]">
                     {cat.description.name}
                   </span>
-                  <span className="mt-2 text-gray-500">
+                  {/* <span className="mt-2 text-gray-500">
                     {cat.productsCount} {t("products")}
-                  </span>
+                  </span> */}
                 </Link>
               ))}
           </div>

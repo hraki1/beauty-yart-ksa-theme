@@ -5,10 +5,9 @@ import { FiPhone, FiExternalLink } from "react-icons/fi";
 import Link from "next/link";
 import { useSettings } from "@/store/SettingsContext";
 import Image from "next/image";
-import { Lexend, Poppins } from "next/font/google";
+ 
 
-const lexend = Lexend({ subsets: ["latin"], weight: ["400", "700"] });
-const poppins = Poppins({ subsets: ["latin"], weight: "400" });
+ 
 
 export default function HelpSection() {
   const t = useTranslations("footer");
@@ -44,10 +43,10 @@ export default function HelpSection() {
 
             {/* Text */}
             <div>
-              <h3 className={`text-xl sm:text-2xl font-bold mb-1 ${lexend.className}`}>
+              <h3 className={`text-xl sm:text-2xl font-bold mb-1`}>
                 {t("needHelp") || "Need Any Help?"}
               </h3>
-              <p className={`text-sm text-gray-200 leading-relaxed ${poppins.className}`}>
+              <p className={`text-sm text-gray-200 leading-relaxed`}>
                 {t("helpDescription") || "We are here to help you with any question."}
               </p>
             </div>

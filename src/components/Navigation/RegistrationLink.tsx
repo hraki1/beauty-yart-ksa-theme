@@ -383,12 +383,7 @@ export default function RegistrationLink() {
           setErrors({});
         }}
       >
-        <div className="bg-[#f1f2fe] rounded-md p-2 transition-transform duration-200 group-hover:-translate-y-1">
           <LuUserRound className="font-bold text-2xl text-black" />
-        </div>
-        <h2 className="hidden lg:block text-black font-medium text-sm">
-          {t("login.title")}
-        </h2>
       </div>
 
       <Modal open={isAuthModalOpen} classesName="bg-white">

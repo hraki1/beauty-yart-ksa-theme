@@ -11,6 +11,7 @@ import { useCategories } from "@/store/CategoriesContext";
 import { useBrands } from "@/store/BrandsContext";
 import { Category } from "@/lib/models/categoryModal";
 import { BrandWithProducts } from "@/lib/models/brandsModal";
+import SearchField from "./SearchField";
 
 
 interface Group {
@@ -139,6 +140,11 @@ export default function PremiumNavWidget() {
                 >
                   <FiX className="text-gray-500" size={22} />
                 </button>
+              </div>
+
+              {/* Search at top */}
+              <div className="sticky top-0 bg-white z-10 px-4 pb-3 border-b border-gray-100">
+                <SearchField />
               </div>
 
               {/* Premium Category Navigation */}

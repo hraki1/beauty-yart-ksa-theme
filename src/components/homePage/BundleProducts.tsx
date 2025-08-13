@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Collection } from "@/lib/models/collectionModal";
 import { transformProductToCollectionCartItem } from "@/utils/trnsformProductsCollecionCardOItem";
 import { FiShoppingBag, FiCheck } from "react-icons/fi";
-import HorizontalBundleProducts from "./products/HorizontalBundleProducts";
+import HorizontalProductList from "./productsLists/HorizontalProductList";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useContext, useState } from "react";
@@ -120,7 +120,7 @@ const BundleProducts = ({ collections }: BundleProductsProps) => {
                     {/* Right Products Area - 3 products vertical + button */}
                     <div className="lg:col-span-3 space-y-4">
                         {/* Products Grid - 3 products in a column */}
-                        <HorizontalBundleProducts products={allProducts} title="Bundle" />
+                        <HorizontalProductList products={allProducts} title="Bundle" />
 
                         {/* ADD ALL TO CART Button */}
                         <motion.button

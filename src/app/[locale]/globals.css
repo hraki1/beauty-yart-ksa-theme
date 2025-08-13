@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap');
 
+/* Europa Regular (add files to public/fonts/europa) */
+@font-face {
+  font-family: 'Europa regular';
+  src: url('/fonts/europa/Europa-Regular.woff2') format('woff2'),
+       url('/fonts/europa/Europa-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -11,7 +21,21 @@ html {
 }
 
 body {
-  font-family: 'Lexend', Arial, sans-serif;
+  font-family: 'Europa', 'Lexend', Arial, sans-serif;
+}
+
+/* Utility: Playfair font family */
+.font-playfair {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+.font-playfair-italic {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-style: italic;
+}
+
+.font-playfair-regular {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-style: regular;
 }
 
 input:focus {

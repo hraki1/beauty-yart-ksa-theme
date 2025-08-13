@@ -3,7 +3,7 @@
 import { CartContext } from "@/store/CartContext";
 import Link from "next/link";
 import { useContext } from "react";
-import { PiBag } from "react-icons/pi";
+import { LuShoppingBag } from "react-icons/lu";
 
 export default function CartLink() {
   const { cartQuantity } = useContext(CartContext);
@@ -12,10 +12,10 @@ export default function CartLink() {
   return (
     <Link
       href="/cart"
-      className="group relative flex items-center p-4 rounded-md transition-colors duration-200 bg-[#f1f2fe] hover:text-blue-600"
+      className="group relative flex items-center rounded-md"
       aria-label={`Shopping Cart with ${itemCount} items`}
     >
-      <PiBag  className="text-black text-2xl md:text-[30px] group-hover:text-blue-700 transition-colors duration-200" />
+      <LuShoppingBag   className="text-black text-2xl  " />
       {itemCount > 0 && (
         <span
           className="absolute top-3.5 right-2.5 bg-blue-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"

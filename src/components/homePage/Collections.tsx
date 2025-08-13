@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 import { Collection } from "@/lib/models/collectionModal";
-import HorizontalProductList from "./HorizontalProductList";
+import HorizontalProductList from "./productsLists/HorizontalProductList";
 import { transformProductToCollectionCartItem } from "@/utils/trnsformProductsCollecionCardOItem";
-import BannerSection from "../BannerSection";
-import BundleProducts from "../BundleProducts";
+import BannerSection from "./BannerSection";
+// import BundleProducts from "./BundleProducts";
 
 interface CollectionsProps {
   collections: Collection[];
@@ -48,7 +48,7 @@ const Collections = ({ collections, banners }: CollectionsProps) => {
       ))}
 
       {/* Bundle Products Section */}
-      <BundleProducts collections={collections} />
+      {/* <BundleProducts collections={collections} /> */}
     </>
   );
 };

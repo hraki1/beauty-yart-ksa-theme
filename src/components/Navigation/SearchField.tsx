@@ -14,13 +14,19 @@ import { IoIosSearch } from "react-icons/io";
 import StarRating from "../shared/StarRating";
 
 
-export default function SearchField() {
+type SearchFieldProps = {
+  openSignal?: number; // increment this to programmatically open/focus
+  overlay?: boolean;   // if true, render results centered as an overlay
+};
+
+export default function SearchField({ openSignal = 0, overlay = false }: SearchFieldProps) {
   const t = useTranslations("navbar");
   const locale = useLocale();
   const isRtl = locale === "ar";
   const [isFocused, setIsFocused] = useState(false);
   const [results, setResults] = useState<Product[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { searchTerm, setSearchTerm } = useContext(SearchContext);
   const router = useRouter();
@@ -36,8 +42,17 @@ export default function SearchField() {
     enabled: searchTerm.trim() !== "", // لا تنفذ الاستعلام إذا كان الحقل فارغ
   });
 
-  // Close dropdown when clicking outside
+  // Programmatic open/focus when openSignal changes
   useEffect(() => {
+    if (openSignal > 0) {
+      setIsFocused(true);
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
+  }, [openSignal]);
+
+  // Close dropdown when clicking outside (only for non-overlay mode)
+  useEffect(() => {
+    if (overlay) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (
         searchRef.current &&
@@ -51,7 +66,7 @@ export default function SearchField() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [overlay]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -87,11 +102,14 @@ export default function SearchField() {
   };
 
   const displayedProducts = results.map(transformProductCartItem);
+  const showPanel = isFocused && (results.length > 0 || searchTerm);
+
   return (
     <div ref={searchRef} className="w-full relative">
       {/* Search Input - Maintained your exact styling */}
       <div className="relative">
         <input
+          ref={inputRef}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -123,75 +141,155 @@ export default function SearchField() {
         )}
       </div>
 
-      {/* Expanded Results Dropdown */}
-      {isFocused && (results.length > 0 || searchTerm) && (
-        <div className="absolute z-50 mt-2 w-full md:w-[calc(100%+200px)] md:-left-[110px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-fadeIn">
-          {isLoading ? (
-            <div className="p-4 flex justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            </div>
-          ) : results.length > 0 ? (
-            <>
-              <div className="px-4 py-3 border-b border-gray-100">
-                <h3 className="font-medium text-gray-700">Search Results</h3>
-              </div>
-              <ul className="py-2 max-h-[40vh] md:max-h-[60vh] overflow-y-auto">
-                {displayedProducts.map((product) => (
-                  <li
-                    key={product.id}
-                    className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
-                  >
+      {/* Results Panel */}
+      {showPanel && (
+        overlay ? (
+          // Centered overlay panel
+          <div
+            className="fixed inset-0 z-50 flex items-start md:items-center justify-center p-4"
+            onClick={() => setIsFocused(false)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-2xl overflow-hidden animate-fadeIn"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isLoading ? (
+                <div className="p-4 flex justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                </div>
+              ) : results.length > 0 ? (
+                <>
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <h3 className="font-medium text-gray-700">Search Results</h3>
+                  </div>
+                  <ul className="py-2 max-h-[65vh] overflow-y-auto">
+                    {displayedProducts.map((product) => (
+                      <li
+                        key={product.id}
+                        className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
+                      >
+                        <button
+                          className="w-full text-left p-4 flex items-center gap-4 group"
+                          onClick={() => navigateToProduct(product.url_key)}
+                        >
+                          <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-gray-900 text-lg truncate">
+                              {product.name}
+                            </h4>
+                            <div className="flex items-center mt-1">
+                              <span className="text-primary font-semibold">
+                                ${product.price}
+                              </span>
+                              <span className="mx-2 text-gray-300">|</span>
+                              <span className="text-sm text-gray-500"></span>
+                            </div>
+                            <div className="flex items-center mt-1">
+                              <StarRating rating={product.rating}></StarRating>
+                              <span className="text-xs text-gray-500 ml-1">
+                                ({product.rating})
+                              </span>
+                            </div>
+                          </div>
+                          <FiChevronRight className="text-gray-400 group-hover:text-primary ml-2" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
                     <button
-                      className="w-full text-left p-4 flex items-center gap-4 group"
-                      onClick={() => navigateToProduct(product.url_key)}
+                      onClick={handleSearch}
+                      className="w-full py-2 text-primary font-medium flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                          sizes="64px"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-gray-900 text-lg truncate">
-                          {product.name}
-                        </h4>
-                        <div className="flex items-center mt-1">
-                          <span className="text-primary font-semibold">
-                            ${product.price}
-                          </span>
-                          <span className="mx-2 text-gray-300">|</span>
-                          <span className="text-sm text-gray-500"></span>
-                        </div>
-                        <div className="flex items-center mt-1">
-                          <StarRating rating={product.rating}></StarRating>
-                          <span className="text-xs text-gray-500 ml-1">
-                            ({product.rating})
-                          </span>
-                        </div>
-                      </div>
-                      <FiChevronRight className="text-gray-400 group-hover:text-primary ml-2" />
+                      View all {results.length} results
                     </button>
-                  </li>
-                ))}
-              </ul>
-              <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <button
-                  onClick={handleSearch}
-                  className="w-full py-2 text-primary font-medium flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  View all {results.length} results
-                </button>
-              </div>
-            </>
-          ) : searchTerm && !isLoading ? (
-            <div className="p-4 text-center text-gray-500">
-              No results found for &quot;{searchTerm}&quot;
+                  </div>
+                </>
+              ) : (
+                <div className="p-4 text-center text-gray-500">
+                  No results found for &quot;{searchTerm}&quot;
+                </div>
+              )}
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : (
+          // Default inline absolute panel
+          <div className="absolute z-50 mt-2 w-full md:w-[calc(100%+200px)] md:-left-[110px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-fadeIn">
+            {isLoading ? (
+              <div className="p-4 flex justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            ) : results.length > 0 ? (
+              <>
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <h3 className="font-medium text-gray-700">Search Results</h3>
+                </div>
+                <ul className="py-2 max-h-[40vh] md:max-h-[60vh] overflow-y-auto">
+                  {displayedProducts.map((product) => (
+                    <li
+                      key={product.id}
+                      className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
+                    >
+                      <button
+                        className="w-full text-left p-4 flex items-center gap-4 group"
+                        onClick={() => navigateToProduct(product.url_key)}
+                      >
+                        <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 text-lg truncate">
+                            {product.name}
+                          </h4>
+                          <div className="flex items-center mt-1">
+                            <span className="text-primary font-semibold">
+                              ${product.price}
+                            </span>
+                            <span className="mx-2 text-gray-300">|</span>
+                            <span className="text-sm text-gray-500"></span>
+                          </div>
+                          <div className="flex items-center mt-1">
+                            <StarRating rating={product.rating}></StarRating>
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({product.rating})
+                            </span>
+                          </div>
+                        </div>
+                        <FiChevronRight className="text-gray-400 group-hover:text-primary ml-2" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                  <button
+                    onClick={handleSearch}
+                    className="w-full py-2 text-primary font-medium flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    View all {results.length} results
+                  </button>
+                </div>
+              </>
+            ) : searchTerm && !isLoading ? (
+              <div className="p-4 text-center text-gray-500">
+                No results found for &quot;{searchTerm}&quot;
+              </div>
+            ) : null}
+          </div>
+        )
       )}
     </div>
   );
