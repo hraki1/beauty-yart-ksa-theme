@@ -1,0 +1,24 @@
+import { Product } from "@/lib/models/productsModal";
+import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
+
+export function transformProductCartItem(
+  product: Product
+): FrontEndProductCartItem {
+  return {
+    id: product.product_id,
+    name: product.description.name,
+    image: product.images?.[0]?.origin_image || "",
+    imageHover: product.images?.[1]?.origin_image || "",
+    url_key: product.description.url_key, // Basic slug from SKU
+    price: product.price,
+    originalPrice: product.old_price ?? undefined,
+    rating: product.meanRating ?? 0,
+    isNew: product.inventory.stock_availability,
+    tags: [], // Add tags logic if needed
+    description: product.description.short_description,
+    features: [], // Add features logic if needed
+    colors: [], // Add color logic if available
+    stock_availability: product.inventory.stock_availability,
+    short_description: product.description.short_description,
+  };
+}

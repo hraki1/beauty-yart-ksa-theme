@@ -1,0 +1,189 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap');
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+html {
+  background-color: white;
+}
+
+body {
+  font-family: 'Lexend', Arial, sans-serif;
+}
+
+input:focus {
+  outline: none;
+}
+
+.pr-text {
+  color: #126782;
+}
+.se-text {
+  color: #cbeef3;
+}
+.pr-bg {
+  background-color: #023047;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.customScroll {
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.customScroll::-webkit-scrollbar {
+  height: 4px;
+  margin: 0 auto;
+}
+
+.customScroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 20%;
+}
+
+.customScroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+  width: 40%;
+  margin: 0 auto;
+}
+
+.customScroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 8px;
+  border: 2px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* For Firefox */
+html {
+  scrollbar-color: #888 #f1f1f1;
+  scrollbar-width: 10px;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .text-right {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: left;
+}
+
+[dir="rtl"] .ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+
+/* RTL-specific spacing adjustments */
+[dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+[dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+
+/* RTL-specific padding adjustments */
+[dir="rtl"] .pl-3 {
+  padding-left: unset;
+  padding-right: 0.75rem;
+}
+
+[dir="rtl"] .pr-3 {
+  padding-right: unset;
+  padding-left: 0.75rem;
+}
+
+[dir="rtl"] .pl-5 {
+  padding-left: unset;
+  padding-right: 1.25rem;
+}
+
+[dir="rtl"] .pr-5 {
+  padding-right: unset;
+  padding-left: 1.25rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
