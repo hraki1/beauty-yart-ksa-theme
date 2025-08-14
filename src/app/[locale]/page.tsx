@@ -3,7 +3,7 @@
 import Carousel from "@/components/homePage/Carousel";
 import CategoriesList from "@/components/homePage/CategoriesList";
 import Collections from "@/components/homePage/Collections";
-import NewArrivalsProducts from "@/components/homePage/NewArrivalsProducts";
+// import NewArrivalsProducts from "@/components/homePage/NewArrivalsProducts";
 import ModernHelpButton from "@/components/shared/HelpButton";
 import Spinner from "@/components/UI/SpinnerLoading";
 import { getCollections } from "@/lib/axios/collectionsAxios";
@@ -80,10 +80,9 @@ export default function Home() {
         <Collections collections={collections} banners={banners} />
       )}
       {/* <Collections collections={collections} /> */}
-      <NewArrivalsProducts />
+      {/* <NewArrivalsProducts /> */}
       <ModernHelpButton />
       <FeaturesSection />
-
     </div>
   );
 }

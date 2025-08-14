@@ -1216,6 +1216,20 @@
   "noLanguagesAvailable": "لا توجد لغات متاحة",
   "ariaLabel": "محدد اللغة",
   "ariaMenu": "قائمة اختيار اللغة"
+},
+"featuresSection": {
+  "shippingWorldwide": {
+    "title": "شحن لجميع أنحاء العالم",
+    "description": "تمويل خاص واكسب مكافآت."
+  },
+  "return14Days": {
+    "title": "إرجاع خلال 14 يومًا",
+    "description": "سياسة إرجاع مجانية لمدة 14 يومًا."
+  },
+  "securityPayment": {
+    "title": "دفع آمن",
+    "description": "نقبل جميع بطاقات الائتمان الرئيسية."
+  }
 }
 
 }

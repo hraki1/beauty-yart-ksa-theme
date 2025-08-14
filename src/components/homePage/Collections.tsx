@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Collection } from "@/lib/models/collectionModal";
 import HorizontalProductList from "./productsLists/HorizontalProductList";
 import { transformProductToCollectionCartItem } from "@/utils/trnsformProductsCollecionCardOItem";
-import BannerSection from "./BannerSection";
+import BannersSection from "./BannerSection";
 // import BundleProducts from "./BundleProducts";
 
 interface CollectionsProps {
@@ -35,7 +35,6 @@ const Collections = ({ collections, banners }: CollectionsProps) => {
       ))}
 
       {/* Banner Section - only show if banners with position > 0 exist */}
-      {filteredBanners?.length > 0 && <BannerSection banners={filteredBanners} />}
 
       {/* Other Collections (after banners) */}
       {otherCollections.map((collection) => (
@@ -49,6 +48,8 @@ const Collections = ({ collections, banners }: CollectionsProps) => {
 
       {/* Bundle Products Section */}
       {/* <BundleProducts collections={collections} /> */}
+      {filteredBanners?.length > 0 && <BannersSection banners={filteredBanners} />}
+
     </>
   );
 };

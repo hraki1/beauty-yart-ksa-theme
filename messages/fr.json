@@ -1193,5 +1193,19 @@
   "noLanguagesAvailable": "Aucune langue disponible",
   "ariaLabel": "Sélecteur de langue",
   "ariaMenu": "Sélecteur de langue"
+},
+"featuresSection": {
+  "shippingWorldwide": {
+    "title": "Expédition dans le monde entier",
+    "description": "Financement spécial et gagnez des récompenses."
+  },
+  "return14Days": {
+    "title": "Retour sous 14 jours",
+    "description": "Politique de retour gratuite de 14 jours."
+  },
+  "securityPayment": {
+    "title": "Paiement sécurisé",
+    "description": "Nous acceptons toutes les principales cartes de crédit."
+  }
 }
 }

@@ -100,47 +100,66 @@ const ProductItem = ({
           </div>
 
           {/* Top right overlay: Arrow and Wishlist Heart */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
             {/* Arrow: only on hover, desktop only */}
-            <Link href={`/product/${product.url_key}`}
-              className={`
-                 hidden md:block cursor-pointer
-                 ${isHovered ? "opacity-100" : "opacity-0"}
-                 transition-opacity duration-200
-                 text-gray-700 bg-white rounded-full p-1 shadow hover:bg-gray-50
-               `}
+            <motion.button
+              initial={{ y: -10, opacity: 0 }}
+              animate={{
+                y: isHovered ? 0 : -10,
+                opacity: isHovered ? 1 : 0
+              }}
+              transition={{ duration: 0.3 }}
+              style={{ pointerEvents: isHovered ? "auto" : "none" }}
             >
-              <FiArrowUpLeft className="w-5 h-5" />
-            </Link>
-            {/* Heart: always on mobile, on hover for desktop */}
-            <button
+              <Link
+                href={`/product/${product.url_key}`}
+                className="
+        hidden md:block cursor-pointer
+        text-gray-700 bg-white rounded-full p-1 shadow hover:bg-gray-50
+      "
+              >
+                <FiArrowUpLeft className="w-5 h-5" />
+              </Link>
+            </motion.button>
+
+            <motion.button
+              initial={{ y: 10, opacity: 0 }}
+              animate={{
+                y: isHovered ? 0 : 10,
+                opacity: isHovered ? 1 : 0
+              }}
+              transition={{ duration: 0.3 }}
+              style={{ pointerEvents: isHovered ? "auto" : "none" }}
               onClick={(e) => {
                 e.preventDefault();
                 toggleLike(product);
               }}
-              className={`
-                block md:${isHovered ? "block opacity-100" : "hidden opacity-0"}
-                bg-white rounded-full p-1 shadow
-                text-red-500
-                active:scale-90
-                transition-opacity duration-200
-              `}
+              className="
+      block bg-white rounded-full p-1 shadow
+      text-red-500 active:scale-90
+    "
             >
               <FiHeart className={`w-5 h-5 ${isLiked ? "fill-red-500" : ""}`} />
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
+              initial={{ y: -10, opacity: 0 }}
+              animate={{
+                y: isHovered ? 0 : -10,
+                opacity: isHovered ? 1 : 0
+              }}
+              transition={{ duration: 0.3 }}
+              style={{ pointerEvents: isHovered ? "auto" : "none" }}
               onClick={() => setQuickViewOpen(true)}
-              className={`
-                 hidden md:block cursor-pointer
-                 ${isHovered ? "opacity-100" : "opacity-0"}
-                 transition-opacity duration-200
-                 text-gray-700 bg-white rounded-full p-1 shadow hover:bg-gray-50
-               `}
+              className="
+      hidden md:block cursor-pointer
+      text-gray-700 bg-white rounded-full p-1 shadow hover:bg-gray-50
+    "
             >
               <Search className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
+
         </div>
 
         {/* Product Info */}
@@ -170,8 +189,8 @@ const ProductItem = ({
 
       <AnimatePresence>
         {quickViewOpen && (
-          <QuickView 
-            urlKey={product.url_key} 
+          <QuickView
+            urlKey={product.url_key}
             onClose={() => setQuickViewOpen(false)}
           />
         )}

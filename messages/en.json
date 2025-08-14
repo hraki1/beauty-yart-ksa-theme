@@ -1181,5 +1181,19 @@
   "noLanguagesAvailable": "No languages available",
   "ariaLabel": "Language selector",
   "ariaMenu": "Language selector"
-}
+  },
+  "featuresSection": {
+    "shippingWorldwide": {
+      "title": "Shipping Worldwide",
+      "description": "Special financing and earn rewards."
+    },
+    "return14Days": {
+      "title": "14 Days Return",
+      "description": "14-days free return policy."
+    },
+    "securityPayment": {
+      "title": "Security Payment",
+      "description": "We accept all major credit cards."
+    }
+  }
 }

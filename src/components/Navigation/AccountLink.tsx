@@ -73,11 +73,11 @@ export default function PremiumUserMenu() {
           <div className="bg-[#f1f2fe] rounded-md p-2">
             <LuUserRound className=" font-bold text-2xl text-black  group-hover:opacity-50" />
           </div>)}
-        <div>
+        {/* <div>
           <p className="hidden lg:block text-black group-hover:opacity-50 font-medium text-sm">
             {t("title")}
           </p>
-        </div>
+        </div> */}
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
