@@ -112,7 +112,7 @@ export default function Navbar({ languages }: NavbarProps) {
 
 
             {/* right - links */}
-            <ul className="flex items-center gap-3 md:gap-5">
+            <ul className="flex items-center gap-4 md:gap-5">
 
 
 
