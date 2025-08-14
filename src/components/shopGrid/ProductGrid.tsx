@@ -32,13 +32,16 @@ const ProductGrid = ({
   handlePageChange,
   selectedCategory,
   toggleCategoryId,
-  likedProducts,
+  // likedProducts and toggleLike are managed by WishlistContext
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  likedProducts: _likedProducts,
   selectedCategoriesIds,
-  toggleLike,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  toggleLike: _toggleLike,
   resetFilters,
 }: ProductGridProps) => {
   const t = useTranslations("shopGrid.ProductGrid");
-  const { itemIds, toggleLike } = useWishlist();
+  const { itemIds, toggleLike: toggleWishlist } = useWishlist();
   const locale = useLocale();
   const isRTL = locale === "ar"; // Add other RTL languages as needed
   console.log(selectedCategory);
@@ -149,7 +152,7 @@ const ProductGrid = ({
               <ProductItem
                 key={product.id}
                 product={product}
-                toggleLike={toggleLike}
+                toggleLike={toggleWishlist}
                 likedProducts={itemIds}
               />
             ))}

@@ -19,6 +19,7 @@ import MobileFiltersModal from "@/components/shopGrid/MobileFiltersModal";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import HeroHeader from "@/components/shopGrid/HeroHeader ";
 import { useCategories } from "@/store/CategoriesContext";
+import { useWishlist } from "@/store/WishlistContext";
 
 const MAX_PRICE = 5000;
 
@@ -37,7 +38,7 @@ const ShopGridPage = () => {
   const [selectedCollectionId, setSelectedCollectionId] = useState<
     number | null
   >(null);
-  const [likedProducts, setLikedProducts] = useState<number[]>([]);
+  const { itemIds: likedProducts, toggleLike } = useWishlist();
   const [filteredProducts, setFilteredProducts] = useState<
     FrontEndProductCartItem[]
   >([]);
@@ -311,29 +312,7 @@ const ShopGridPage = () => {
     }
   };
 
-  // Handle wishlist
-  useEffect(() => {
-    const stored = localStorage.getItem("wishlist");
-    const wishlist = stored ? JSON.parse(stored) : [];
-
-    if (stored) {
-      const wishlistIDS = wishlist.flatMap((p: { id: number }) => p.id);
-      setLikedProducts(wishlistIDS);
-    }
-  }, []);
-
-  const toggleLike = (product: FrontEndProductCartItem) => {
-    const stored = localStorage.getItem("wishlist");
-    let wishlist: FrontEndProductCartItem[] = stored ? JSON.parse(stored) : [];
-
-    const exists = wishlist.some((p) => p.id === product.id);
-    wishlist = exists
-      ? wishlist.filter((p) => p.id !== product.id)
-      : [...wishlist, product];
-
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
-    setLikedProducts(wishlist.map((p) => p.id));
-  };
+  // Wishlist handled globally via WishlistProvider
 
 
   return (

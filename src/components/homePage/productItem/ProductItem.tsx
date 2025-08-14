@@ -20,6 +20,8 @@ const ProductItem = ({
   toggleLike: (product: FrontEndProductCartItem) => void;
   likedProducts: number[];
 }) => {
+  void _toggleLike;
+  void _likedProducts;
 
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const { rate, userCurrency } = useCurrency();
