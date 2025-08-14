@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import ProductItem from "@/components/homePage/productItem/ProductItem";
+import { useWishlist } from "@/store/WishlistContext";
 import PaginationControls from "./PaginationControls";
 import { Category } from "@/lib/models/categoryModal";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
@@ -37,6 +38,7 @@ const ProductGrid = ({
   resetFilters,
 }: ProductGridProps) => {
   const t = useTranslations("shopGrid.ProductGrid");
+  const { itemIds, toggleLike } = useWishlist();
   const locale = useLocale();
   const isRTL = locale === "ar"; // Add other RTL languages as needed
   console.log(selectedCategory);
@@ -148,7 +150,7 @@ const ProductGrid = ({
                 key={product.id}
                 product={product}
                 toggleLike={toggleLike}
-                likedProducts={likedProducts}
+                likedProducts={itemIds}
               />
             ))}
           </motion.div>

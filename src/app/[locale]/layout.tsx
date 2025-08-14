@@ -23,6 +23,7 @@ import { getLocationCurrency } from "@/lib/currencySettings/get-location";
 import CurrencyProvider from "@/store/CurrencyContext";
 import { CategoriesProvider } from "@/store/CategoriesContext";
 import { BrandsProvider } from "@/store/BrandsContext";
+import { WishlistProvider } from "@/store/WishlistContext";
 import ClientLayoutPart from "./ClientLayoutPart";
 import { Language } from "@/lib/models/languagesModal";
 // import Notification from "@/components/shared/Notification";
@@ -107,12 +108,13 @@ const settings = (parseSettings(rawSettings) ?? defaultSettings) as Settings;
                           <BrandsProvider>
                             <Toaster />
                             <div id="root-modal"></div>
-                            <ClientLayoutPart />
-                            <Navbar languages={languages} />
-                            {/* <Notification /> */}
-
-                            {children}
-                            <Footer settings={settings} />
+                            <WishlistProvider>
+                              <ClientLayoutPart />
+                              <Navbar languages={languages} />
+                              {/* <Notification /> */}
+                              {children}
+                              <Footer settings={settings} />
+                            </WishlistProvider>
                           </BrandsProvider>
                         </CategoriesProvider>
                       </CartContextProvider>

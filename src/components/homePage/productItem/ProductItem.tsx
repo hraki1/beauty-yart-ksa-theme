@@ -8,12 +8,13 @@ import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import { useCurrency } from "@/store/CurrencyContext";
 import { Search } from "lucide-react";
 import QuickView from "./QuickView";
+import { useWishlist } from "@/store/WishlistContext";
 
 
 const ProductItem = ({
   product,
-  toggleLike,
-  likedProducts,
+  toggleLike: _toggleLike,
+  likedProducts: _likedProducts,
 }: {
   product: FrontEndProductCartItem;
   toggleLike: (product: FrontEndProductCartItem) => void;
@@ -24,7 +25,8 @@ const ProductItem = ({
   const { rate, userCurrency } = useCurrency();
 
   const [isHovered, setIsHovered] = useState(false);
-  const isLiked = likedProducts.includes(product.id);
+  const { itemIds, toggleLike } = useWishlist();
+  const isLiked = itemIds.includes(product.id);
 
   const price = (Number(product.price) * rate).toFixed(2);
   const originalPrice = product.originalPrice

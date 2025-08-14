@@ -9,12 +9,12 @@ import { AuthContext } from "@/store/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Language as LanguageType } from "@/lib/models/languagesModal";
-import { IoMdHeartEmpty } from "react-icons/io";
 import { motion } from "framer-motion";
-import { FiCodesandbox } from "react-icons/fi";
+import { FiCodesandbox, FiHeart } from "react-icons/fi";
 import { AuthModalContext } from "@/store/AuthModalContext";
 import { SearchIcon, X } from "lucide-react";
 import SearchField from "./SearchField";
+import { useWishlist } from "@/store/WishlistContext";
 // import AnnouncementBar from "./AnnouncementBar";
 // Use global Europa Regular defined in globals.css
 
@@ -29,6 +29,7 @@ export default function Navbar({ languages }: NavbarProps) {
   const [showSearch, setShowSearch] = useState(false);
   const [openSearchTick, setOpenSearchTick] = useState(0);
   void languages; // keep prop used to satisfy linter
+  const { count: wishlistCount } = useWishlist();
 
   const handleOrdersClick = () => {
     if (!isAuthenticated) {
@@ -51,12 +52,12 @@ export default function Navbar({ languages }: NavbarProps) {
       {/* <AnnouncementBar /> */}
 
       {/* Main Header */}
-      <header className="z-40 w-full p-4 bg-white md:bg-[#FFEDE4]">
+      <header className=" z-40 w-full p-4 bg-white md:bg-[#FFEDE4]">
         {/* <AnnouncementBar languages={languages} /> */}
-        <div className="w-full px-2 lg:px-20">
+        <div className="relative w-full px-2 lg:px-20">
           <nav className="container mx-auto flex items-center justify-between py-[9px] gap-3 md:gap-8">
 
-            {/* right - links */}
+            {/* left - search & menu */}
             <div className="flex items-center gap-1 md:gap-10 xl:gap-28">
               {/* Search toggle + field (desktop) */}
               <div className="hidden md:flex items-center gap-2">
@@ -69,9 +70,8 @@ export default function Navbar({ languages }: NavbarProps) {
                   {showSearch ? <X /> : <SearchIcon />}
                 </button>
                 <div
-                  className={`transition-all duration-300 overflow-visible ${
-                    showSearch ? "" : ""
-                  }`}
+                  className={`transition-all duration-300 overflow-visible ${showSearch ? "" : ""
+                    }`}
                 >
                   <div className="w-[320px]">
                     <div className={`transition-all duration-300 ${showSearch ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none -translate-y-1"}`}>
@@ -88,7 +88,7 @@ export default function Navbar({ languages }: NavbarProps) {
             </div>
 
             {/* center - Logo */}
-            <div className="flex flex-1 items-center  justify-center gap-1 md:gap-10 xl:gap-28">
+            <div className=" absolute top-1/2  left-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center  justify-center gap-1 md:gap-10 xl:gap-28">
               <Link href={"/"} className="flex items-center z-10">
                 <motion.h1
                   className={`cursor-pointer text-3xl md:text-5xl font-normal lowercase leading-none text-[#0F0F0F]`}
@@ -100,16 +100,10 @@ export default function Navbar({ languages }: NavbarProps) {
             </div>
 
 
-            {/* left - search & menu */}
-            <ul className="flex items-center gap-2 md:gap-3">
+            {/* right - links */}
+            <ul className="flex items-center gap-3 md:gap-5">
 
-              <li>
-                <Link
-                  href={"/wishlist"}
-                  className=" flex items-center gap-2 cursor-pointer">
-                  <IoMdHeartEmpty className="text-black font-bold  text-[25px]" />
-                </Link>
-              </li>
+
 
               <li>
                 <button
@@ -124,8 +118,23 @@ export default function Navbar({ languages }: NavbarProps) {
                 {isAuthenticated ? <AccountLink /> : <RegistrationLink />}
               </li>
 
-
               <li>
+                <Link
+                  href={"/wishlist"}
+                  className="group relative flex items-center rounded-md cursor-pointer"
+                  aria-label={`Wishlist with ${wishlistCount} items`}
+                >
+                  <FiHeart className="text-black font-bold text-[25px] transition-transform duration-200 group-hover:-translate-y-0.5" />
+                  <span
+                    className="absolute -top-4 -right-4 bg-black text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    {wishlistCount > 9 ? "9+" : wishlistCount}
+                  </span>
+                </Link>
+              </li>
+
+              <li className="transition-transform duration-200 hover:-translate-y-0.5">
                 <CartLink />
               </li>
 

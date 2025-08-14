@@ -19,10 +19,14 @@ import { useTranslations } from "next-intl";
 import { useCurrency } from "@/store/CurrencyContext";
 import { useContext } from "react";
 import { AuthContext } from "@/store/AuthContext";
+import type { AxiosError } from "axios";
 
 interface productItemProps {
   item: OrderItem;
   orderStatus: boolean;
+}
+interface ErrorResponse {
+  message: string;
 }
 
 const ProductItem: React.FC<productItemProps> = ({ item, orderStatus }) => {
@@ -36,41 +40,41 @@ const ProductItem: React.FC<productItemProps> = ({ item, orderStatus }) => {
   const [comment, setComment] = useState("");
   const [errorReview, setErrorsReview] = useState<string[] | null>(null);
   console.log(hoveredStar);
-  const {
-    data: review,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["reviews", item.product.product_id],
-    queryFn: ({ signal }) =>
-      getReviewsForProduct(item.product.product_id as number, signal),
-    enabled: !!item.product.product_id,
-  });
+ const { data: review, isLoading, error, refetch } = useQuery({
+  queryKey: ["reviews", item.product?.product_id],
+  queryFn: ({ signal }) =>
+    item.product?.product_id
+      ? getReviewsForProduct(item.product.product_id, signal)
+      : Promise.resolve([]),
+  enabled: !!item.product?.product_id,
+});
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: addReview,
-    mutationKey: ["reviews", item.product.product_id],
-    onSuccess: () => {
-      setComment("");
-      setRating(0);
-      toggleDetails();
-      toast.success(t("toast.addSuccess"));
-      refetch();
-    },
-    onError: (err) => {
-      console.log("add review error:", err);
-      
-      // Check if error is "Invalid token" and logout user
-      if (err.message.includes("Invalid token")) {
-        console.log("Invalid token detected in add review, logging out...");
-        logout();
-        return;
-      }
-      
-      toast.error(err.message);
-    },
-  });
+
+const { mutate, isPending } = useMutation({
+  mutationFn: addReview,
+  mutationKey: ["reviews", item.product?.product_id ?? 0],
+  onSuccess: () => {
+    setComment("");
+    setRating(0);
+    toggleDetails();
+    toast.success(t("toast.addSuccess"));
+    refetch();
+  },
+  onError: (err: AxiosError<ErrorResponse>) => {
+    console.log("add review error:", err);
+
+    const msg = err.response?.data?.message ?? "An unexpected error occurred";
+
+    if (msg.includes("Invalid token")) {
+      console.log("Invalid token detected, logging out...");
+      logout();
+      return;
+    }
+
+    toast.error(msg);
+  },
+});
+
 
   const { rate, userCurrency } = useCurrency();
 
@@ -82,18 +86,21 @@ const ProductItem: React.FC<productItemProps> = ({ item, orderStatus }) => {
   const toggleDetails = () => setIsModalOpen(!isModalOpen);
   const handleStarClick = (index: number) => setRating(index);
 
-  function handleViewProduct() {
-    router.push(`/product/${item.product.product_id}`);
-  }
+function handleViewProduct() {
+  if (!item.product?.product_id) return;
+  router.push(`/product/${item.product.product_id}`);
+}
+
 
   function handleSubmitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const reviewData: AddReviweRequest = {
-      product_id: item.product.product_id,
-      rating: rating,
-      review_text: comment,
-    };
+ const reviewData: AddReviweRequest = {
+  product_id: item.product?.product_id ?? 0,
+  rating: rating,
+  review_text: comment,
+};
+
     const errors: string[] = [];
     if (reviewData.review_text.length === 0) {
       errors.push(t("form.errors.emptyReview"));
@@ -134,15 +141,16 @@ const ProductItem: React.FC<productItemProps> = ({ item, orderStatus }) => {
     <div className="p-4 border border-gray-200 rounded-lg flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
         <div className="bg-gray-100 rounded flex items-center justify-center">
-          <Image
-            src={item.product.images[0].origin_image}
-            alt={item.product_name || "Product image"}
-            width={70}
-            height={50}
-            priority
-            className="cursor-pointer"
-            onClick={handleViewProduct}
-          />
+        <Image
+  src={item.product?.images?.[0]?.origin_image || ""}
+  alt={item.product_name || "Product image"}
+  width={70}
+  height={50}
+  priority
+  className="cursor-pointer"
+  onClick={handleViewProduct}
+/>
+
         </div>
         <div>
           <p className="font-medium">{item.product_name}</p>

@@ -45,7 +45,6 @@ export default function TrackOrdersPage() {
 
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -66,7 +65,7 @@ export default function TrackOrdersPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
-  
+
 
   const filteredOrders = useMemo(() => {
     if (activeTab === "all") return orders;
@@ -118,7 +117,7 @@ export default function TrackOrdersPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      
+
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <motion.header
@@ -134,117 +133,46 @@ export default function TrackOrdersPage() {
           </p>
         </motion.header>
 
+
         {/* Tabs */}
- <motion.nav
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="mb-8"
-  aria-label="Order status tabs"
->
-  <div className="relative">
-    {/* Left arrow */}
-    <button
-      type="button"
-      aria-label="Scroll tabs left"
-      onClick={() => {
-        if (scrollRef.current) {
-          const scrollAmount = isRTL ? 120 : -120;
-          scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-        }
-      }}
-      className={`
-        absolute top-1/2 -translate-y-1/2 z-10
-        p-2 rounded-full bg-white shadow-md
-        hover:bg-gray-100 active:bg-gray-200
-        focus:outline-none focus:ring-2 focus:ring-blue-500
-        md:hidden
-        ${isRTL ? "right-0" : "left-0"}
-      `}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5 text-gray-700"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? "M9 5l7 7-7 7" : "M15 19l-7-7 7-7"} />
-      </svg>
-    </button>
+        <motion.nav
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+          role="tablist"
+          aria-label="Order status tabs"
+        >
+          <div className="flex overflow-x-auto scrollbar-hide gap-4 px-2 md:justify-center">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveTab(tab)}
+                  className={`
+            relative px-4 py-2 font-medium rounded-md transition-colors
+            whitespace-nowrap
+            ${isActive
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }
+          `}
+                  aria-label={`${t(`tabs.${tab}`)} orders tab, ${countOrdersByStatus(tab)} orders`}
+                >
+                  {t(`tabs.${tab}`)}
+                  {tab !== "all" && (
+                    <span className="ml-2 inline-block text-xs font-normal bg-gray-300 text-gray-800 px-2 py-0.5 rounded-full select-none">
+                      {countOrdersByStatus(tab)}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </motion.nav>
 
-    {/* Right arrow */}
-    <button
-      type="button"
-      aria-label="Scroll tabs right"
-      onClick={() => {
-        if (scrollRef.current) {
-          const scrollAmount = isRTL ? -120 : 120;
-          scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-        }
-      }}
-      className={`
-        absolute top-1/2 -translate-y-1/2 z-10
-        p-2 rounded-full bg-white shadow-md
-        hover:bg-gray-100 active:bg-gray-200
-        focus:outline-none focus:ring-2 focus:ring-blue-500
-        md:hidden
-        ${isRTL ? "left-0" : "right-0"}
-      `}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5 text-gray-700"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d={isRTL ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"} />
-      </svg>
-    </button>
-
-    {/* Scrollable tabs container */}
-    <div
-      ref={scrollRef}
-      className={`
-        flex
-        overflow-x-auto
-        scrollbar-hide
-        md:justify-center
-        md:overflow-visible
-        md:flex-wrap
-        ${isRTL ? "space-x-reverse space-x-4 md:space-x-reverse md:space-x-6" : "space-x-4 md:space-x-6"}
-        px-8
-      `}
-      style={{ scrollBehavior: "smooth" }}
-    >
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab;
-        return (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`relative px-5 py-2 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap min-w-max ${
-              isActive
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-300"
-                : "bg-white/90 text-gray-700 hover:bg-white hover:shadow-md"
-            }`}
-            aria-current={isActive ? "true" : undefined}
-            aria-label={`${t(`tabs.${tab}`)} orders tab, ${countOrdersByStatus(tab)} orders`}
-          >
-            {t(`tabs.${tab}`)}
-            {tab !== "all" && (
-              <span className={`${isRTL ? "mr-2" : "ml-2"} inline-block text-xs font-normal bg-black/10 px-2 py-0.5 rounded-full select-none`}>
-                {countOrdersByStatus(tab)}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  </div>
-</motion.nav>
 
 
 
@@ -272,16 +200,16 @@ export default function TrackOrdersPage() {
         </motion.section>
 
         {/* Pagination Controls */}
-       {totalPages > 1 && (
-  <nav
-    aria-label="Pagination"
-    className="flex justify-center items-center gap-4 mb-8"
-  >
-    <button
-      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-      disabled={currentPage === 1}
-      aria-label={t("pagination.previousPage")}
-      className={`
+        {totalPages > 1 && (
+          <nav
+            aria-label="Pagination"
+            className="flex justify-center items-center gap-4 mb-8"
+          >
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              aria-label={t("pagination.previousPage")}
+              className={`
         flex items-center justify-center w-10 h-10 rounded-full 
         bg-gray-200 text-gray-600
         hover:bg-gray-300 hover:text-gray-800
@@ -290,41 +218,40 @@ export default function TrackOrdersPage() {
         transition
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
       `}
-    >
-      {isRTL ? <FiChevronRight size={20} /> : <FiChevronLeft size={20} />}
-    </button>
+            >
+              {isRTL ? <FiChevronRight size={20} /> : <FiChevronLeft size={20} />}
+            </button>
 
-    {[...Array(totalPages)].map((_, i) => {
-      const page = i + 1;
-      const isActive = page === currentPage;
-      return (
-        <button
-          key={page}
-          onClick={() => setCurrentPage(page)}
-          aria-current={isActive ? "page" : undefined}
-          aria-label={t("pagination.goToPage", { page })}
-          className={`
+            {[...Array(totalPages)].map((_, i) => {
+              const page = i + 1;
+              const isActive = page === currentPage;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-label={t("pagination.goToPage", { page })}
+                  className={`
             flex items-center justify-center w-10 h-10 rounded-full
             font-semibold text-sm
             transition
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-            ${
-              isActive
-                ? "bg-blue-600 text-white shadow-lg"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }
+            ${isActive
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }
           `}
-        >
-          {page}
-        </button>
-      );
-    })}
+                >
+                  {page}
+                </button>
+              );
+            })}
 
-    <button
-      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-      disabled={currentPage === totalPages}
-      aria-label={t("pagination.nextPage")}
-      className={`
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              aria-label={t("pagination.nextPage")}
+              className={`
         flex items-center justify-center w-10 h-10 rounded-full 
         bg-gray-200 text-gray-600
         hover:bg-gray-300 hover:text-gray-800
@@ -333,11 +260,11 @@ export default function TrackOrdersPage() {
         transition
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
       `}
-    >
-      {isRTL ? <FiChevronLeft size={20} /> : <FiChevronRight size={20} />}
-    </button>
-  </nav>
-)}
+            >
+              {isRTL ? <FiChevronLeft size={20} /> : <FiChevronRight size={20} />}
+            </button>
+          </nav>
+        )}
 
         {/* All Orders Timeline */}
         {orders.length > 0 && (

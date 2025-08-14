@@ -13,78 +13,52 @@ export default function FooterLinks({ settings }: FooterLinksProps) {
   const t = useTranslations("footer");
 
   return (
-    <div className="bg-white py-12 px-4 sm:px-6 md:px-8 lg:px-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-10 sm:gap-12">
+    <div className="bg-white py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
-          {/* Company Info */}
-          <div className="space-y-5 min-w-0">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 truncate">
-              {settings.store_name}
-            </h2>
-
-            <div className="space-y-3 text-gray-600 text-sm sm:text-base leading-relaxed break-words">
-              {settings.store_address && (
-                <div>
-                  <span className="font-semibold text-gray-800">{t("address")}:</span>
-                  <span className="ml-1 block sm:inline">{settings.store_address}</span>
-                </div>
+          {/* Brand & Contact */}
+          <div className="space-y-5">
+            <h2 className="text-4xl font-serif text-gray-900">{settings.store_name}</h2>
+            <div className="text-gray-700 space-y-2">
+              {settings.store_address && <p>{settings.store_address}</p>}
+              {(settings.store_city || settings.store_country) && (
+                <p>
+                  {settings.store_city}
+                  {settings.store_city && settings.store_country ? ", " : ""}
+                  {settings.store_country}
+                </p>
               )}
-
               {settings.contact_email && (
-                <div>
-                  <span className="font-semibold text-gray-800">{t("email")}:</span>
-                  <span className="ml-1 text-purple-600 block sm:inline break-all">
-                    {settings.contact_email}
-                  </span>
-                </div>
+                <p>
+                  <span className="font-medium">Email : </span>
+                  <span className="break-all">{settings.contact_email}</span>
+                </p>
               )}
-
               {settings.contact_phone && (
-                <div>
-                  <span className="font-semibold text-gray-800">{t("phone")}:</span>
-                  <span className="ml-1 font-semibold text-gray-800 block sm:inline">
-                    {settings.contact_phone}
-                  </span>
-                </div>
+                <p>
+                  <span className="font-medium">Phone </span>
+                  <span>: {settings.contact_phone}</span>
+                </p>
               )}
             </div>
-
-            {/* Social Media Links */}
-            <div className="flex gap-3 mt-6">
-              {settings.social_media_links?.facebook && (
-                <Link
-                  href={settings.social_media_links.facebook}
-                  className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center text-white transition-colors"
-                  aria-label="Facebook"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FiFacebook className="text-lg sm:text-xl" />
-                </Link>
-              )}
+            <div className="flex items-center gap-4 pt-2 text-gray-900">
               {settings.social_media_links?.twitter && (
-                <Link
-                  href={settings.social_media_links.twitter}
-                  className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center text-white transition-colors"
-                  aria-label="Twitter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FiTwitter className="text-lg sm:text-xl" />
+                <Link href={settings.social_media_links.twitter} aria-label="Twitter" target="_blank" className="hover:opacity-70">
+                  <FiTwitter className="w-5 h-5" />
                 </Link>
               )}
               {settings.social_media_links?.instagram && (
-                <Link
-                  href={settings.social_media_links.instagram}
-                  className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center text-white transition-colors"
-                  aria-label="Instagram"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FiInstagram className="text-lg sm:text-xl" />
+                <Link href={settings.social_media_links.instagram} aria-label="Instagram" target="_blank" className="hover:opacity-70">
+                  <FiInstagram className="w-5 h-5" />
                 </Link>
               )}
+              {settings.social_media_links?.facebook && (
+                <Link href={settings.social_media_links.facebook} aria-label="Facebook" target="_blank" className="hover:opacity-70">
+                  <FiFacebook className="w-5 h-5" />
+                </Link>
+              )}
+              
             </div>
           </div>
 
@@ -147,52 +121,28 @@ export default function FooterLinks({ settings }: FooterLinksProps) {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* JOIN NOW (Newsletter) */}
           <div className="min-w-0">
-            <h4 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
-              {t("newsletter")}
-            </h4>
-
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="relative mb-4 sm:mb-6"
-              aria-label="Subscribe to newsletter"
-            >
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-white border border-gray-200 rounded-2xl sm:rounded-full shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-500">
+            <h4 className="text-sm tracking-[0.35em] text-gray-900 font-semibold mb-6">JOIN NOW</h4>
+            <p className="text-gray-600 mb-6">
+              Become a {settings.store_name || "Siena"} member and get 10% off your next purchase!
+            </p>
+            <form onSubmit={(e) => e.preventDefault()} aria-label="Join newsletter" className="max-w-sm">
+              <div className="flex items-center gap-3">
                 <input
                   type="email"
-                  name="email"
-                  placeholder={t("emailPlaceholder")}
-                  className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-gray-700 placeholder-gray-400 bg-transparent focus:outline-none text-sm sm:text-base min-w-0 border-0 focus:ring-0"
+                  placeholder="Email address..."
+                  className="flex-1 bg-transparent border-0 border-b border-black focus:border-black focus:ring-0 px-0 py-2 placeholder:text-gray-500"
                   required
-                  aria-required="true"
                 />
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full transition-all duration-300 font-semibold text-sm sm:text-base transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 shadow-lg hover:shadow-xl"
-                >
-                  {t("subscribe")}
+                <button type="submit" aria-label="Subscribe" className="border-b-2 border-black pb-2 px-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+                    <path d="M4 6l8 6 8-6" />
+                  </svg>
                 </button>
               </div>
             </form>
-
-            <p className="text-xs sm:text-sm text-gray-500 leading-relaxed break-words">
-              {t("subscribeTerms")}{" "}
-              <Link
-                href="/infoPages/termsOfService"
-                className="text-purple-600 hover:text-purple-700 transition-colors underline decoration-purple-300 underline-offset-2 hover:decoration-purple-500"
-              >
-                {t("termsOfUse")}
-              </Link>{" "}
-              {t("and")}{" "}
-              <Link
-                href="/infoPages/privacyPolicy"
-                className="text-purple-600 hover:text-purple-700 transition-colors underline decoration-purple-300 underline-offset-2 hover:decoration-purple-500"
-              >
-                {t("privacyPolicy")}
-              </Link>
-              .
-            </p>
           </div>
         </div>
       </div>

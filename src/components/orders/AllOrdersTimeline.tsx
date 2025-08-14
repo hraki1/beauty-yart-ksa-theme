@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { Clock } from "lucide-react";
 import type { Order, Activity } from "@/lib/models/orderModal";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -10,14 +10,15 @@ interface AllOrdersTimelineProps {
   orders: Order[];
 }
 
+// status config (same as before)
 const statusConfig = {
-  pending:    { color: "text-gray-500", bg: "bg-gray-100", glow: "shadow-gray-200", label: "Pending" },
-  processing: { color: "text-yellow-600", bg: "bg-yellow-100", glow: "shadow-yellow-200", label: "Processing" },
-  shipped:    { color: "text-blue-600", bg: "bg-blue-100", glow: "shadow-blue-200", label: "Shipped" },
-  delivered:  { color: "text-green-600", bg: "bg-green-100", glow: "shadow-green-200", label: "Delivered" },
-  cancelled:  { color: "text-red-600", bg: "bg-red-100", glow: "shadow-red-200", label: "Cancelled" },
-  completed:  { color: "text-green-600", bg: "bg-green-100", glow: "shadow-green-200", label: "Delivered" },
-  unknown:    { color: "text-gray-500", bg: "bg-gray-200", glow: "shadow-gray-300", label: "Unknown" }
+  pending: { color: "text-gray-600", bg: "bg-gray-100", label: "Pending" },
+  processing: { color: "text-yellow-700", bg: "bg-yellow-100", label: "Processing" },
+  shipped: { color: "text-blue-700", bg: "bg-blue-100", label: "Shipped" },
+  delivered: { color: "text-green-700", bg: "bg-green-100", label: "Delivered" },
+  cancelled: { color: "text-red-700", bg: "bg-red-100", label: "Cancelled" },
+  completed: { color: "text-green-700", bg: "bg-green-100", label: "Delivered" },
+  unknown: { color: "text-gray-500", bg: "bg-gray-200", label: "Unknown" }
 } as const;
 
 type StatusKey = keyof typeof statusConfig;
@@ -36,11 +37,11 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
   const t = useTranslations("trackOrders.allOrdersTimeline");
   const locale = useLocale();
   const isRTL = locale === "ar";
-  
+
   const allActivities: ActivityWithOrderNumber[] = React.useMemo(() => {
     return orders
       .flatMap(order =>
-        order.activities.map(activity => ({
+        (order.activities || []).map(activity => ({
           ...activity,
           order_number: order.order_number,
           status: (order.status.toLowerCase() === "completed" ? "delivered" : order.status.toLowerCase()) as StatusKey
@@ -52,80 +53,86 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
   return (
     <section
       aria-label="All orders timeline"
-      className="bg-white/95 backdrop-blur-md rounded-xl p-6 shadow-lg border border-white/30"
+      className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-gray-100"
     >
-      <h3 className="font-bold text-xl mb-6 flex items-center gap-2 text-gray-800">
-        <MapPin className="w-6 h-6 text-blue-600" aria-hidden="true" />
-        {t("title")}
-      </h3>
-
-      <div
-        className="space-y-4 max-h-96 overflow-y-auto scrollbar-transparent scroll-smooth pr-1"
-        tabIndex={0}
+      {/* Redesigned Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between mb-6"
       >
-        {allActivities.slice(0, 10).map((activity, index) => {
-          const config = getStatusConfig(activity.status);
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-blue-50">
+            <Clock className="w-6 h-6 text-blue-600" aria-hidden="true" />
+          </div>
+          <h3 className="font-bold text-2xl text-gray-800">
+            {t("title")}
+          </h3>
+        </div>
+        <span className="text-sm text-gray-500 select-none">
+          {allActivities.length} {t("recentActivities")}
+        </span>
+      </motion.div>
 
-          return (
-            <motion.article
-              key={`${activity.order_number}-${index}`}
-              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className={`flex gap-4 items-start p-4 rounded-lg transition-colors cursor-default
-                hover:bg-gray-50 focus-within:bg-gray-50 border border-gray-100
-                ${config.glow}`}
-              tabIndex={-1}
+     <div
+  className="space-y-4 max-h-96 overflow-y-auto scroll-smooth pr-1 hide-scrollbar"
+  tabIndex={0}
+>
+  {allActivities.slice(0, 10).map((activity, index) => {
+    const config = getStatusConfig(activity.status);
+    return (
+      <motion.article
+        key={`${activity.order_number}-${index}`}
+        initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.05 }}
+        className={`flex gap-4 items-start p-4 rounded-lg transition-colors cursor-default
+          hover:bg-gray-50 border border-gray-100`}
+        tabIndex={-1}
+      >
+        <span
+          aria-hidden="true"
+          className={`w-5 h-5 rounded-full border-2 border-white ${config.bg} ${config.color} flex-shrink-0`}
+        />
+        <div className="flex-1">
+          <div className={`flex items-center gap-3 mb-2 flex-wrap ${isRTL ? "flex-row-reverse" : ""}`}>
+            <span
+              className={`text-sm px-3 py-1 rounded-full font-semibold ${config.bg} ${config.color} select-none`}
             >
-              <span
-                aria-hidden="true"
-                className={`w-5 h-5 rounded-full border-2 border-white ${config.bg} ${config.color} flex-shrink-0 mt-1 shadow-md`}
-              />
-              <div className="flex-1">
-                <div className={`flex items-center gap-3 mb-2 flex-wrap ${isRTL ? "flex-row-reverse" : ""}`}>
-                  <span
-                    className={`text-sm px-3 py-1 rounded-full font-semibold ${config.bg} ${config.color} select-none`}
-                  >
-                    #{activity.order_number}
-                  </span>
-                  <time
-                    className="text-xs text-gray-500"
-                    dateTime={new Date(activity.created_at).toISOString()}
-                  >
-                    {new Date(activity.created_at).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </time>
-                </div>
-                <p className="text-sm font-medium text-gray-800 leading-snug">
-                  {activity.comment}
-                </p>
-              </div>
-            </motion.article>
-          );
-        })}
-      </div>
+              #{activity.order_number}
+            </span>
+            <time
+              className="text-xs text-gray-500"
+              dateTime={new Date(activity.created_at).toISOString()}
+            >
+              {new Date(activity.created_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </time>
+          </div>
+          <p className="text-sm font-medium text-gray-800 leading-snug">
+            {activity.comment}
+          </p>
+        </div>
+      </motion.article>
+    );
+  })}
+</div>
 
-      {/* Inline Global CSS for Transparent Scrollbar */}
-      <style jsx global>{`
-        .scrollbar-transparent::-webkit-scrollbar {
-          width: 8px;
-        }
-        .scrollbar-transparent::-webkit-scrollbar-thumb {
-          background-color: transparent;
-        }
-        .scrollbar-transparent::-webkit-scrollbar-track {
-          background-color: transparent;
-        }
-        /* Firefox */
-        .scrollbar-transparent {
-          scrollbar-width: thin;
-          scrollbar-color: transparent transparent;
-        }
-      `}</style>
+<style jsx global>{`
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
+}
+`}</style>
+
     </section>
   );
 }

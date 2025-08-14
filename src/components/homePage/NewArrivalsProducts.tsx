@@ -11,13 +11,14 @@ import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import { useTranslations } from "next-intl";
 import { transformProductCartItem } from "@/utils/trnsformProductCartItem";
 import { useCurrency } from "@/store/CurrencyContext";
+import { useWishlist } from "@/store/WishlistContext";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function NewArrivalsProducts() {
   const t = useTranslations("Products");
 
-  const [likedProducts, setLikedProducts] = useState<number[]>([]);
+  const { itemIds, toggleLike } = useWishlist();
   const [currentPage, setCurrentPage] = useState(1);
   const [allProducts, setAllProducts] = useState<FrontEndProductCartItem[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -47,34 +48,9 @@ export default function NewArrivalsProducts() {
       setAllProducts((prev) => [...prev, ...newProducts]);
       setHasMore(currentPage < ((data as ProductsResponse).totalPages || 1));
     }
-  }, [data]);
+  }, [data, currentPage]);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("wishlist");
-    if (stored) {
-      const wishlist: FrontEndProductCartItem[] = JSON.parse(stored);
-      setLikedProducts(wishlist.map((p) => p.id));
-    }
-  }, []);
-
-  const toggleLike = (product: FrontEndProductCartItem) => {
-    const stored = localStorage.getItem("wishlist");
-    let wishlist: FrontEndProductCartItem[] = stored ? JSON.parse(stored) : [];
-
-    const exists = wishlist.some((p) => p.id === product.id);
-
-    if (exists) {
-      wishlist = wishlist.filter((p) => p.id !== product.id);
-    } else {
-      wishlist.push(product);
-    }
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
-    setLikedProducts((prev) =>
-      prev.includes(product.id)
-        ? prev.filter((id) => id !== product.id)
-        : [...prev, product.id]
-    );
-  };
+  // Wishlist is fully managed via provider
 
   // Infinity Scroll Observer
   const observer = useRef<IntersectionObserver | null>(null);
@@ -159,13 +135,13 @@ export default function NewArrivalsProducts() {
               <div
                 key={index}
                 ref={isLast ? lastProductRef : null}
-                className="w-full h-full flex" // Add these classes
+                className="w-full h-full flex"
                 style={{ minWidth: 0 }}
               >
                 <ProductItem
                   product={product}
                   toggleLike={toggleLike}
-                  likedProducts={likedProducts}
+                  likedProducts={itemIds}
                 />
               </div>
             );

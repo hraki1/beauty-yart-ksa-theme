@@ -2,10 +2,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { Order } from "@/lib/models/orderModal";
+import { Order, OrderItem } from "@/lib/models/orderModal";
 import Modal from "../UI/Modal";
 import { useTranslations, useLocale } from "next-intl";
-
+import { createReturnRequest, CreateReturnRequest } from "@/lib/axios/ReturnAxios";
+import { useMutation } from "@tanstack/react-query";
+ 
 interface RetrunModalProp {
   order: Order;
   isOpenModal: boolean;
@@ -19,18 +21,30 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
 }) => {
   const t = useTranslations("trackOrders.returnModal");
   const locale = useLocale();
+  const { mutate: submitReturn, isPending: isSubmitting } = useMutation({
+  mutationFn: createReturnRequest,
+  onSuccess: (data) => {
+    toast.success(t("returnSubmittedSuccessfully"));
+    toggleOpenModal(); 
+    console.log("Return request created:", data);
+  },
+  onError: (error: Error) => {
+    console.error("Return submission error:", error);
+    toast.error(error.message);
+  },
+});
   const isRTL = locale === "ar";
   const [returnStep, setReturnStep] = useState<"policy" | "items" | "reason">(
     "policy"
   );
-  const [selectedItems, setSelectedItems] = useState<
-    Record<number, { checked: boolean; quantity: number }>
-  >({});
+const [selectedItems, setSelectedItems] = useState<
+  Record<number, { checked: boolean; quantity: number }>
+>({});
   const [returnReason, setReturnReason] = useState("");
   const [returnNote, setReturnNote] = useState("");
   const [isPolicyExpanded, setIsPolicyExpanded] = useState(false);
 
-  // Animation variants
+ 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -63,21 +77,26 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
       transition: { duration: 0.3 },
     },
   };
-
-  // Initialize selected items
-  useEffect(() => {
-    if (isOpenModal) {
-      const initialSelection = order.items.reduce((acc, item) => {
+ 
+  
+useEffect(() => {
+  if (isOpenModal) {
+    const initialSelection = order.items?.reduce(
+      (acc, item) => {
         acc[item.order_item_id] = { checked: false, quantity: item.qty };
         return acc;
-      }, {} as Record<number, { checked: boolean; quantity: number }>);
-      setSelectedItems(initialSelection);
-      setReturnStep("policy");
-      setReturnReason("");
-      setReturnNote("");
-      setIsPolicyExpanded(false);
-    }
-  }, [isOpenModal, order.items]);
+      },
+      {} as Record<number, { checked: boolean; quantity: number }>
+    ) ?? {};
+
+    setSelectedItems(initialSelection);
+    setReturnStep("policy");
+    setReturnReason("");
+    setReturnNote("");
+    setIsPolicyExpanded(false);
+  }
+}, [isOpenModal, order.items]);
+
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSelectedItems = { ...selectedItems };
@@ -94,21 +113,7 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
     }));
   };
 
-  const adjustQuantity = (itemId: number, delta: number) => {
-    setSelectedItems((prev) => {
-      const current = prev[itemId];
-      const maxQty =
-        order.items.find((i) => i.order_item_id === itemId)?.qty || 1;
-      const newQuantity = Math.max(
-        1,
-        Math.min(maxQty, current.quantity + delta)
-      );
-      return {
-        ...prev,
-        [itemId]: { ...current, quantity: newQuantity },
-      };
-    });
-  };
+
 
   const handleNextStep = () => {
     if (returnStep === "policy") {
@@ -126,33 +131,94 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
     }
   };
 
-  const handleSubmitReturn = () => {
-    const returnData = {
-      orderId: order.order_id,
-      items: Object.entries(selectedItems)
-        .filter(([, item]) => item.checked)
-        .map(([id, item]) => ({
-          order_item_id: Number(id),
-          quantity: item.quantity,
-        })),
+const handleSubmitReturn = () => {
+  const itemsToReturn = Object.entries(selectedItems)
+    .filter(([, item]) => item.checked)
+    .map(([order_item_id, item]) => ({
+      order_item_id: Number(order_item_id),
+      quantity: item.quantity,
       reason: returnReason,
-      note: returnNote,
-    };
+    }));
 
-    console.log("Return submitted:", returnData);
-    toast.success(t("returnSubmittedSuccessfully"));
-    toggleOpenModal();
+  if (!itemsToReturn.length) {
+    toast.error(t("selectAtLeastOneItem"));
+    return;
+  }
+
+  const payload: CreateReturnRequest = {
+    order_id: order.order_id,
+    reason: returnReason,
+    type: "return_only",
+    ...(returnNote.trim() && { note: returnNote }),
+    items: itemsToReturn,
   };
 
-  const reasons = [
-    { id: "wrong_item", label: t("returnReasons.wrongSize") },
-    { id: "defective", label: t("returnReasons.defective") },
-    { id: "not_as_described", label: t("returnReasons.notAsDescribed") },
-    { id: "no_longer_needed", label: t("returnReasons.changedMind") },
-    { id: "wrong_size", label: t("returnReasons.wrongSize") },
-    { id: "other", label: t("returnReasons.other") },
-  ];
+  console.log("Submitting payload:", payload);
+  submitReturn(payload);
+};
 
+
+
+
+const reasons: { id: string; label: string }[] =
+  order.items?.[0]?.product?.returnPolicy?.required_reasons
+    ? JSON.parse(order.items[0].product.returnPolicy.required_reasons).map(
+        (r: string) => ({ id: r, label: r })
+      )
+    : [
+        { id: "Defective product", label: "Defective product" },
+        { id: "Wrong item received", label: "Wrong item received" },
+        { id: "Not as described", label: "Not as described" },
+        { id: "Changed mind", label: "Changed mind" },
+      ];
+
+
+
+const getItemReturnStatus = (item: OrderItem, order: Order) => {
+  let canReturn = true;
+  let disabled = false;
+  let tooltip = "";
+
+  const isItemAlreadyReturned = order.returnRequests?.some(
+    (r) => r.order_item_id === item.order_item_id
+  );
+
+  if (isItemAlreadyReturned) {
+    canReturn = false;
+    disabled = true;
+    tooltip = t("returnModal.itemAlreadyReturned");
+  } else if (!item.product?.returnPolicy) {
+    canReturn = false;
+    disabled = true;
+    tooltip = t("noReturnPolicy", { product: item.product_name });
+  } else {
+    const deliveredDate = item.created_at ? new Date(item.created_at) : null;
+    const daysLimit = item.product.returnPolicy?.days_limit || 0;
+
+    if (deliveredDate) {
+      const returnDeadline = new Date(deliveredDate);
+      returnDeadline.setDate(returnDeadline.getDate() + daysLimit);
+
+      if (new Date() > returnDeadline) {
+        canReturn = false;
+        disabled = true;
+        tooltip = t("returnModal.returnWindowExpiredDetailed", {
+          days: daysLimit,
+          deadline: returnDeadline.toLocaleDateString(),
+        });
+      }
+    }
+  }
+
+  return { canReturn, disabled, tooltip };
+};
+
+
+
+const allItemsCanReturn = order.items?.some((item) => {
+  const status = getItemReturnStatus(item, order);
+  return !status.disabled; // true if at least one item is selectable
+}) ?? false;
   return (
     <Modal open={isOpenModal} classesName="bg-white">
       <AnimatePresence mode="wait">
@@ -276,7 +342,8 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
                 onClick={handleNextStep}
                 className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
               >
-                {t("agreeContinue")}
+                {t("iAgreeContinue")}
+
               </button>
             </motion.div>
           </motion.div>
@@ -333,112 +400,112 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
               <h3 className="font-medium text-gray-700">
                 {t("orderNumber", { number: order.order_id })}
               </h3>
-              <label className={`flex items-center gap-2 text-sm text-gray-600 cursor-pointer ${isRTL ? "flex-row-reverse" : ""}`}>
-                <input
-                  type="checkbox"
-                  className=" h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  checked={
-                    Object.values(selectedItems).every(
-                      (item) => item.checked
-                    ) && Object.values(selectedItems).length > 0
-                  }
-                  onChange={toggleSelectAll}
-                />
-                {t("selectAll")}
-              </label>
+         <label
+  className={`flex items-center gap-2 text-sm text-gray-600 cursor-pointer ${
+    isRTL ? "flex-row-reverse" : ""
+  }`}
+>
+  <input
+    type="checkbox"
+    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+    checked={
+      Object.values(selectedItems).every((item) => item.checked) &&
+      Object.values(selectedItems).length > 0
+    }
+    onChange={toggleSelectAll}
+    disabled={!allItemsCanReturn} 
+  />
+  {t("selectAll")}
+</label>
             </motion.div>
 
-            <motion.div
-              className="space-y-3 max-h-96 overflow-y-auto pr-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              {order.items.map((item, index) => (
-                <motion.div
-                  key={item.order_item_id}
-                  className="flex items-start p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
-                  variants={itemVariants}
-                  custom={index}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.99 }}
-                >
-                  <input
-                    type="checkbox"
-                    className={`mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 ${isRTL ? "ml-3" : "mr-3"}`}
-                    checked={
-                      selectedItems[item.order_item_id]?.checked || false
-                    }
-                    onChange={(e) =>
-                      handleItemCheck(item.order_item_id, e.target.checked)
-                    }
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className={`flex items-start ${isRTL ? "flex-row-reverse" : ""}`}>
-                      <motion.div
-                        className={`relative w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 ${isRTL ? "ml-3" : "mr-3"}`}
-                        whileHover={{ scale: 1.03 }}
-                      >
-                        <Image
-                          src={
-                            item.product.images[0]?.origin_image ||
-                            "/placeholder-product.jpg"
-                          }
-                          alt={item.product_name}
-                          fill
-                          className="object-cover"
-                        />
-                      </motion.div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">
-                          {item.product_name}
-                        </p>
-                        <p className="text-sm text-gray-500 mb-1">
-                          {t("sku", { sku: item.product_sku })}
-                        </p>
-                        <div className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"}`}>
-                          <span className="text-sm text-gray-600">
-                            {t("max", { qty: item.qty })}
-                          </span>
-                          <div className={`flex items-center border border-gray-200 rounded-md overflow-hidden ${isRTL ? "flex-row-reverse" : ""}`}>
-                            <motion.button
-                              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-30"
-                              onClick={() =>
-                                adjustQuantity(item.order_item_id, -1)
-                              }
-                              disabled={
-                                selectedItems[item.order_item_id]?.quantity <= 1
-                              }
-                              whileTap={{ scale: 0.9 }}
-                            >
-                              -
-                            </motion.button>
-                            <span className={`text-sm w-8 text-center ${isRTL ? "mx-2" : "mx-2"}`}>
-                              {selectedItems[item.order_item_id]?.quantity || 0}
-                            </span>
-                            <motion.button
-                              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-30"
-                              onClick={() =>
-                                adjustQuantity(item.order_item_id, 1)
-                              }
-                              disabled={
-                                selectedItems[item.order_item_id]?.quantity >=
-                                item.qty
-                              }
-                              whileTap={{ scale: 0.9 }}
-                            >
-                              +
-                            </motion.button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+        <motion.div
+  className="space-y-3 max-h-96 overflow-y-auto pr-2"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.3 }}
+>
+  {order.items?.map((item) => {
+    const status = getItemReturnStatus(item, order);
+    const isSelected = selectedItems[item.order_item_id]?.checked || false;
+
+    return (
+    <motion.div
+  key={item.order_item_id}
+  className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
+    !status.canReturn
+      ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+      : "border-gray-200 hover:border-blue-300"
+  }`}
+>
+  {/* Checkbox */}
+  <input
+    type="checkbox"
+    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+    checked={isSelected}
+    disabled={status.disabled}
+    title={status.tooltip}
+    onChange={(e) => handleItemCheck(item.order_item_id, e.target.checked)}
+  />
+
+  {/* Product Image */}
+  <div className="relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+    <Image
+      src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
+      alt={item.product_name || "Product Image"}
+      fill
+      className="object-cover"
+    />
+  </div>
+
+  {/* Product Info */}
+  <div className="flex-1 min-w-0">
+    <p className="font-medium text-gray-900 truncate">{item.product_name}</p>
+    <p className="text-xs text-gray-500">
+      {t("sku", { sku: item.product?.sku ?? "N/A" })}
+    </p>
+    {!status.canReturn && status.tooltip && (
+      <p className="text-xs mt-1 italic text-red-500">{status.tooltip}</p>
+    )}
+  </div>
+
+  {/* Price / Qty */}
+  <div className="flex-shrink-0 flex flex-col items-end gap-1">
+    <p className="text-sm font-semibold text-gray-900">
+      {item.product_price} {order.currency}
+    </p>
+
+    {/* Qty Selector */}
+ <input
+  type="number"
+  min={1}
+  max={item.qty}
+  value={selectedItems[item.order_item_id]?.quantity || 1}
+  onChange={(e) =>
+    setSelectedItems((prev) => ({
+      ...prev,
+      [item.order_item_id]: {
+        ...prev[item.order_item_id],
+        quantity: Math.min(Math.max(Number(e.target.value), 1), item.qty),
+      },
+    }))
+  }
+  className={`w-16 text-sm border rounded px-2 py-1 text-blue-500 ${
+    !isSelected || !status.canReturn ? "bg-gray-100 cursor-not-allowed" : ""
+  }`}
+/>
+
+
+
+    <p className="text-xs text-gray-500">{t("qty", { quantity: item.qty })}</p>
+  </div>
+</motion.div>
+
+    );
+  }) ?? null}
+</motion.div>
+
+
 
             <motion.div
               className="mt-6 pt-4 border-t border-gray-200 flex justify-between"
@@ -530,68 +597,66 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
               transition={{ delay: 0.2 }}
             >
               <h3 className="font-medium text-gray-700 mb-3">{t("selectedItems")}</h3>
-              <div className="space-y-2 mb-4">
-                {order.items
-                  .filter((item) => selectedItems[item.order_item_id]?.checked)
-                  .map((item, index) => (
-                    <motion.div
-                      key={item.order_item_id}
-                      className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"} p-2 bg-gray-50 rounded`}
-                      variants={itemVariants}
-                      custom={index}
-                      initial="hidden"
-                      animate="visible"
-                    >
-                      <div className={`flex items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                        <div className={`relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 ${isRTL ? "ml-3" : "mr-3"}`}>
-                          <Image
-                            src={
-                              item.product.images[0]?.origin_image ||
-                              "/placeholder-product.jpg"
-                            }
-                            alt={item.product_name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span className="text-sm font-medium">
-                          {item.product_name}
-                        </span>
-                      </div>
-                      <span className="text-sm text-gray-600">
-                        {t("qty", { quantity: selectedItems[item.order_item_id]?.quantity })}
-                      </span>
-                    </motion.div>
-                  ))}
-              </div>
+            <div className="space-y-2 mb-4">
+  {order.items
+    ?.filter((item) => selectedItems[item.order_item_id]?.checked)
+    .map((item, index) => (
+      <motion.div
+        key={item.order_item_id}
+        className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"} p-2 bg-gray-50 rounded`}
+        variants={itemVariants}
+        custom={index}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className={`flex items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+          <div className={`relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 ${isRTL ? "ml-3" : "mr-3"}`}>
+  <Image
+    src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
+    alt={item.product_name || "Product Image"}
+    fill
+    className="object-cover"
+  />
+</div>
+
+          <span className="text-sm font-medium">{item.product_name}</span>
+        </div>
+        <span className="text-sm text-gray-600">
+          {t("qty", { quantity: selectedItems[item.order_item_id]?.quantity })}
+        </span>
+      </motion.div>
+    )) ?? null}
+</div>
+
 
               <h3 className="font-medium text-gray-700 mb-3">
                 {t("reasonForReturn")}
               </h3>
               <motion.div
-                className="grid grid-cols-2 gap-3 mb-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                {reasons.map((reason, index) => (
-                  <motion.button
-                    key={reason.id}
-                    className={`py-2 px-3 rounded-md border text-sm font-medium ${
-                      returnReason === reason.id
-                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                        : "border-gray-200 hover:border-gray-300 text-gray-700"
-                    }`}
-                    onClick={() => setReturnReason(reason.id)}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    custom={index}
-                    variants={itemVariants}
-                  >
-                    {reason.label}
-                  </motion.button>
-                ))}
-              </motion.div>
+  className="grid grid-cols-2 gap-3 mb-4"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.3 }}
+>
+  {reasons.map((reason, index) => (
+    <motion.button
+      key={reason.id}
+      className={`py-2 px-3 rounded-md border text-sm font-medium ${
+        returnReason === reason.id
+          ? "border-blue-500 bg-blue-50 text-blue-700"
+          : "border-gray-200 hover:border-gray-300 text-gray-700"
+      }`}
+      onClick={() => setReturnReason(reason.id)}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      custom={index}
+      variants={itemVariants}
+    >
+      {reason.label}
+    </motion.button>
+  ))}
+</motion.div>
+
 
               <motion.div
                 initial={{ opacity: 0 }}
@@ -630,20 +695,17 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
                 {t("back")}
               </motion.button>
               <motion.button
-                onClick={handleSubmitReturn}
-                disabled={!returnReason}
-                className={`px-4 py-2 rounded-md text-white ${
-                  returnReason
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-gray-300 cursor-not-allowed"
-                }`}
-                whileHover={{
-                  scale: returnReason ? 1.02 : 1,
-                }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {t("submitReturnRequest")}
-              </motion.button>
+  onClick={handleSubmitReturn}
+  disabled={!returnReason || isSubmitting}
+  className={`px-4 py-2 rounded-md text-white ${
+    returnReason
+      ? "bg-blue-600 hover:bg-blue-700"
+      : "bg-gray-300 cursor-not-allowed"
+  }`}
+>
+  {isSubmitting ? t("submitting") : t("submitReturnRequest")}
+</motion.button>
+
             </motion.div>
           </motion.div>
         )}
