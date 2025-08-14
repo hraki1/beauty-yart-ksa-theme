@@ -81,14 +81,25 @@ export default function Navbar({ languages }: NavbarProps) {
                 </div>
               </div>
 
+
+
               <div className="flex items-center md:hidden">
                 <PremiumNavWidget />
               </div>
 
+              <Link href={"/"} className="flex md:hidden items-center z-10">
+                <motion.h1
+                  className={`cursor-pointer text-3xl md:text-5xl font-normal lowercase leading-none text-[#0F0F0F]`}
+                  style={{ fontFamily: "auto", fontWeight: 400, letterSpacing: "-0.02em" }}
+                  whileHover={{ scale: 1.03 }}                >
+                  crido
+                </motion.h1>
+              </Link>
+
             </div>
 
             {/* center - Logo */}
-            <div className=" absolute top-1/2  left-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center  justify-center gap-1 md:gap-10 xl:gap-28">
+            <div className=" hidden md:flex absolute top-1/2  left-1/2 -translate-y-1/2 -translate-x-1/2 items-center  justify-center gap-1 md:gap-10 xl:gap-28">
               <Link href={"/"} className="flex items-center z-10">
                 <motion.h1
                   className={`cursor-pointer text-3xl md:text-5xl font-normal lowercase leading-none text-[#0F0F0F]`}

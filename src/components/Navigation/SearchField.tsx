@@ -118,7 +118,7 @@ export default function SearchField({ openSignal = 0, overlay = false }: SearchF
           placeholder={t("searchPlaceholder")}
           dir={isRtl ? "rtl" : "ltr"}
           style={{ boxShadow: "0px 0px 1px 0px #757575" }}
-          className="w-full p-[12px] px-5 md:px-5 text-[16px] md:text-[16px] rounded-3xl bg-white focus:shadow-xl focus:shadow-black/60 transition-all duration-200"
+          className="w-full p-[12px] px-5 md:px-5 text-[16px] md:text-[16px] rounded-2xl bg-white focus:shadow-xl focus:shadow-black/60 transition-all duration-200"
         />
 
         {searchTerm && (
