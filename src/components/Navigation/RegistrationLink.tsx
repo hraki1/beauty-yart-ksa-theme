@@ -1,8 +1,7 @@
 "use client";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css"; // Default styling (optional)
-import { useContext, useState } from "react";
-import Modal from "../UI/Modal";
+import { useContext, useState, useRef, useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useMutation } from "@tanstack/react-query";
 import { signUp, SignUpRequest } from "@/lib/axios/signUpAxios";
@@ -15,7 +14,6 @@ import Link from "next/link";
 import { restPasswordRequest } from "@/lib/axios/resetPasswordAxios";
 import { useTranslations, useLocale } from "next-intl";
 import { LuUserRound } from "react-icons/lu";
-import { useEffect } from "react";
 import Joi from "joi";
 
 import {
@@ -24,11 +22,12 @@ import {
 import { getLocationCountryCode } from "@/lib/getLocationInformations/get-country-Code";
 import { useCurrency } from "@/store/CurrencyContext";
 
-
 export default function RegistrationLink() {
   const t = useTranslations("auth");
   const locale = useLocale();
   const isRTL = locale === "ar";
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Login Schema
   const loginSchema = Joi.object({
@@ -87,7 +86,6 @@ export default function RegistrationLink() {
     useContext(AuthModalContext);
   const { userIp } = useCurrency()
 
-  // const [isAuthModalOpen, setisAuthModalOpen] = useState(false);
   const [contentView, setContentView] = useState<string | null>("login");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formInput, setFormInput] = useState({
@@ -112,6 +110,27 @@ export default function RegistrationLink() {
     return () => clearTimeout(timer);
   }, [countdown]);
 
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        handleCloseModal();
+      }
+    };
+
+    if (isAuthModalOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAuthModalOpen]);
 
   const [defaultCountry, setDefaultCountry] = useState<CountryCode | undefined>('SA');
 
@@ -178,7 +197,6 @@ export default function RegistrationLink() {
   });
 
   // resend OTP
-  // otp mutation field .....
   const { mutate: resendOTP, isPending: isPendingResendOtp } = useMutation({
     mutationFn: resendOtp,
     onSuccess: (data) => {
@@ -186,7 +204,6 @@ export default function RegistrationLink() {
       setErrors({});
       setCountdown(60)
       toast.success(data)
-
     },
     onError: (error: Error) => {
       console.log("خطأ أثناء otp:", error.message);
@@ -353,7 +370,6 @@ export default function RegistrationLink() {
     }
   }
 
-
   // handle close modal and rest it ...
   function handleCloseModal() {
     handlerResetForm();
@@ -375,23 +391,29 @@ export default function RegistrationLink() {
   }
 
   return (
-    <>
+    <div className="relative">
       <div
-        className="group flex items-center gap-2 cursor-pointer text-black hover:text-[#d0e3ec]"
+        ref={buttonRef}
+        className="group flex items-center gap-2 cursor-pointer text-black hover:text-gray-600"
         onClick={() => {
           openAuthModal();
           setErrors({});
         }}
       >
-          <LuUserRound className="font-bold text-2xl text-black" />
+        <LuUserRound className="font-bold text-2xl text-black" />
       </div>
 
-      <Modal open={isAuthModalOpen} classesName="bg-white">
-        <div className="bg-white text-gray-900 rounded-2xl w-full max-w-md p-6 relative z-[1500]" dir={isRTL ? "rtl" : "ltr"}>
+      {isAuthModalOpen && (
+        <div
+          ref={modalRef}
+          className="absolute top-full right-0 mt-2 bg-white text-black rounded-lg w-80 p-6 shadow-lg border border-gray-200 z-[1500]"
+          dir={isRTL ? "rtl" : "ltr"}
+          style={{ fontFamily: 'Europa, sans-serif' }}
+        >
           {/* زر الإغلاق */}
           <button
             onClick={handleCloseModal}
-            className="absolute top-3 right-3 text-5xl text-gray-900 hover:text-gray-400"
+            className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-gray-600"
             aria-label={t("close")}
           >
             &times;
@@ -399,159 +421,144 @@ export default function RegistrationLink() {
 
           {contentView === "login" && (
             <>
-              <h2 className="text-xl font-bold mb-4 text-center">
+              <h2 className="text-2xl font-normal mb-6 text-center text-black">
                 {t("login.title")}
               </h2>
 
               <form className="space-y-4" onSubmit={handleLogin}>
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 text-sm">
-                      {t("login.email")}
-                    </label>
-                    {errors.email && (
-                      <span className="text-red-400 text-sm mt-1">
-                        {errors.email}
-                      </span>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-sm text-gray-600 font-normal">
+                    {t("login.email")} *
+                  </label>
                   <input
                     name="email"
                     type="email"
                     value={formInput.email}
                     onChange={handleInputChange}
-                    className={`w-full p-2 rounded bg-white border text-gray-900 ${errors.email
+                    className={`w-full p-3 rounded border text-black bg-gray-50 ${errors.email
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                      } focus:outline-none focus:ring-2`}
-                    placeholder="example@email.com"
+                      : "border-gray-200 focus:border-black"
+                      } focus:outline-none focus:ring-1 transition-colors`}
+                    placeholder="Your name"
                   />
+                  {errors.email && (
+                    <span className="text-red-500 text-sm mt-1 block">
+                      {errors.email}
+                    </span>
+                  )}
                 </div>
 
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 text-sm">
-                      {" "}
-                      {t("login.password")}
-                    </label>
-                    {errors.pass && (
-                      <p className="text-red-400 text-sm mt-1">{errors.pass}</p>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-sm text-gray-600 font-normal">
+                    {t("login.password")} *
+                  </label>
                   <input
                     name="pass"
                     type="password"
                     value={formInput.pass}
                     onChange={handleInputChange}
-                    className={`w-full p-2 rounded bg-white border text-gray-900 ${errors.pass
+                    className={`w-full p-3 rounded border text-black bg-gray-50 ${errors.pass
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                      } focus:outline-none focus:ring-2`}
-                    placeholder="••••••••"
+                      : "border-gray-200 focus:border-black"
+                      } focus:outline-none focus:ring-1 transition-colors`}
+                    placeholder="Password"
                   />
+                  {errors.pass && (
+                    <p className="text-red-500 text-sm mt-1">{errors.pass}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" id="remember" className="rounded" />
+                  <label htmlFor="remember" className="text-gray-600">Remember me</label>
                 </div>
 
                 <button
                   disabled={isPendingLogin}
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 transition-colors py-2 rounded text-white"
+                  className="w-full bg-black hover:bg-gray-800 transition-colors py-3 rounded text-white font-normal"
                 >
                   {isPendingLogin
                     ? `...${t("login.submit")}`
-                    : t("login.submit")}
+                    : t("login.submit").toUpperCase()}
                 </button>
               </form>
-              <div className="flex justify-between">
-                <div className="text-center my-4 text-sm">
-                  <button
-                    onClick={() => {
-                      setContentView("forgetPssword");
-                      setErrors({});
-                    }}
-                    className="text-blue-400 hover:underline"
-                  >
-                    {t("login.forgotPassword")}
-                  </button>
-                </div>
-                <div className="text-center my-4 text-sm">
-                  {t("login.noAccount")}{" "}
-                  <button
-                    onClick={() => {
-                      setContentView("signup");
-                      setErrors({});
-                    }}
-                    className="text-blue-400 hover:underline"
-                  >
-                    {t("login.createAccount")}
-                  </button>
-                </div>
+
+              <div className="text-center my-4">
+                <button
+                  onClick={() => {
+                    setContentView("forgetPssword");
+                    setErrors({});
+                  }}
+                  className="text-black hover:underline text-sm font-normal"
+                >
+                  {t("login.forgotPassword")}
+                </button>
               </div>
 
-              <div className="text-center">
+              <div className="text-center mt-4">
                 <Link
                   href={
                     process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/google"
                   }
-                  className="group flex items-center justify-center gap-2 border border-gray-600 w-full py-2 rounded transition-colors hover:bg-gray-700 hover:text-white"
+                  className="group flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-100 w-full py-3 rounded transition-colors"
                 >
-                  <FcGoogle className="text-xl transition-colors group-hover:text-white" />
-                  <span className="transition-colors group-hover:text-white">
+                  <FcGoogle className="text-xl" />
+                  <span className="text-black font-normal">
                     {t("login.googleLogin")}
                   </span>
                 </Link>
+              </div>
+
+              <div className="text-center text-sm text-gray-600 font-normal mt-4">
+                {t("login.noAccount")}{" "}
+                <button
+                  onClick={() => {
+                    setContentView("signup");
+                    setErrors({});
+                  }}
+                  className="text-black hover:underline font-normal"
+                >
+                  {t("login.createAccount")}
+                </button>
               </div>
             </>
           )}
 
           {contentView === "signup" && (
             <>
-              <h2 className="text-xl font-bold mb-2 text-center">
+              <h2 className="text-2xl font-normal mb-6 text-center text-black">
                 {t("signup.title")}
               </h2>
 
               <form className="space-y-4" onSubmit={handleRegister}>
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 text-sm">
-                      {" "}
-                      {t("signup.fullName")}
-                    </label>
-                    {errors.name && (
-                      <p className="text-red-400 text-sm mt-1">{errors.name}</p>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-sm text-gray-600 font-normal">
+                    {t("signup.fullName")} *
+                  </label>
                   <input
                     name="name"
                     type="text"
                     value={formInput.name}
                     onChange={handleInputChange}
-                    className={`w-full p-2 rounded bg-white border text-gray-900 ${errors.name
+                    className={`w-full p-3 rounded border text-black bg-gray-50 ${errors.name
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-green-500"
-                      } focus:outline-none focus:ring-2`}
+                      : "border-gray-200 focus:border-black"
+                      } focus:outline-none focus:ring-1 transition-colors`}
                     placeholder={t("signup.fullName")}
                   />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                  )}
                 </div>
 
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 text-sm">
-                      {" "}
-                      {t("signup.phone")}
-                    </label>
-                    {errors.phone && (
-                      <p className="text-red-400 text-sm mt-1">
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-sm text-gray-600 font-normal">
+                    {t("signup.phone")} *
+                  </label>
                   <PhoneInput
                     international
-                    defaultCountry={defaultCountry as CountryCode} // Rwanda (adjust as needed)
+                    defaultCountry={defaultCountry as CountryCode}
                     placeholder="078XXXXXXX"
                     value={formInput.phone}
                     onChange={(value) => {
@@ -562,130 +569,123 @@ export default function RegistrationLink() {
                         },
                       } as React.ChangeEvent<HTMLInputElement>);
                     }}
-                    className={`w-full p-2 rounded bg-white border text-gray-900 ${errors.phone
+                    className={`w-full ${errors.phone
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-green-500"
-                      } focus:outline-none focus:ring-2`}
-
+                      : "border-gray-200 focus:border-black"
+                      }`}
                   />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.phone}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 text-sm">
-                      {t("signup.email")}
-                    </label>
-                    {errors.email && (
-                      <p className="text-red-400 text-sm mt-1">
-                        {errors.email}
-                      </p>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-sm text-gray-600 font-normal">
+                    {t("signup.email")} *
+                  </label>
                   <input
                     name="email"
                     type="email"
                     value={formInput.email}
                     onChange={handleInputChange}
-                    className={`w-full p-2 rounded bg-white border text-gray-900 ${errors.email
+                    className={`w-full p-3 rounded border text-black bg-gray-50 ${errors.email
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-green-500"
-                      } focus:outline-none focus:ring-2`}
+                      : "border-gray-200 focus:border-black"
+                      } focus:outline-none focus:ring-1 transition-colors`}
                     placeholder="example@email.com"
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 text-sm">
-                      {" "}
-                      {t("signup.password")}
-                    </label>
-                    {errors.pass && (
-                      <p className="text-red-400 text-sm mt-1">{errors.pass}</p>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-sm text-gray-600 font-normal">
+                    {t("signup.password")} *
+                  </label>
                   <input
                     name="pass"
                     type="password"
                     value={formInput.pass}
                     onChange={handleInputChange}
-                    className={`w-full p-2 rounded bg-white border text-gray-900 ${errors.pass
+                    className={`w-full p-3 rounded border text-black bg-gray-50 ${errors.pass
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-green-500"
-                      } focus:outline-none focus:ring-2`}
+                      : "border-gray-200 focus:border-black"
+                      } focus:outline-none focus:ring-1 transition-colors`}
                     placeholder="••••••••"
                   />
-                </div>
-
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2 text-sm">
-                    <input
-                      id="agree"
-                      type="checkbox"
-                      name="agreePolicy"
-                      checked={formInput.agreePolicy}
-                      onChange={handleInputChange}
-                      className={`${errors.agreePolicy ? "border-red-500" : ""
-                        }`}
-                    />
-                    <label htmlFor="agree"> {t("signup.agreePolicy")}</label>
-                  </div>
-
-                  {errors.agreePolicy && (
-                    <p className="text-red-400 text-sm mt-1 text-end">
-                      {errors.agreePolicy}
-                    </p>
+                  {errors.pass && (
+                    <p className="text-red-500 text-sm mt-1">{errors.pass}</p>
                   )}
                 </div>
+
+                <div className="flex items-start gap-2 text-sm">
+                  <input
+                    id="agree"
+                    type="checkbox"
+                    name="agreePolicy"
+                    checked={formInput.agreePolicy}
+                    onChange={handleInputChange}
+                    className={`mt-1 ${errors.agreePolicy ? "border-red-500" : ""
+                      }`}
+                  />
+                  <label htmlFor="agree" className="text-gray-600 font-normal">
+                    {t("signup.agreePolicy")}
+                  </label>
+                </div>
+                {errors.agreePolicy && (
+                  <p className="text-red-500 text-sm">
+                    {errors.agreePolicy}
+                  </p>
+                )}
 
                 <button
                   disabled={isPendingSignup}
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 transition-colors py-2 rounded text-white cursor-pointer"
+                  className="w-full bg-black hover:bg-gray-800 transition-colors py-3 rounded text-white font-normal"
                 >
                   {isPendingSignup
                     ? `...${t("signup.submit")}`
-                    : t("signup.submit")}
+                    : t("signup.submit").toUpperCase()}
                 </button>
               </form>
 
-
-
-              <div className="text-center mt-4 ">
+              <div className="text-center mt-4">
                 <Link
                   href={
                     process.env.NEXT_PUBLIC_API_BASE_URL + "/auth/google"
                   }
-                  className="group flex items-center justify-center gap-2 border border-gray-600 hover:bg-gray-700 w-full py-2 rounded"
+                  className="group flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-100 w-full py-3 rounded transition-colors"
                 >
-                  <FcGoogle className="text-xl group-hover:text-white" />
-                  <span className="group-hover:text-white"> {t("signup.googleSignup")} </span>
+                  <FcGoogle className="text-xl" />
+                  <span className="text-black font-normal">
+                    {t("signup.googleSignup")}
+                  </span>
                 </Link>
               </div>
 
-
-              <div className="flex justify-between">
-                <div className="text-center my-4 text-sm">
-                  <button
-                    onClick={() => {
-                      setContentView("forgetPssword");
-                      setErrors({});
-                    }}
-                    className="text-blue-400 hover:underline"
-                  >
-                    {t("login.forgotPassword")}
-                  </button>
-                </div>
-                <div className="text-center mt-4 text-sm">
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => {
+                    setContentView("forgetPssword");
+                    setErrors({});
+                  }}
+                  className="text-black hover:underline text-sm font-normal"
+                >
+                  {t("login.forgotPassword")}
+                </button>
+                <div className="text-sm text-gray-600 font-normal">
                   {t("signup.haveAccount")}{" "}
                   <button
                     onClick={() => {
                       setContentView("login");
                       setErrors({});
                     }}
-                    className="text-green-400 hover:underline"
+                    className="text-black hover:underline font-normal"
                   >
                     {t("login.submit")}
                   </button>
@@ -696,8 +696,7 @@ export default function RegistrationLink() {
 
           {contentView === "otp" && (
             <>
-              <h2 className="text-xl font-bold mb-4 text-center">
-                {" "}
+              <h2 className="text-2xl font-normal mb-6 text-center text-black">
                 {t("otp.title")}
               </h2>
               <form
@@ -705,39 +704,36 @@ export default function RegistrationLink() {
                 onSubmit={handleVerifyOtp}
               >
                 <div>
-                  <div className="flex justify-between">
-                    <label className="block mb-1 ">
-                      {t("otp.sentTo")}
-                      <span className="text-sm text-gray-400">
-                        {" "}
-                        {formInput.email}
-                      </span>{" "}
-                    </label>
-                    {errors.otp && (
-                      <span className="text-red-400 text-sm mt-1">
-                        {errors.otp}
-                      </span>
-                    )}
-                  </div>
-
+                  <label className="block mb-2 text-black font-normal">
+                    {t("otp.sentTo")}
+                    <span className="text-sm text-gray-600">
+                      {" "}
+                      {formInput.email}
+                    </span>
+                  </label>
                   <input
                     name="otp"
                     type="string"
                     onChange={handleInputChange}
                     value={formInput.otp}
-                    className={`w-full p-2 rounded bg-white text-center border text-gray-900 ${errors.email
+                    className={`w-full p-3 rounded border text-center text-black bg-gray-50 ${errors.otp
                       ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:ring-blue-500"
-                      } focus:outline-none focus:ring-2`}
+                      : "border-gray-200 focus:border-black"
+                      } focus:outline-none focus:ring-1 transition-colors`}
                     placeholder={t("otp.placeholder")}
                   />
+                  {errors.otp && (
+                    <span className="text-red-500 text-sm mt-1 block">
+                      {errors.otp}
+                    </span>
+                  )}
                 </div>
 
-                <div className="flex flex-row gap-3 justify-center">
+                <div className="flex justify-center">
                   <button
-                    className={`px-2 py-1 rounded-lg text-sm font-medium border transition-colors ${countdown > 0 || isPendingResendOtp
+                    className={`px-4 py-2 rounded text-sm font-normal border transition-colors ${countdown > 0 || isPendingResendOtp
                       ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed opacity-80"
-                      : "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                      : "bg-black text-white border-black hover:bg-gray-800"
                       }`}
                     disabled={countdown > 0 || isPendingResendOtp}
                     onClick={handleResendOtp}
@@ -751,9 +747,9 @@ export default function RegistrationLink() {
                 <button
                   disabled={isPendingOtp}
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 transition-colors py-2 rounded text-white cursor-pointer"
+                  className="w-full bg-black hover:bg-gray-800 transition-colors py-3 rounded text-white font-normal"
                 >
-                  {isPendingOtp ? `...${t("otp.submit")}` : t("otp.submit")}
+                  {isPendingOtp ? `...${t("otp.submit")}` : t("otp.submit").toUpperCase()}
                 </button>
               </form>
             </>
@@ -763,82 +759,71 @@ export default function RegistrationLink() {
             <>
               {successResetPasswordRequest ? (
                 <div>
-                  <h2 className="text-xl font-bold mb-4 text-center ">
+                  <h2 className="text-2xl font-normal mb-6 text-center text-black">
                     {t("forgotPassword.title")}
                   </h2>
                   <div className="space-y-4 text-center">
                     <div>
-                      <div className="flex justify-center">
-                        <label className="block mb-2 text-gray-900">
-                          {t("forgotPassword.success")}
-                        </label>
-                        {errors.otp && (
-                          <span className="text-red-400 text-sm mt-1">
-                            {errors.restPassword}
-                          </span>
-                        )}
-                      </div>
+                      <label className="block mb-2 text-black font-normal">
+                        {t("forgotPassword.success")}
+                      </label>
                     </div>
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="w-full bg-blue-600 hover:bg-blue-700 transition-colors py-2 rounded text-white cursor-pointer"
+                      className="w-full bg-black hover:bg-gray-800 transition-colors py-3 rounded text-white font-normal"
                     >
                       {t("forgotPassword.done")}
                     </button>
-                    <div className="text-center my-4 text-sm"></div>
                   </div>
                 </div>
               ) : (
                 <div>
-                  <h2 className={`text-xl font-bold mb-4 text-center ${isRTL ? 'font-arabic' : ''}`}>
+                  <h2 className="text-2xl font-normal mb-6 text-center text-black">
                     {t("forgotPassword.title")}
                   </h2>
-                  <div className={`space-y-4 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <div className="space-y-4">
                     <div>
-                      <div className={`flex ${isRTL ? 'justify-end' : 'justify-start'}`}>
-                        <label className={`block mb-2 text-gray-900 ${isRTL ? 'ml-2' : 'mr-2'}`}>
-                          {t("forgotPassword.enterEmail")}
-                        </label>
-                        {errors.otp && (
-                          <span className="text-red-400 text-sm mt-1">
-                            {errors.otp}
-                          </span>
-                        )}
-                      </div>
-
+                      <label className="block mb-2 text-sm text-gray-600 font-normal">
+                        {t("forgotPassword.enterEmail")}
+                      </label>
                       <input
                         name="email"
                         type="email"
                         onChange={handleInputChange}
                         value={formInput.email}
-                        className={`w-full p-2 rounded bg-white border text-gray-900 ${isRTL ? 'text-right pr-4' : 'text-left pl-4'} ${errors.email
+                        className={`w-full p-3 rounded border text-black bg-gray-50 ${errors.email
                           ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-blue-500"
-                          } focus:outline-none focus:ring-2`}
+                          : "border-gray-200 focus:border-black"
+                          } focus:outline-none focus:ring-1 transition-colors`}
                         placeholder={t("forgotPassword.emailPlaceholder")}
                       />
-
+                      {errors.email && (
+                        <span className="text-red-500 text-sm mt-1 block">
+                          {errors.email}
+                        </span>
+                      )}
                     </div>
 
                     <button
                       disabled={isPendingResetPassword}
                       type="button"
                       onClick={handleForgetPassword}
-                      className={`w-full bg-blue-600 hover:bg-blue-700 transition-colors py-2 rounded text-white cursor-pointer ${isRTL ? 'font-arabic' : ''}`}
+                      className="w-full bg-black hover:bg-gray-800 transition-colors py-3 rounded text-white font-normal"
                     >
                       {isPendingResetPassword
                         ? `...${t("forgotPassword.submit")}`
-                        : t("forgotPassword.submit")}
+                        : t("forgotPassword.submit").toUpperCase()}
                     </button>
-                    <div className={`text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
-                      {t("forgotPassword.noAccount")}
+
+                    <div className="text-center text-sm text-gray-600 font-normal">
+                      {t("forgotPassword.noAccount")}{" "}
                       <button
                         onClick={() => {
                           setContentView("signup");
                           setErrors({});
                         }}
-                        className="text-blue-400 hover:underline ml-2"
+                        className="text-black hover:underline font-normal"
                       >
                         {t("forgotPassword.createAccount")}
                       </button>
@@ -849,7 +834,7 @@ export default function RegistrationLink() {
             </>
           )}
         </div>
-      </Modal>
-    </>
+      )}
+    </div>
   );
 }
