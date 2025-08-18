@@ -267,11 +267,25 @@
     "noOrdersFound": "Aucune commande trouvée.",
     "tabs": {
       "all": "Toutes",
-      "pending": "En Attente",
-      "processing": "En Traitement",
+      "pending": "En attente",
+      "processing": "En traitement",
+      "completed": "Terminée",
+      "cancelled": "Annulée",
+      "refunded": "Remboursée",
+      "on_hold": "En attente",
+      "failed": "Échouée"
+    },
+    "statusLabels": {
+      "pending": "En attente",
+      "processing": "En traitement",
       "shipped": "Expédiée",
       "delivered": "Livrée",
-      "canceled": "Annulée"
+      "cancelled": "Annulée",
+      "refunded": "Remboursée",
+      "on_hold": "En attente",
+      "failed": "Échouée",
+      "completed": "Terminée",
+      "unknown": "Inconnu"
     },
     "pagination": {
       "previousPage": "Page précédente",
@@ -291,8 +305,26 @@
       "shipped": "Expédiée",
       "delivered": "Livrée"
     },
+    "productItem": {
+      "reviewBtn": "Évaluer",
+      "toast": { "addSuccess": "Avis ajouté avec succès" },
+      "modal": {
+        "title": "Laisser un avis pour {name}",
+        "subtitle": "Partagez votre expérience avec ce produit"
+      },
+      "form": {
+        "ratingLabel": "Votre Note",
+        "reviewLabel": "Votre Avis",
+        "placeholder": "Partagez votre expérience avec ce produit...",
+        "cancel": "Annuler",
+        "submit": "Soumettre l'Avis",
+        "submitting": "Soumission en cours...",
+        "errors": { "emptyReview": "Veuillez écrire votre avis" }
+      }
+    },
     "allOrdersTimeline": {
-      "title": "Chronologie de Toutes les Commandes"
+      "title": "Chronologie de Toutes les Commandes",
+      "recentActivities": "activités récentes"
     },
     "orderDetails": {
       "title": "Détails de la Commande",
@@ -322,7 +354,12 @@
       "shippingTax": "Taxe d'Expédition",
       "discountAmount": "Montant de la Remise",
       "productPrice": "Prix du Produit",
-      "totalPrice": "Prix Total"
+      "totalPrice": "Prix Total",
+      "returnRequest": "Demande de retour #{id}",
+      "reason": "Raison",
+      "note": "Note",
+      "status": "Statut",
+      "createdAt": "Créé le"
     },
     "returnModal": {
       "title": "Retourner la Commande",
@@ -367,7 +404,8 @@
       ],
       "showLess": "Afficher moins",
       "viewCompletePolicy": "Voir les détails complets de la politique",
-      "agreeContinue": "J'accepte - Continuer vers le Retour",
+      "iAgreeContinue": "J'accepte - Continuer vers le Retour",
+      "orderAlreadyReturned": "Cette commande a déjà été retournée",
       "selectItemsToReturn": "Sélectionner les Articles à Retourner",
       "orderNumber": "Commande #{number}",
       "back": "Retour",
@@ -381,7 +419,9 @@
       "qty": "Qté : {quantity}",
       "sku": "Réf. : {sku}",
       "selectAtLeastOneItem": "Veuillez sélectionner au moins un article à retourner",
-      "returnSubmittedSuccessfully": "Demande de retour soumise avec succès"
+      "returnSubmittedSuccessfully": "Demande de retour soumise avec succès",
+      "unexpectedError": "Erreur inattendue",
+      "returnWindowExpiredDetailed": "La période de retour de {days} jours a expiré (date limite {deadline})."
     }
   },
 

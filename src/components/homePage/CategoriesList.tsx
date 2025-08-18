@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 export default function CategoriesList() {
   const t = useTranslations("category");
@@ -20,9 +21,9 @@ export default function CategoriesList() {
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    
+
     const maxScrollLeft = el.scrollWidth - el.clientWidth;
-    
+
     if (isRTL) {
       // In RTL mode, scrollLeft behavior is different
       // When scrollLeft is 0, we're at the "end" (rightmost content)
@@ -43,26 +44,26 @@ export default function CategoriesList() {
   useEffect(() => {
     // Immediate check
     checkScroll();
-    
+
     // Initial check with a small delay to ensure DOM is ready
     const timer = setTimeout(() => {
       checkScroll();
     }, 100);
-    
+
     // Additional check after a longer delay to ensure images are loaded
     const timer2 = setTimeout(() => {
       checkScroll();
     }, 500);
-    
+
     const el = scrollRef.current;
     if (!el) return () => {
       clearTimeout(timer);
       clearTimeout(timer2);
     };
-    
+
     el.addEventListener("scroll", checkScroll);
     window.addEventListener("resize", checkScroll);
-    
+
     return () => {
       clearTimeout(timer);
       clearTimeout(timer2);
@@ -74,6 +75,8 @@ export default function CategoriesList() {
   const scrollBy = (amount: number) => {
     scrollRef.current?.scrollBy({ left: amount, behavior: "smooth" });
   };
+
+
 
   return (
     <section className="lg:px-10 px-5 relative py-2 md:py-28 text-center pt-10 bg-gradient-to-b from-[#FFF2EC]  to-white ">
@@ -111,7 +114,7 @@ export default function CategoriesList() {
           {/* Scrollable container */}
           <div
             ref={scrollRef}
-            className={`flex gap-3.5 md:gap-16 justify-center overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 custom-scroll ${isRTL ? 'flex-row-reverse' : ''}`}
+            className={`flex gap-3.5 md:gap-16 md:justify-center overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 custom-scroll ${isRTL ? 'flex-row-reverse' : ''}`}
           >
             {categories &&
               categories.map((cat, index) => (
@@ -120,15 +123,25 @@ export default function CategoriesList() {
                   key={index}
                   className="flex flex-col items-center text-center group min-w-[11rem] md:min-w-[14rem] snap-start"
                 >
-                  <div className="w-44 h-44 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-[#fff] group-hover:scale-105 transition-transform duration-300 bg-[#F7F7F7]">
-                    <Image
-                      src={cat.description.image ?? "/image/products/img.png"}
-                      alt={cat.description.name}
-                      width={176}
-                      height={176}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+                  <motion.div whileHover={{
+                    x: [0, 4, -7, 4, -7, 0] // يمين، يسار، يمين، يسار، رجوع
+                  }}
+                    transition={{
+                      duration: 0.8, // مدة الهزّة
+                      ease: "easeInOut"
+                    }}>
+                    <div
+                      className="w-44 h-44 md:w-72 md:h-72 rounded-full overflow-hidden border-2 border-[#fff]  transition-transform duration-300 bg-[#F7F7F7]">
+                      <Image
+                        src={cat.description.image ?? "/image/products/img.png"}
+                        alt={cat.description.name}
+                        width={176}
+                        height={176}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  </motion.div>
+
                   <span className="mt-4 text-lg font-bold text-black hover:text-[#3740EA]">
                     {cat.description.name}
                   </span>
