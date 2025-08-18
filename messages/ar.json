@@ -289,6 +289,18 @@
       "totalAmount": "المبلغ الإجمالي",
       "itemsCount": "+{count} منتجات أخرى"
     },
+    "statusLabels": {
+      "pending": "قيد الانتظار",
+      "processing": "قيد المعالجة",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي",
+      "refunded": "تم الاسترداد",
+      "on_hold": "معلق",
+      "failed": "فشل",
+      "completed": "مكتمل",
+      "unknown": "غير معروف"
+    },
     "progressBar": {
       "placed": "تم الطلب",
       "processing": "قيد المعالجة",
@@ -326,7 +338,12 @@
       "shippingTax": "ضريبة الشحن",
       "discountAmount": "مبلغ الخصم",
       "productPrice": "سعر المنتج",
-      "totalPrice": "السعر الإجمالي"
+      "totalPrice": "السعر الإجمالي",
+      "returnRequest": "طلب إرجاع #{id}",
+      "reason": "السبب",
+      "note": "ملاحظة",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء"
     },
     "returnModal": {
       "title": "إرجاع الطلب",
@@ -385,7 +402,11 @@
       "qty": "الكمية: {quantity}",
       "sku": "رمز المنتج: {sku}",
       "selectAtLeastOneItem": "يرجى اختيار منتج واحد على الأقل للإرجاع",
-      "returnSubmittedSuccessfully": "تم إرسال طلب الإرجاع بنجاح"
+      "returnSubmittedSuccessfully": "تم إرسال طلب الإرجاع بنجاح",
+      "orderAlreadyReturned": "تم إرجاع هذا الطلب بالفعل",
+      "unexpectedError": "حدث خطأ غير متوقع",
+      "iAgreeContinue": "أوافق - متابعة الإرجاع",
+      "returnWindowExpiredDetailed": "انتهت مهلة الإرجاع البالغة {days} يومًا (كان الموعد النهائي {deadline})."
     }
   },
 

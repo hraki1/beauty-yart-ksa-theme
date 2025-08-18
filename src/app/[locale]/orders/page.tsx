@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getOrders } from "@/lib/axios/OrderAxios";
-import type { Order } from "@/lib/models/orderModal";
+import type { Order, OrderStatus } from "@/lib/models/orderModal";
 import OrderCard from "@/components/orders/OrderCard";
 import SlideInOrderDetails from "@/components/orders/SlideInOrderDetails";
 import AllOrdersTimeline from "@/components/orders/AllOrdersTimeline";
 import ReturnModal from "@/components/orders/ReturnModal";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useTranslations, useLocale } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/store/AuthContext";
+import { useRouter } from "next/navigation";
+import Spinner from "@/components/UI/SpinnerLoading";
 
 const ORDERS_PER_PAGE = 3;
 
@@ -21,27 +25,39 @@ const tabs = [
   "cancelled",
   "refunded",
   "on_hold",
-  "failed"
+  "failed",
 ] as const;
-type Tab = typeof tabs[number];
+type Tab = "all" | OrderStatus;
 
-
-
-function isStatusMatch(orderStatus: string, tab: Tab): boolean {
-  const normalized = orderStatus?.toLowerCase() || "";
-  if (tab === "completed") return normalized === "completed" || normalized === "delivered";
-  if (tab === "cancelled") return normalized === "cancelled" || normalized === "canceled";
-  return normalized === tab;
+function normalizeStatus(status: string): string {
+  if (!status) return "";
+  return status.toLowerCase();
 }
 
+function isStatusMatch(orderStatus: string, tab: Tab): boolean {
+  if (tab === "all") return true;
+  const normalized = normalizeStatus(orderStatus);
+  if (tab === "completed") {
+    return normalized === "completed" || normalized === "delivered";
+  }
+  if (tab === "cancelled") {
+    return normalized === "cancelled" || normalized === "canceled";
+  }
+  return normalized === tab;
+}
 
 export default function TrackOrdersPage() {
   const t = useTranslations("trackOrders");
   const locale = useLocale();
   const isRTL = locale === "ar";
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  const { data: orders = [], isLoading: loading, error, refetch } = useQuery<Order[], Error>({
+    queryKey: ["orders"],
+    queryFn: getOrders,
+    enabled: isAuthenticated,
+  });
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -52,25 +68,15 @@ export default function TrackOrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    async function fetchOrders() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getOrders();
-        setOrders(data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to load orders");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchOrders();
-  }, []);
-
-  useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
-  
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, authLoading, router]);
+
 
   const filteredOrders = useMemo(() => {
     if (activeTab === "all") return orders;
@@ -111,23 +117,25 @@ export default function TrackOrdersPage() {
     [orders]
   );
 
-  if (loading) return <div className="p-8 text-center text-lg text-gray-800">{t("loading")}</div>;
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="my-20 mb-56">
+        <Spinner />
+      </div>
+    );
+  }
+  if (loading) return <div className="p-8 text-center text-lg text-gray-600">{t("loading")}</div>;
 
   if (error)
     return (
       <div className="p-8 text-center text-red-600 text-lg" role="alert" aria-live="assertive">
-        {t("error", { message: error })}
+        {t("error", { message: error.message })}
       </div>
     );
 
   return (
-    <div 
-      className="min-h-screen"
-      style={{
-        backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'
-      }}
-    >
-      
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <motion.header
@@ -135,56 +143,53 @@ export default function TrackOrdersPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 
-            className="text-4xl font-extrabold text-black mb-2 select-none italic"
-            style={{ fontFamily: 'Playfair Display, serif' }}
-          >
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 select-none">
             {t("pageTitle")}
           </h1>
-          <p className="text-gray-800 text-lg max-w-xl">
+          <p className="text-gray-600 text-lg max-w-xl">
             {t("pageDescription")}
           </p>
         </motion.header>
 
-  
-{/* Tabs */}
-<motion.nav
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="mb-8"
-  role="tablist"
-  aria-label="Order status tabs"
->
-  <div className="flex overflow-x-auto scrollbar-hide gap-4 px-2 md:justify-center">
-    {tabs.map((tab) => {
-      const isActive = activeTab === tab;
-      return (
-        <button
-  key={tab}
-  role="tab"
-  aria-selected={isActive}
-  onClick={() => setActiveTab(tab)}
-  className={`
-    relative px-4 py-2 font-medium rounded-md transition-colors
-    whitespace-nowrap
-    ${isActive ? "bg-black text-white" : "bg-white text-black hover:bg-gray-100"}
-  `}
-  aria-label={`${t(`tabs.${tab}`)} orders tab, ${countOrdersByStatus(tab)} orders`}
->
-  <div className="flex items-center gap-4">
-    <span>{t(`tabs.${tab}`)}</span>
-    {tab !== "all" && (
-      <span className="inline-block text-xs font-normal bg-gray-200 text-black px-2 py-0.5 rounded-full select-none">
-        {countOrdersByStatus(tab)}
-      </span>
-    )}
-  </div>
-</button>
 
-      );
-    })}
-  </div>
-</motion.nav>
+        {/* Tabs */}
+        <motion.nav
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+          role="tablist"
+          aria-label="Order status tabs"
+        >
+          <div className="flex overflow-x-auto scrollbar-hide gap-4 px-2 md:justify-center">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveTab(tab)}
+                  className={`
+            relative px-4 py-2 flex gap-2 font-medium rounded-md transition-colors
+            whitespace-nowrap
+            ${isActive
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }
+          `}
+                  aria-label={`${t(`tabs.${tab}`)} orders tab, ${countOrdersByStatus(tab)} orders`}
+                >
+                  {t(`tabs.${tab}`)}
+                  {tab !== "all" && (
+                    <span className="flex justify-center items-center i text-xs font-normal bg-gray-300 text-gray-800 px-2 py-0.5 rounded-full select-none">
+                      {countOrdersByStatus(tab)}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </motion.nav>
 
 
 
@@ -199,7 +204,7 @@ export default function TrackOrdersPage() {
           aria-atomic="true"
         >
           {paginatedOrders.length === 0 ? (
-            <p className="col-span-full p-4 text-center text-gray-800 text-lg">{t("noOrdersFound")}</p>
+            <p className="col-span-full p-4 text-center text-gray-600 text-lg">{t("noOrdersFound")}</p>
           ) : (
             paginatedOrders.map((order) => (
               <OrderCard
@@ -213,72 +218,71 @@ export default function TrackOrdersPage() {
         </motion.section>
 
         {/* Pagination Controls */}
-       {totalPages > 1 && (
-  <nav
-    aria-label="Pagination"
-    className="flex justify-center items-center gap-4 mb-8"
-  >
-    <button
-      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-      disabled={currentPage === 1}
-      aria-label={t("pagination.previousPage")}
-      className={`
+        {totalPages > 1 && (
+          <nav
+            aria-label="Pagination"
+            className="flex justify-center items-center gap-4 mb-8"
+          >
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              aria-label={t("pagination.previousPage")}
+              className={`
         flex items-center justify-center w-10 h-10 rounded-full 
-        bg-white text-black
-        hover:bg-gray-100 hover:text-black
-        disabled:bg-gray-200 disabled:text-gray-500
+        bg-gray-200 text-gray-600
+        hover:bg-gray-300 hover:text-gray-800
+        disabled:bg-gray-100 disabled:text-gray-400
         disabled:cursor-not-allowed
         transition
-        focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
       `}
-    >
-      {isRTL ? <FiChevronRight size={20} /> : <FiChevronLeft size={20} />}
-    </button>
+            >
+              {isRTL ? <FiChevronRight size={20} /> : <FiChevronLeft size={20} />}
+            </button>
 
-    {[...Array(totalPages)].map((_, i) => {
-      const page = i + 1;
-      const isActive = page === currentPage;
-      return (
-        <button
-          key={page}
-          onClick={() => setCurrentPage(page)}
-          aria-current={isActive ? "page" : undefined}
-          aria-label={t("pagination.goToPage", { page })}
-          className={`
+            {[...Array(totalPages)].map((_, i) => {
+              const page = i + 1;
+              const isActive = page === currentPage;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-label={t("pagination.goToPage", { page })}
+                  className={`
             flex items-center justify-center w-10 h-10 rounded-full
             font-semibold text-sm
             transition
-            focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2
-            ${
-              isActive
-                ? "bg-black text-white shadow-lg"
-                : "bg-white text-black hover:bg-gray-100"
-            }
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            ${isActive
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }
           `}
-        >
-          {page}
-        </button>
-      );
-    })}
+                >
+                  {page}
+                </button>
+              );
+            })}
 
-    <button
-      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-      disabled={currentPage === totalPages}
-      aria-label={t("pagination.nextPage")}
-      className={`
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              aria-label={t("pagination.nextPage")}
+              className={`
         flex items-center justify-center w-10 h-10 rounded-full 
-        bg-white text-black
-        hover:bg-gray-100 hover:text-black
-        disabled:bg-gray-200 disabled:text-gray-500
+        bg-gray-200 text-gray-600
+        hover:bg-gray-300 hover:text-gray-800
+        disabled:bg-gray-100 disabled:text-gray-400
         disabled:cursor-not-allowed
         transition
-        focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
       `}
-    >
-      {isRTL ? <FiChevronLeft size={20} /> : <FiChevronRight size={20} />}
-    </button>
-  </nav>
-)}
+            >
+              {isRTL ? <FiChevronLeft size={20} /> : <FiChevronRight size={20} />}
+            </button>
+          </nav>
+        )}
 
         {/* All Orders Timeline */}
         {orders.length > 0 && (
@@ -305,6 +309,7 @@ export default function TrackOrdersPage() {
             order={selectedOrder}
             isOpenModal={isReturnModalOpen}
             toggleOpenModal={toggleReturnModal}
+            refetchOrder={refetch}
           />
         )}
       </div>

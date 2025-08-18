@@ -7,44 +7,59 @@ import Modal from "../UI/Modal";
 import { useTranslations, useLocale } from "next-intl";
 import { createReturnRequest, CreateReturnRequest } from "@/lib/axios/ReturnAxios";
 import { useMutation } from "@tanstack/react-query";
- 
+
 interface RetrunModalProp {
   order: Order;
   isOpenModal: boolean;
   toggleOpenModal: () => void;
+  refetchOrder: () => void
 }
 
 const ReturnModal: React.FC<RetrunModalProp> = ({
   order,
   isOpenModal,
   toggleOpenModal,
+  refetchOrder
 }) => {
   const t = useTranslations("trackOrders.returnModal");
   const locale = useLocale();
+  const mapReturnErrorMessage = (rawMessage?: string) => {
+    if (!rawMessage) return t("unexpectedError");
+    const normalized = rawMessage.toLowerCase();
+    if (
+      normalized.includes("already existing return requests") ||
+      normalized.includes("cannot create a new return request")
+    ) {
+      return t("orderAlreadyReturned");
+    }
+    return rawMessage;
+  };
   const { mutate: submitReturn, isPending: isSubmitting } = useMutation({
-  mutationFn: createReturnRequest,
-  onSuccess: (data) => {
-    toast.success(t("returnSubmittedSuccessfully"));
-    toggleOpenModal(); 
-    console.log("Return request created:", data);
-  },
-  onError: (error: Error) => {
-    console.error("Return submission error:", error);
-    toast.error(error.message);
-  },
-});
+    mutationFn: createReturnRequest,
+    onSuccess: (data) => {
+      toast.success(t("returnSubmittedSuccessfully"));
+      toggleOpenModal();
+      console.log("Return request created:", data);
+      refetchOrder()
+    },
+    onError: (error: Error) => {
+      console.error("Return submission error:", error);
+      const message = mapReturnErrorMessage(error?.message);
+      toast.error(message);
+    },
+  });
   const isRTL = locale === "ar";
   const [returnStep, setReturnStep] = useState<"policy" | "items" | "reason">(
     "policy"
   );
-const [selectedItems, setSelectedItems] = useState<
-  Record<number, { checked: boolean; quantity: number }>
->({});
+  const [selectedItems, setSelectedItems] = useState<
+    Record<number, { checked: boolean; quantity: number }>
+  >({});
   const [returnReason, setReturnReason] = useState("");
   const [returnNote, setReturnNote] = useState("");
   const [isPolicyExpanded, setIsPolicyExpanded] = useState(false);
 
- 
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -77,25 +92,25 @@ const [selectedItems, setSelectedItems] = useState<
       transition: { duration: 0.3 },
     },
   };
- 
-  
-useEffect(() => {
-  if (isOpenModal) {
-    const initialSelection = order.items?.reduce(
-      (acc, item) => {
-        acc[item.order_item_id] = { checked: false, quantity: item.qty };
-        return acc;
-      },
-      {} as Record<number, { checked: boolean; quantity: number }>
-    ) ?? {};
 
-    setSelectedItems(initialSelection);
-    setReturnStep("policy");
-    setReturnReason("");
-    setReturnNote("");
-    setIsPolicyExpanded(false);
-  }
-}, [isOpenModal, order.items]);
+
+  useEffect(() => {
+    if (isOpenModal) {
+      const initialSelection = order.items?.reduce(
+        (acc, item) => {
+          acc[item.order_item_id] = { checked: false, quantity: item.qty };
+          return acc;
+        },
+        {} as Record<number, { checked: boolean; quantity: number }>
+      ) ?? {};
+
+      setSelectedItems(initialSelection);
+      setReturnStep("policy");
+      setReturnReason("");
+      setReturnNote("");
+      setIsPolicyExpanded(false);
+    }
+  }, [isOpenModal, order.items]);
 
 
   const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,6 +131,11 @@ useEffect(() => {
 
 
   const handleNextStep = () => {
+    const hasExistingOrderReturn = (order.returnRequests?.length ?? 0) > 0;
+    if (hasExistingOrderReturn) {
+      toast.error(t("orderAlreadyReturned"));
+      return;
+    }
     if (returnStep === "policy") {
       setReturnStep("items");
       return;
@@ -131,41 +151,46 @@ useEffect(() => {
     }
   };
 
-const handleSubmitReturn = () => {
-  const itemsToReturn = Object.entries(selectedItems)
-    .filter(([, item]) => item.checked)
-    .map(([order_item_id, item]) => ({
-      order_item_id: Number(order_item_id),
-      quantity: item.quantity,
+  const handleSubmitReturn = () => {
+    const hasExistingOrderReturn = (order.returnRequests?.length ?? 0) > 0;
+    if (hasExistingOrderReturn) {
+      toast.error(t("orderAlreadyReturned"));
+      return;
+    }
+    const itemsToReturn = Object.entries(selectedItems)
+      .filter(([, item]) => item.checked)
+      .map(([order_item_id, item]) => ({
+        order_item_id: Number(order_item_id),
+        quantity: item.quantity,
+        reason: returnReason,
+      }));
+
+    if (!itemsToReturn.length) {
+      toast.error(t("selectAtLeastOneItem"));
+      return;
+    }
+
+    const payload: CreateReturnRequest = {
+      order_id: order.order_id,
       reason: returnReason,
-    }));
+      type: "return_only",
+      ...(returnNote.trim() && { note: returnNote }),
+      items: itemsToReturn,
+    };
 
-  if (!itemsToReturn.length) {
-    toast.error(t("selectAtLeastOneItem"));
-    return;
-  }
-
-  const payload: CreateReturnRequest = {
-    order_id: order.order_id,
-    reason: returnReason,
-    type: "return_only",
-    ...(returnNote.trim() && { note: returnNote }),
-    items: itemsToReturn,
+    console.log("Submitting payload:", payload);
+    submitReturn(payload);
   };
 
-  console.log("Submitting payload:", payload);
-  submitReturn(payload);
-};
 
 
 
-
-const reasons: { id: string; label: string }[] =
-  order.items?.[0]?.product?.returnPolicy?.required_reasons
-    ? JSON.parse(order.items[0].product.returnPolicy.required_reasons).map(
+  const reasons: { id: string; label: string }[] =
+    order.items?.[0]?.product?.returnPolicy?.required_reasons
+      ? JSON.parse(order.items[0].product.returnPolicy.required_reasons).map(
         (r: string) => ({ id: r, label: r })
       )
-    : [
+      : [
         { id: "Defective product", label: "Defective product" },
         { id: "Wrong item received", label: "Wrong item received" },
         { id: "Not as described", label: "Not as described" },
@@ -174,51 +199,51 @@ const reasons: { id: string; label: string }[] =
 
 
 
-const getItemReturnStatus = (item: OrderItem, order: Order) => {
-  let canReturn = true;
-  let disabled = false;
-  let tooltip = "";
+  const getItemReturnStatus = (item: OrderItem, order: Order) => {
+    let canReturn = true;
+    let disabled = false;
+    let tooltip = "";
 
-  const isItemAlreadyReturned = order.returnRequests?.some(
-    (r) => r.order_item_id === item.order_item_id
-  );
+    const isItemAlreadyReturned = order.returnRequests?.some(
+      (r) => r.order_item_id === item.order_item_id
+    );
 
-  if (isItemAlreadyReturned) {
-    canReturn = false;
-    disabled = true;
-    tooltip = t("returnModal.itemAlreadyReturned");
-  } else if (!item.product?.returnPolicy) {
-    canReturn = false;
-    disabled = true;
-    tooltip = t("noReturnPolicy", { product: item.product_name });
-  } else {
-    const deliveredDate = item.created_at ? new Date(item.created_at) : null;
-    const daysLimit = item.product.returnPolicy?.days_limit || 0;
+    if (isItemAlreadyReturned) {
+      canReturn = false;
+      disabled = true;
+      tooltip = t("itemAlreadyReturned");
+    } else if (!item.product?.returnPolicy) {
+      canReturn = false;
+      disabled = true;
+      tooltip = t("noReturnPolicy", { product: item.product_name });
+    } else {
+      const deliveredDate = item.created_at ? new Date(item.created_at) : null;
+      const daysLimit = item.product.returnPolicy?.days_limit || 0;
 
-    if (deliveredDate) {
-      const returnDeadline = new Date(deliveredDate);
-      returnDeadline.setDate(returnDeadline.getDate() + daysLimit);
+      if (deliveredDate) {
+        const returnDeadline = new Date(deliveredDate);
+        returnDeadline.setDate(returnDeadline.getDate() + daysLimit);
 
-      if (new Date() > returnDeadline) {
-        canReturn = false;
-        disabled = true;
-        tooltip = t("returnModal.returnWindowExpiredDetailed", {
-          days: daysLimit,
-          deadline: returnDeadline.toLocaleDateString(),
-        });
+        if (new Date() > returnDeadline) {
+          canReturn = false;
+          disabled = true;
+          tooltip = t("returnWindowExpiredDetailed", {
+            days: daysLimit,
+            deadline: returnDeadline.toLocaleDateString(),
+          });
+        }
       }
     }
-  }
 
-  return { canReturn, disabled, tooltip };
-};
-
+    return { canReturn, disabled, tooltip };
+  };
 
 
-const allItemsCanReturn = order.items?.some((item) => {
-  const status = getItemReturnStatus(item, order);
-  return !status.disabled; // true if at least one item is selectable
-}) ?? false;
+
+  const allItemsCanReturn = order.items?.some((item) => {
+    const status = getItemReturnStatus(item, order);
+    return !status.disabled; // true if at least one item is selectable
+  }) ?? false;
   return (
     <Modal open={isOpenModal} classesName="bg-white">
       <AnimatePresence mode="wait">
@@ -315,9 +340,8 @@ const allItemsCanReturn = order.items?.some((item) => {
               {isPolicyExpanded ? t("showLess") : t("viewCompletePolicy")}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className={`h-4 w-4 transition-transform ${isRTL ? "mr-1" : "ml-1"} ${
-                  isPolicyExpanded ? "rotate-180" : ""
-                }`}
+                className={`h-4 w-4 transition-transform ${isRTL ? "mr-1" : "ml-1"} ${isPolicyExpanded ? "rotate-180" : ""
+                  }`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -357,7 +381,7 @@ const allItemsCanReturn = order.items?.some((item) => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="p-6 w-full bg-white rounded-xl shadow-xl"
+            className="p-6 w-full  bg-white rounded-xl shadow-xl"
           >
             <div className="flex justify-between items-center mb-6">
               <motion.h2
@@ -400,110 +424,106 @@ const allItemsCanReturn = order.items?.some((item) => {
               <h3 className="font-medium text-gray-700">
                 {t("orderNumber", { number: order.order_id })}
               </h3>
-         <label
-  className={`flex items-center gap-2 text-sm text-gray-600 cursor-pointer ${
-    isRTL ? "flex-row-reverse" : ""
-  }`}
->
-  <input
-    type="checkbox"
-    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-    checked={
-      Object.values(selectedItems).every((item) => item.checked) &&
-      Object.values(selectedItems).length > 0
-    }
-    onChange={toggleSelectAll}
-    disabled={!allItemsCanReturn} 
-  />
-  {t("selectAll")}
-</label>
+              <label
+                className={`flex items-center gap-2 text-sm text-gray-600 cursor-pointer ${isRTL ? "flex-row-reverse" : ""
+                  }`}
+              >
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  checked={
+                    Object.values(selectedItems).every((item) => item.checked) &&
+                    Object.values(selectedItems).length > 0
+                  }
+                  onChange={toggleSelectAll}
+                  disabled={!allItemsCanReturn}
+                />
+                {t("selectAll")}
+              </label>
             </motion.div>
 
-        <motion.div
-  className="space-y-3 max-h-96 overflow-y-auto pr-2"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.3 }}
->
-  {order.items?.map((item) => {
-    const status = getItemReturnStatus(item, order);
-    const isSelected = selectedItems[item.order_item_id]?.checked || false;
+            <motion.div
+              className="space-y-3 max-h-96  overflow-y-auto pr-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              {order.items?.map((item) => {
+                const status = getItemReturnStatus(item, order);
+                const isSelected = selectedItems[item.order_item_id]?.checked || false;
 
-    return (
-    <motion.div
-  key={item.order_item_id}
-  className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
-    !status.canReturn
-      ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
-      : "border-gray-200 hover:border-blue-300"
-  }`}
->
-  {/* Checkbox */}
-  <input
-    type="checkbox"
-    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-    checked={isSelected}
-    disabled={status.disabled}
-    title={status.tooltip}
-    onChange={(e) => handleItemCheck(item.order_item_id, e.target.checked)}
-  />
+                return (
+                  <motion.div
+                    key={item.order_item_id}
+                    className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${!status.canReturn
+                      && "hidden"
+                      }`}
+                  >
+                    {/* Checkbox */}
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      checked={isSelected}
+                      disabled={status.disabled}
+                      title={status.tooltip}
+                      onChange={(e) => handleItemCheck(item.order_item_id, e.target.checked)}
+                    />
 
-  {/* Product Image */}
-  <div className="relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-    <Image
-      src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
-      alt={item.product_name || "Product Image"}
-      fill
-      className="object-cover"
-    />
-  </div>
+                    {/* Product Image */}
+                    <div className="relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                      <Image
+                        src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
+                        alt={item.product_name || "Product Image"}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
 
-  {/* Product Info */}
-  <div className="flex-1 min-w-0">
-    <p className="font-medium text-gray-900 truncate">{item.product_name}</p>
-    <p className="text-xs text-gray-500">
-      {t("sku", { sku: item.product?.sku ?? "N/A" })}
-    </p>
-    {!status.canReturn && status.tooltip && (
-      <p className="text-xs mt-1 italic text-red-500">{status.tooltip}</p>
-    )}
-  </div>
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{item.product_name}</p>
+                      <p className="text-xs text-gray-500">
+                        {t("sku", { sku: item.product?.sku ?? "N/A" })}
+                      </p>
+                      {!status.canReturn && status.tooltip && (
+                        <p className="text-xs mt-1 italic text-red-500">{status.tooltip}</p>
+                      )}
+                    </div>
 
-  {/* Price / Qty */}
-  <div className="flex-shrink-0 flex flex-col items-end gap-1">
-    <p className="text-sm font-semibold text-gray-900">
-      {item.product_price} {order.currency}
-    </p>
+                    {/* Price / Qty */}
+                    <div className="flex-shrink-0 flex flex-col items-end gap-1">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {item.product_price} {order.currency}
+                      </p>
 
-    {/* Qty Selector */}
- <input
-  type="number"
-  min={1}
-  max={item.qty}
-  value={selectedItems[item.order_item_id]?.quantity || 1}
-  onChange={(e) =>
-    setSelectedItems((prev) => ({
-      ...prev,
-      [item.order_item_id]: {
-        ...prev[item.order_item_id],
-        quantity: Math.min(Math.max(Number(e.target.value), 1), item.qty),
-      },
-    }))
-  }
-  className={`w-16 text-sm border rounded px-2 py-1 text-blue-500 ${
-    !isSelected || !status.canReturn ? "bg-gray-100 cursor-not-allowed" : ""
-  }`}
-/>
+                      {/* Qty Selector */}
+                      <input
+                        type="number"
+                        min={1}
+                        max={item.qty}
+                        value={selectedItems[item.order_item_id]?.quantity || 1}
+                        onChange={(e) =>
+                          setSelectedItems((prev) => ({
+                            ...prev,
+                            [item.order_item_id]: {
+                              ...prev[item.order_item_id],
+                              quantity: Math.min(Math.max(Number(e.target.value), 1), item.qty),
+                            },
+                          }))
+                        }
+                        className={`w-16 text-sm border rounded px-2 py-1 text-blue-500 ${!isSelected || !status.canReturn ? "bg-gray-100 cursor-not-allowed" : ""
+                          }`}
+                      />
 
 
 
-    <p className="text-xs text-gray-500">{t("qty", { quantity: item.qty })}</p>
-  </div>
-</motion.div>
+                      <p className="text-xs text-gray-500">{t("qty", { quantity: item.qty })}</p>
+                    </div>
+                  </motion.div>
 
-    );
-  }) ?? null}
-</motion.div>
+                );
+              }) ?? null}
+            </motion.div>
 
 
 
@@ -526,11 +546,10 @@ const allItemsCanReturn = order.items?.some((item) => {
                 disabled={
                   !Object.values(selectedItems).some((item) => item.checked)
                 }
-                className={`px-4 py-2 rounded-md text-white ${
-                  Object.values(selectedItems).some((item) => item.checked)
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-gray-300 cursor-not-allowed"
-                }`}
+                className={`px-4 py-2 rounded-md text-white ${Object.values(selectedItems).some((item) => item.checked)
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-300 cursor-not-allowed"
+                  }`}
                 whileHover={{
                   scale: Object.values(selectedItems).some(
                     (item) => item.checked
@@ -597,65 +616,64 @@ const allItemsCanReturn = order.items?.some((item) => {
               transition={{ delay: 0.2 }}
             >
               <h3 className="font-medium text-gray-700 mb-3">{t("selectedItems")}</h3>
-            <div className="space-y-2 mb-4">
-  {order.items
-    ?.filter((item) => selectedItems[item.order_item_id]?.checked)
-    .map((item, index) => (
-      <motion.div
-        key={item.order_item_id}
-        className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"} p-2 bg-gray-50 rounded`}
-        variants={itemVariants}
-        custom={index}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className={`flex items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-          <div className={`relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 ${isRTL ? "ml-3" : "mr-3"}`}>
-  <Image
-    src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
-    alt={item.product_name || "Product Image"}
-    fill
-    className="object-cover"
-  />
-</div>
+              <div className="space-y-2 mb-4">
+                {order.items
+                  ?.filter((item) => selectedItems[item.order_item_id]?.checked)
+                  .map((item, index) => (
+                    <motion.div
+                      key={item.order_item_id}
+                      className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"} p-2 bg-gray-50 rounded`}
+                      variants={itemVariants}
+                      custom={index}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <div className={`flex items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+                        <div className={`relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 ${isRTL ? "ml-3" : "mr-3"}`}>
+                          <Image
+                            src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
+                            alt={item.product_name || "Product Image"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
 
-          <span className="text-sm font-medium">{item.product_name}</span>
-        </div>
-        <span className="text-sm text-gray-600">
-          {t("qty", { quantity: selectedItems[item.order_item_id]?.quantity })}
-        </span>
-      </motion.div>
-    )) ?? null}
-</div>
+                        <span className="text-sm font-medium">{item.product_name}</span>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {t("qty", { quantity: selectedItems[item.order_item_id]?.quantity })}
+                      </span>
+                    </motion.div>
+                  )) ?? null}
+              </div>
 
 
               <h3 className="font-medium text-gray-700 mb-3">
                 {t("reasonForReturn")}
               </h3>
               <motion.div
-  className="grid grid-cols-2 gap-3 mb-4"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.3 }}
->
-  {reasons.map((reason, index) => (
-    <motion.button
-      key={reason.id}
-      className={`py-2 px-3 rounded-md border text-sm font-medium ${
-        returnReason === reason.id
-          ? "border-blue-500 bg-blue-50 text-blue-700"
-          : "border-gray-200 hover:border-gray-300 text-gray-700"
-      }`}
-      onClick={() => setReturnReason(reason.id)}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      custom={index}
-      variants={itemVariants}
-    >
-      {reason.label}
-    </motion.button>
-  ))}
-</motion.div>
+                className="grid grid-cols-2 gap-3 mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                {reasons.map((reason, index) => (
+                  <motion.button
+                    key={reason.id}
+                    className={`py-2 px-3 rounded-md border text-sm font-medium ${returnReason === reason.id
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-gray-300 text-gray-700"
+                      }`}
+                    onClick={() => setReturnReason(reason.id)}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    custom={index}
+                    variants={itemVariants}
+                  >
+                    {reason.label}
+                  </motion.button>
+                ))}
+              </motion.div>
 
 
               <motion.div
@@ -695,16 +713,15 @@ const allItemsCanReturn = order.items?.some((item) => {
                 {t("back")}
               </motion.button>
               <motion.button
-  onClick={handleSubmitReturn}
-  disabled={!returnReason || isSubmitting}
-  className={`px-4 py-2 rounded-md text-white ${
-    returnReason
-      ? "bg-blue-600 hover:bg-blue-700"
-      : "bg-gray-300 cursor-not-allowed"
-  }`}
->
-  {isSubmitting ? t("submitting") : t("submitReturnRequest")}
-</motion.button>
+                onClick={handleSubmitReturn}
+                disabled={!returnReason || isSubmitting}
+                className={`px-4 py-2 rounded-md text-white ${returnReason
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-300 cursor-not-allowed"
+                  }`}
+              >
+                {isSubmitting ? t("submitting") : t("submitReturnRequest")}
+              </motion.button>
 
             </motion.div>
           </motion.div>

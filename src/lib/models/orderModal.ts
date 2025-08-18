@@ -9,10 +9,12 @@ export type OrderStatus =
   | "delivered";
 
 export type ShipmentStatus = "pending" | "Shipped" | "delivered" | "unknown";
-export type PaymentStatus = "pending" | "paid" | "Cancelled" ;
-export type ReturnRequestStatus = "pending" | "received" | "rejected" | "completed";
-
-
+export type PaymentStatus = "pending" | "paid" | "Cancelled";
+export type ReturnRequestStatus =
+  | "pending"
+  | "received"
+  | "rejected"
+  | "completed";
 
 export interface Order {
   order_id: number;
@@ -62,7 +64,6 @@ export interface Order {
   created_at: string; // ISO DateTime
   updated_at: string; // ISO DateTime
 
-
   items?: OrderItem[];
   shipments?: Shipment[];
   transactions?: Transaction[];
@@ -70,7 +71,6 @@ export interface Order {
   invoices?: Invoice[];
   returnRequests?: ReturnRequest[];
 
-  
   isFullyDelivered?: boolean;
   totalReturnsCount?: number;
 }
@@ -110,10 +110,8 @@ export interface OrderItem {
   created_at: string;
   updated_at: string;
 
- 
   product?: Product;
 
- 
   isReturnEligible?: boolean;
 }
 
@@ -147,8 +145,8 @@ export interface Product {
   created_at: string;
   updated_at: string;
   images: ProductImage[];
+  reviews: Review[];
 
- 
   returnPolicy?: ReturnPolicy;
 }
 
@@ -169,10 +167,9 @@ export interface ReturnRequest {
   created_at: string;
   updated_at: string;
 
-  note?: string;   
-  type?: string;   
+  note?: string;
+  type?: string;
 }
-
 
 export interface Shipment {
   shipment_id: number;
@@ -212,3 +209,10 @@ export interface Invoice {
   invoice_number: string;
 }
 
+export interface Review {
+  rating: number;
+  title: string | null;
+  review_text: string;
+  status: string;
+  created_at: string;
+}
