@@ -1,283 +1,311 @@
 "use client";
 
-import { motion } from "framer-motion";
+import React, { JSX, useState } from "react";
 import Image from "next/image";
-import {
-  FiAward,
-  FiUsers,
-  FiGlobe,
-  FiShoppingBag,
-  FiArrowRight,
-} from "react-icons/fi";
-import { useTranslations, useLocale } from "next-intl";
+import { FaInstagram } from "react-icons/fa";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 
-export default function AboutUsPage() {
+type CardType = "skincare" | "makeup" | "body" | null;
+
+export default function BeautyLandingPage(): JSX.Element {
   const t = useTranslations("aboutUs");
-  const locale = useLocale();
-  const isRtl = locale === "ar";
+  const [hoveredCard, setHoveredCard] = useState<CardType>(null);
 
-  const stats = [
+  const handleInstagramClick = (): void => {
+    if (typeof window !== "undefined") {
+      window.open("https://instagram.com", "_blank");
+    }
+  };
+
+  type CardKey = Exclude<CardType, null>;
+
+  const categories: {
+    key: CardKey;
+    name: string;
+    href: string;
+    img: string;
+    textColor: string;
+    extraClass: string;
+  }[] = [
     {
-      value: "10M+",
-      label: t("stats.customers"),
-      icon: <FiUsers className="text-3xl" />,
+      key: "skincare",
+      name: t("categories.skincare"),
+      href: "/category/skincare",
+      img: "https://crido.wpbingosite.com/wp-content/uploads/2021/08/img2-1.jpg",
+      textColor: "text-white",
+      extraClass: "",
     },
     {
-      value: "150+",
-      label: t("stats.countries"),
-      icon: <FiGlobe className="text-3xl" />,
+      key: "makeup",
+      name: t("categories.makeup"),
+      href: "/category/makeup",
+      img: "https://crido.wpbingosite.com/wp-content/uploads/2021/08/img2-2.jpg",
+      textColor: "text-black",
+      extraClass: "mt-24",
     },
     {
-      value: "2010",
-      label: t("stats.established"),
-      icon: <FiAward className="text-3xl" />,
-    },
-    {
-      value: "24/7",
-      label: t("stats.support"),
-      icon: <FiShoppingBag className="text-3xl" />,
+      key: "body",
+      name: t("categories.body"),
+      href: "/category/body",
+      img: "https://crido.wpbingosite.com/wp-content/uploads/2021/08/img2-3.jpg",
+      textColor: "text-white",
+      extraClass: "",
     },
   ];
 
-  const team = [
-    {
-      name: t("team.ceo.name"),
-      role: t("team.ceo.role"),
-      image: "/image/users/myPicture.jpg",
-      bio: t("team.ceo.bio"),
-    },
-  ];
+// Prepare features manually with translations and SVGs
+const features = [
+  {
+    title: t("features.shipping.title"),
+    desc: t("features.shipping.desc"),
+    svg: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 508 508"
+        className="w-16 h-16 text-amber-600 fill-current transition-colors duration-300"
+      >
+        <path d="M430.4,0H77.6L0,112.1V508h508V112.1L430.4,0z M335.9,16.4h85.8l62.5,90.1H335.9V16.4z M188.5,16.4h131.1v90.1H188.5V16.4z M188.4,122.9h0.1h131.1v74.8l-16.4-10.9l-24.6,16.4L254,186.8l-24.6,16.4l-24.6-16.4l-16.4,10.9V122.9z M86.2,16.4H172v90.1H23.8L86.2,16.4z M491.8,491.6H16.4V122.9h155.7v105.4l32.8-21.9l24.6,16.4l24.6-16.4l24.6,16.4l24.6-16.4l32.8,21.9V122.9h155.7V491.6z"></path>
+        <polygon points="417.9,373.5 387.5,403.9 399.1,415.5 409.7,404.9 409.7,458.8 426.1,458.8 426.1,404.9 436.7,415.5 448.2,403.9"></polygon>
+        <polygon points="344.1,373.5 313.8,403.9 325.3,415.5 335.9,404.9 335.9,458.8 352.3,458.8 352.3,404.9 362.9,415.5 374.5,403.9"></polygon>
+      </svg>
+    ),
+  },
+  {
+    title: t("features.return.title"),
+    desc: t("features.return.desc"),
+    svg: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 508 508"
+        className="w-16 h-16 text-amber-600 fill-current transition-colors duration-300"
+      >
+        <path d="M254,0C128.3,0,26.1,102.2,26.1,227.9c0,122.9,97.9,223.4,219.8,227.7V508l60.3-60.3l-60.3-60.3v52c-113-4.4-203.5-97.5-203.5-211.5c0-116.7,94.9-211.6,211.6-211.6s211.6,94.9,211.6,211.6h16.3C481.9,102.2,379.7,0,254,0z M262.1,426.6l21,21l-21,21V426.6z"></path>
+        <path d="M131.9,105.8V350h244.2V105.8H131.9z M229.6,122.1L229.6,122.1h48.8v32.6h-48.8V122.1z M359.8,333.7H148.2V122.1h65.1v48.8h81.4v-48.8h65.1V333.7z"></path>
+        <polygon points="319.1,248.2 291.2,279.5 303.4,290.3 311,281.8 311,317.4 327.3,317.4 327.3,281.8 334.8,290.3 347,279.5"></polygon>
+        <polygon points="251.4,248.2 223.5,279.5 235.7,290.3 243.2,281.8 243.2,317.4 259.5,317.4 259.5,281.8 267.1,290.3 279.2,279.5"></polygon>
+      </svg>
+    ),
+  },
+  {
+    title: t("features.payment.title"),
+    desc: t("features.payment.desc"),
+    svg: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 508 508"
+        className="w-16 h-16 text-amber-600 fill-current transition-colors duration-300"
+      >
+        <path d="M376.7,0H131.3c2,61.4-43.6,101.1-98.2,98.2v68.4C37.6,423,254,508,254,508s214.3-85,220.9-341.4V98.2C407.9,103.9,371.7,41.3,376.7,0z M49.5,166.6v-52.4c52.1-4,93.9-45.7,97.9-97.9h98.5v106.8c-47.6,4-85.6,42-89.6,89.6H52.6C50.6,197.5,49.5,182.1,49.5,166.6z M245.8,485.9C144.9,434.8,74.6,338.7,55,229h101.2c4,47.6,42,85.6,89.6,89.6V485.9z M172.2,220.9c0-45.1,36.7-81.8,81.8-81.8c45.1,0,81.8,36.7,81.8,81.8c0,45.1-36.7,81.8-81.8,81.8C208.9,302.7,172.2,266,172.2,220.9z M262.2,485.9V318.6c47.6-4,85.6-42,89.6-89.6H453C433.4,338.7,363.1,434.8,262.2,485.9z M458.5,166.6c0,15.5-1.1,30.9-3.1,46.1H351.7c-4-47.6-42-85.6-89.6-89.6V16.4h98.5c4,52.1,45.8,93.8,97.9,97.8V166.6z"></path>
+        <polygon points="295.8,182.4 236.2,242 212.2,218.1 200.6,229.6 236.2,265.2 307.4,193.9"></polygon>
+      </svg>
+    ),
+  },
+];
+
+
 
   return (
-    <div className={`bg-white ${isRtl ? "rtl" : "ltr"}`}>
-      <section className="relative h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="hero"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-6 max-w-4xl mx-auto"
+    <div className="min-h-screen bg-white">
+      {/* Header Section with Fixed Background */}
+      <section className="relative h-screen overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          style={{
+            backgroundImage:
+              'url("https://crido.wpbingosite.com/wp-content/uploads/2021/09/about-1.jpg")',
+          }}
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            {t("hero.title")}
-          </h1>
-          <p className="text-xl text-white/90 mb-8">{t("hero.subtitle")}</p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 bg-white text-gray-900 font-medium rounded-full flex items-center gap-2 mx-auto"
-          >
-            {t("hero.button")} <FiArrowRight />
-          </motion.button>
-        </motion.div>
-      </section>
-
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              {t("story.title")}
-            </h2>
-            <p className="text-lg text-gray-600 mb-4">{t("story.p1")}</p>
-            <p className="text-lg text-gray-600 mb-4">{t("story.p2")}</p>
-            <p className="text-lg text-gray-600">{t("story.p3")}</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="relative h-96 rounded-2xl overflow-hidden shadow-xl"
-          >
-            <Image
-              src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-              alt="our story"
-              fill
-              className="object-cover"
-            />
-          </motion.div>
+          <div className="absolute inset-0 bg-black/20"></div>
         </div>
-      </section>
 
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                whileHover={{ y: -5 }}
-                className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all"
-              >
-                <div className="text-blue-600 mb-4 flex justify-center">
-                  {stat.icon}
-                </div>
-                <h3 className="text-4xl font-bold text-gray-900 mb-2">
-                  {stat.value}
-                </h3>
-                <p className="text-gray-600">{stat.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            {t("values.title")}
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            {t("values.subtitle")}
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            "customer",
-            "sustainability",
-            "innovation",
-            "quality",
-            "community",
-            "transparency",
-          ].map((key, index) => (
-            <motion.div
-              key={key}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all"
+        <div className="relative z-10 flex items-center justify-center h-full px-6">
+          <div className="text-center text-black max-w-4xl">
+            <h1
+              className="mb-8 leading-tight italic"
+              style={{
+                fontFamily: '"Playfair Display", serif',
+                fontSize: "100px",
+                fontWeight: 400,
+              }}
             >
-              <span className="text-4xl mb-4 inline-block">🌟</span>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">
-                {t(`values.items.${key}.title`)}
-              </h3>
-              <p className="text-gray-600">{t(`values.items.${key}.desc`)}</p>
-            </motion.div>
-          ))}
+              {t("hero.title")}
+            </h1>
+            <div className="w-32 h-0.5 bg-black mx-auto mb-12"></div>
+            <p className="text-sm tracking-[0.3em] uppercase mb-16">
+              {t("hero.subtitle")}
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {t("team.title")}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t("team.subtitle")}
-            </p>
-          </motion.div>
+      {/* Text Section with Shop Now */}
+      <section className="py-20 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-2xl text-gray-800 mb-8 leading-relaxed font-light font-Europa">
+            {t("intro")}
+          </p>
+          <div className="inline-block">
+            <button className="text-lg text-black font-Europa font-medium hover:text-gray-600 transition-colors duration-300 relative group">
+              {t("hero.button")}
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-black transform scale-x-100 transition-transform duration-300"></div>
+            </button>
+          </div>
+        </div>
+      </section>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                whileHover={{ y: -10 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all"
+      {/* Product Categories */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 items-start">
+            {categories.map((cat) => (
+              <Link
+                key={cat.key}
+                href={cat.href}
+                className={`group relative cursor-pointer transform transition-all duration-500 ease-in-out ${cat.extraClass}`}
+                onMouseEnter={() => setHoveredCard(cat.key)}
+                onMouseLeave={() => setHoveredCard(null)}
+                style={{
+                  animation: hoveredCard === cat.key ? "bounce 1.5s ease-in-out 1" : "none",
+                }}
               >
-                <div className="relative h-64">
+                <div className="relative overflow-hidden h-[28rem] duration-300">
                   <Image
-                    src={member.image}
-                    alt={member.name}
+                    src={cat.img}
+                    alt={cat.name}
                     fill
-                    className="object-cover"
+                    className="object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {member.name}
+                  <div className="absolute inset-0 "></div>
+                  <h3
+                    className={`absolute bottom-6 left-1/2 -translate-x-1/2 text-2xl font-Europa ${cat.textColor} group-hover:text-[#a07542] transition-colors duration-300`}
+                  >
+                    {cat.name}
                   </h3>
-                  <p className="text-blue-600 mb-2">{member.role}</p>
-                  <p className="text-gray-600">{member.bio}</p>
                 </div>
-              </motion.div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* <section className="py-20 px-6 bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-3xl font-bold mb-6"
-          >
-            {t("cta.title")}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto"
-          >
-            {t("cta.subtitle")}
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-          >
+      {/* Features Section */}
+     <section className="py-20 px-6 bg-gray-50">
+  <div className="max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+      {features.map((feature, idx) => (
+        <div key={idx} className="text-center group">
+          <div className="mb-6">
+            <div className="flex items-center justify-center mx-auto transform transition-all duration-300 group-hover:scale-110">
+              {feature.svg}
+            </div>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            {feature.title}
+          </h3>
+          <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+      {/* Beauty Inspired Section */}
+      <section className="relative py-32 px-6 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url("https://crido.wpbingosite.com/wp-content/uploads/2021/09/img5-1.jpg")',
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+          <h2 className="text-5xl md:text-6xl font-serif mb-6 leading-tight">
+            {t("beautyInspired.title")}
+          </h2>
+          <p className="text-4xl md:text-5xl font-serif italic mb-12 text-gray-200">
+            {t("beautyInspired.subtitle")}
+          </p>
+
+          <p className="text-lg mb-12 max-w-2xl mx-auto leading-relaxed text-gray-200">
+            {t("beautyInspired.desc")}
+          </p>
+
+          <div className="inline-block">
+            <button className="px-10 py-4 bg-white text-gray-900 text-sm font-medium tracking-wide uppercase hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+              {t("beautyInspired.button")}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-2xl mx-auto text-center">
+          <h3 className="text-3xl font-Europa text-gray-900 mb-4">
+            {t("newsletter.title")}
+          </h3>
+          <p className="text-lg text-gray-600 mb-12 leading-relaxed">
+            {t("newsletter.desc")}
+          </p>
+
+          <div className="flex max-w-md mx-auto border-b-2 border-gray-300 focus-within:border-gray-900 transition-colors duration-300">
             <input
               type="email"
-              placeholder={t("cta.placeholder")}
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900"
+              placeholder={t("newsletter.placeholder")}
+              className="flex-1 px-2 py-4 outline-none bg-transparent text-lg placeholder-gray-500"
             />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
-            >
-              {t("cta.button")}
-            </motion.button>
-          </motion.div>
+            <button className="px-8 py-4 text-gray-900 font-semibold hover:text-amber-600 transition-colors duration-300 tracking-wide">
+              {t("newsletter.button")}
+            </button>
+          </div>
         </div>
-      </section> */}
+      </section>
+
+      {/* Instagram Gallery Section */}
+      <section className="grid grid-cols-2 md:grid-cols-5 h-64">
+        {[
+          "https://crido.wpbingosite.com/wp-content/uploads/2021/09/4.jpg",
+          "https://crido.wpbingosite.com/wp-content/uploads/2021/09/3.jpg",
+          "https://crido.wpbingosite.com/wp-content/uploads/2021/09/2.jpg",
+          "https://crido.wpbingosite.com/wp-content/uploads/2021/09/1.jpg",
+          "https://crido.wpbingosite.com/wp-content/uploads/2021/09/8.jpg",
+        ].map((image: string, index: number) => (
+          <div
+            key={index}
+            className="relative overflow-hidden cursor-pointer group"
+            onClick={handleInstagramClick}
+          >
+            <Image
+              src={image}
+              alt={`Instagram post ${index + 1}`}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <FaInstagram className="text-white text-4xl transform scale-75 group-hover:scale-100 transition-transform duration-300" />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <style jsx>{`
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+          }
+          40% {
+            transform: translateY(-10px);
+          }
+          60% {
+            transform: translateY(-5px);
+          }
+        }
+      `}</style>
     </div>
   );
 }

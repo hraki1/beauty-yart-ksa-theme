@@ -5,7 +5,14 @@ import { Package, Clock, Truck, CheckCircle } from "lucide-react";
 import type { OrderStatus } from "@/lib/models/orderModal";
 import { useTranslations, useLocale } from "next-intl";
 
-type ShipmentStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | null | string;
+type ShipmentStatus =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | null
+  | string;
 
 interface ProgressBarProps {
   status: OrderStatus;
@@ -23,52 +30,60 @@ const statusConfig = {
   unknown: { color: "text-gray-500", bg: "bg-gray-200", label: "Unknown" },
 } as const;
 
-const steps = ['pending', 'processing', 'shipped', 'delivered'] as const;
+const steps = ["pending", "processing", "shipped", "delivered"] as const;
 const icons = [Package, Clock, Truck, CheckCircle];
 
-function getEffectiveStatus(orderStatus: OrderStatus, shipmentStatus: ShipmentStatus): OrderStatus {
-  if (shipmentStatus === 'delivered') return 'delivered';
-  if (orderStatus === 'completed') return 'delivered';
-  return orderStatus;
+function getEffectiveStatus(orderStatus: OrderStatus, shipmentStatus: ShipmentStatus): keyof typeof statusConfig {
+  if (shipmentStatus === "delivered") return "delivered";
+  if (orderStatus === "completed") return "delivered";
+  return (orderStatus in statusConfig ? orderStatus : "unknown") as keyof typeof statusConfig;
 }
 
-export default function ProgressBar({ status, shipmentStatus = null, animated = false }: ProgressBarProps) {
+export default function ProgressBar({
+  status,
+  shipmentStatus = null,
+  animated = false,
+}: ProgressBarProps) {
   const t = useTranslations("trackOrders.progressBar");
   const locale = useLocale();
   const isRTL = locale === "ar";
+
   const effectiveStatus = getEffectiveStatus(status, shipmentStatus);
   const currentStep = steps.indexOf(effectiveStatus as typeof steps[number]);
   const stepLabels = [t("placed"), t("processing"), t("shipped"), t("delivered")];
 
   return (
-    <div className={`flex items-center w-full ${isRTL ? "flex-row-reverse" : ""}`}>
+    <div className={`flex items-center w-full relative ${isRTL ? "flex-row-reverse" : ""}`}>
       {stepLabels.map((label, index) => {
         const Icon = icons[index];
         const isActive = index <= currentStep;
+        const config = statusConfig[effectiveStatus];
 
         return (
           <div key={label} className="flex flex-col items-center flex-1 relative">
+            {/* Connector */}
+            {index < stepLabels.length - 1 && (
+              <div
+                className={`absolute top-1/2 left-1/2 h-0.5 z-0`}
+                style={{
+                  width: "100%",
+                  backgroundColor: index < currentStep ? config.bg.replace("bg-", "") : "#e5e7eb",
+                  transform: "translateX(50%)",
+                }}
+              />
+            )}
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
+              className={`w-10 h-10 rounded-full flex items-center justify-center z-10 transition-colors duration-300 ${
                 isActive
-                  ? `${statusConfig[effectiveStatus]?.bg} ${statusConfig[effectiveStatus]?.color} ${animated ? 'animate-pulse' : ''}`
-                  : 'bg-gray-200 text-gray-400'
+                  ? `${config.bg} ${config.color} ${animated ? "animate-pulse" : ""}`
+                  : "bg-gray-200 text-gray-400"
               }`}
             >
               <Icon className="w-5 h-5" />
             </div>
-            <span className={`text-xs mt-2 text-center ${isActive ? statusConfig[effectiveStatus]?.color : 'text-gray-400'}`}>
+            <span className={`text-xs mt-2 text-center ${isActive ? config.color : "text-gray-400"}`}>
               {label}
             </span>
-            {/* Connector */}
-            {index < stepLabels.length - 1 && (
-              <div
-                className={`absolute top-5 left-1/2 transform -translate-x-1/2 w-full h-0.5 z-0 ${
-                  index < currentStep ? statusConfig[effectiveStatus]?.bg : 'bg-gray-200'
-                }`}
-                style={{ width: "100%", left: "50%", transform: "translateX(50%)" }}
-              />
-            )}
           </div>
         );
       })}
