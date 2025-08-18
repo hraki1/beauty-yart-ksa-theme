@@ -258,131 +258,142 @@
     "continueShopping": "Continue Shopping"
   },
  "trackOrders": {
-    "pageTitle": "Track Your Orders",
-    "pageDescription": "Monitor all your orders in real-time with our premium tracking dashboard",
-    "loading": "Loading orders...",
-    "error": "Error: {message}",
-    "noOrdersFound": "No orders found.",
-    "tabs": {
-      "all": "All",
-      "pending": "Pending",
-      "processing": "Processing",
-      "shipped": "Shipped",
-      "delivered": "Delivered",
-      "canceled": "Canceled"
-    },
-    "pagination": {
-      "previousPage": "Previous page",
-      "nextPage": "Next page",
-      "goToPage": "Go to page {page}"
-    },
-    "orderCard": {
-      "trackOrder": "Track Order",
-      "orderNumber": "Order #{number}",
-      "orderDate": "Order Date",
-      "totalAmount": "Total Amount",
-      "itemsCount": "+{count} more items"
-    },
-    "progressBar": {
-      "placed": "Placed",
-      "processing": "Processing",
-      "shipped": "Shipped",
-      "delivered": "Delivered"
-    },
-    "allOrdersTimeline": {
-      "title": "All Orders Timeline"
-    },
-    "orderDetails": {
-      "title": "Order Details",
-      "orderProgress": "Order Progress",
-      "currentStatus": "Current Status: {status}",
-      "activityTimeline": "Activity Timeline",
-      "orderSummary": "Order Summary",
-      "shippingInfo": "Shipping Information",
-      "paymentInfo": "Payment Information",
-      "invoiceDocuments": "Invoice Documents",
-      "returnOrder": "Return Order",
-      "reviewOrder": "Review Order",
-      "itemsOrdered": "Items Ordered",
-      "paymentSummary": "Payment Summary",
-      "subtotal": "Subtotal",
-      "shipping": "Shipping",
-      "total": "Total",
-      "paymentStatus": "Payment Status",
-      "additionalInformation": "Additional Information",
-      "shippingMethod": "Shipping Method",
-      "paymentMethod": "Payment Method",
-      "customerName": "Customer Name",
-      "customerEmail": "Customer Email",
-      "trackingNumber": "Tracking Number",
-      "totalQuantity": "Total Quantity",
-      "totalWeight": "Total Weight",
-      "taxAmount": "Tax Amount",
-      "shippingTax": "Shipping Tax",
-      "discountAmount": "Discount Amount",
-      "productPrice": "Product Price",
-      "totalPrice": "Total Price"
-    },
-    "returnModal": {
-      "title": "Return Order",
-      "policy": "Return Policy",
-      "items": "Select Items",
-      "reason": "Return Reason",
-      "next": "Next",
-      "previous": "Previous",
-      "submit": "Submit Return",
-      "selectAll": "Select All",
-      "returnReason": "Return Reason",
-      "returnNote": "Additional Notes",
-      "returnNotePlaceholder": "Please provide any additional details about your return...",
-      "quantity": "Quantity",
-      "policyText": "Our return policy allows you to return items within 30 days of delivery. Items must be in original condition with all tags attached.",
-      "expandPolicy": "Read Full Policy",
-      "collapsePolicy": "Collapse Policy",
-      "selectItemsToReturn": "Select items you want to return:",
-      "chooseReturnReason": "Choose a reason for your return:",
-      "returnReasons": {
-        "wrongSize": "Wrong Size",
-        "defective": "Defective Product",
-        "notAsDescribed": "Not as Described",
-        "changedMind": "Changed My Mind",
-        "other": "Other"
-      },
-      "policyTitle": "Return Policy",
-      "policySubtitle": "Before proceeding, please review our return policy",
-      "policyPoints": [
-        "30-day return window from delivery date",
-        "Items must be unused and in original condition",
-        "Free returns for defective or incorrect items",
-        "Refunds processed within 3-5 business days",
-        "Original shipping fees are non-refundable"
-      ],
-      "additionalPolicyDetails": "Additional policy details:",
-      "policyDetails": [
-        "Returns must include all original packaging",
-        "Final sale items are not eligible for return",
-        "Return shipping costs are customer's responsibility",
-        "Refunds issued to original payment method"
-      ],
-      "showLess": "Show less",
-      "viewCompletePolicy": "View complete policy details",
-      "iAgreeContinue": "I Agree - Continue to Return",
-      "selectItemsToReturn": "Select Items to Return",
-      "orderNumber": "Order #{number}",
-      "back": "Back",
-      "continue": "Continue",
-      "returnDetails": "Return Details",
-      "selectedItems": "Selected Items",
-      "reasonForReturn": "Reason for Return*",
-      "additionalNotes": "Additional Notes (Optional)",
-      "submitReturnRequest": "Submit Return Request",
-      "max": "Max: {qty}",
-      "qty": "Qty: {quantity}",
-      "sku": "SKU: {sku}",
-      "selectAtLeastOneItem": "Please select at least one item to return",
-      "returnSubmittedSuccessfully": "Return request submitted successfully"
-    }
+  "pageTitle": "Track Your Orders",
+  "pageDescription": "Monitor all your orders in real-time with our premium tracking dashboard",
+  "loading": "Loading orders...",
+  "error": "Error: {message}",
+  "noOrdersFound": "No orders found.",
+ "tabs": {
+  "all": "All",
+  "pending": "Pending",
+  "processing": "Processing",
+  "completed": "Completed",
+  "cancelled": "Cancelled",
+  "refunded": "Refunded",
+  "on_hold": "On Hold",
+  "failed": "Failed"
+},
+  "pagination": {
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "goToPage": "Go to page {page}"
   },
+  "orderCard": {
+    "trackOrder": "Track Order",
+    "orderNumber": "Order #{number}",
+    "orderDate": "Order Date",
+    "totalAmount": "Total Amount",
+    "itemsCount": "+{count} more items"
+  },
+  "progressBar": {
+    "placed": "Placed",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered"
+  },
+  "allOrdersTimeline": {
+    "title": "All Orders Timeline",
+      "recentActivities": "recent activities"
+  },
+  "orderDetails": {
+    "title": "Order Details",
+    "orderProgress": "Order Progress",
+    "currentStatus": "Current Status: {status}",
+    "activityTimeline": "Activity Timeline",
+    "orderSummary": "Order Summary",
+    "shippingInfo": "Shipping Information",
+    "paymentInfo": "Payment Information",
+    "invoiceDocuments": "Invoice Documents",
+    "returnOrder": "Return Order",
+    "reviewOrder": "Review Order",
+    "itemsOrdered": "Items Ordered",
+    "paymentSummary": "Payment Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "paymentStatus": "Payment Status",
+    "additionalInformation": "Additional Information",
+    "shippingMethod": "Shipping Method",
+    "paymentMethod": "Payment Method",
+    "customerName": "Customer Name",
+    "customerEmail": "Customer Email",
+    "trackingNumber": "Tracking Number",
+    "totalQuantity": "Total Quantity",
+    "totalWeight": "Total Weight",
+    "taxAmount": "Tax Amount",
+    "shippingTax": "Shipping Tax",
+    "discountAmount": "Discount Amount",
+    "productPrice": "Product Price",
+     "orderAlreadyReturned": "This order has already been returned",
+    "totalPrice": "Total Price"
+  },
+  "returnModal": {
+    "title": "Return Order",
+    "policy": "Return Policy",
+    "items": "Select Items",
+    "reason": "Return Reason",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit Return",
+    "submitting": "Submitting...",
+    "selectAll": "Select All",
+    "returnReason": "Return Reason",
+    "returnNote": "Additional Notes",
+    "returnNotePlaceholder": "Please provide any additional details about your return...",
+    "quantity": "Quantity",
+    "policyText": "Our return policy allows you to return items within 30 days of delivery. Items must be in original condition with all tags attached.",
+    "expandPolicy": "Read Full Policy",
+    "collapsePolicy": "Collapse Policy",
+    "chooseReturnReason": "Choose a reason for your return:",
+  "returnReasons": {
+  "wrongSize": "Wrong Size",
+  "wrongColor": "Wrong Color",
+  "notAsDescribed": "Not as Described",
+  "changedMind": "Changed My Mind"
+}
+,
+    "policyTitle": "Return Policy",
+    "policySubtitle": "Before proceeding, please review our return policy",
+    "policyPoints": [
+      "30-day return window from delivery date",
+      "Items must be unused and in original condition",
+      "Free returns for defective or incorrect items",
+      "Refunds processed within 3-5 business days",
+      "Original shipping fees are non-refundable"
+    ],
+    "additionalPolicyDetails": "Additional policy details:",
+    "policyDetails": [
+      "Returns must include all original packaging",
+      "Final sale items are not eligible for return",
+      "Return shipping costs are customer's responsibility",
+      "Refunds issued to original payment method"
+    ],
+    "showLess": "Show less",
+    "viewCompletePolicy": "View complete policy details",
+    "iAgreeContinue": "I Agree - Continue to Return",
+    "selectItemsToReturn": "Select Items to Return",
+    "orderNumber": "Order #{number}",
+    "back": "Back",
+    "continue": "Continue",
+    "returnDetails": "Return Details",
+    "selectedItems": "Selected Items",
+    "reasonForReturn": "Reason for Return*",
+    "additionalNotes": "Additional Notes (Optional)",
+    "submitReturnRequest": "Submit Return Request",
+    "max": "Max: {qty}",
+    "qty": "Qty: {quantity}",
+    "sku": "SKU: {sku}",
+    "selectAtLeastOneItem": "Please select at least one item to return",
+    "returnSubmittedSuccessfully": "Return request submitted successfully",
+
+    "returnWindowExpired": "The return period of {days} days has expired (ended on {date}).",
+    "itemAlreadyReturned": "This item has already been returned in a previous request.",
+    "returnsNotAvailable": "Returns are not available for this item because the seller’s return policy does not allow it.",
+    "noReturnPolicy": "This item has no return policy defined by the seller and cannot be returned.",
+    "finalSaleItem": "This is a final sale item, which means it is not eligible for return.",
+    "quantityExceeded": "You are trying to return {requestedQty}, but only {availableQty} are eligible."
+  }
+},
 
   "resetPassword": {
     "title": "Reset Your Password",
@@ -465,76 +476,48 @@
     }
   },
 
-  "aboutUs": {
+
+"aboutUs": {
     "hero": {
-      "title": "We are redefining the future of shopping",
-      "subtitle": "A passionate team dedicated to bringing you the best products with an exceptional experience",
-      "button": "Shop Our Collection"
-    },
-    "story": {
       "title": "Our Story",
-      "p1": "Founded in 2010, we started as a small boutique with a big dream - to make premium products accessible to everyone.",
-      "p2": "We believe shopping should be joyful, sustainable, and personal. Every product in our collection is carefully curated to meet our high standards.",
-      "p3": "Today, we are proud to serve millions of customers worldwide while staying true to our original values."
+      "subtitle": "STUNNING, STYLISH AND WITHIN REACH",
+      "button": "Shop now"
     },
-    "stats": {
-      "customers": "Happy Customers",
-      "countries": "Countries Worldwide",
-      "established": "Established Since",
-      "support": "Customer Support"
+    "intro": "Crido a radical act! Respect yourself with our radically natural, environmentally friendly products.",
+    "categories": {
+      "skincare": "Skincare",
+      "makeup": "Makeup",
+      "body": "Body"
     },
-    "values": {
-      "title": "Our Values",
-      "subtitle": "These principles guide everything we do",
-      "items": {
-        "customer": {
-          "title": "Customer Obsession",
-          "desc": "We start with the customer and work backwards."
-        },
-        "sustainability": {
-          "title": "Sustainable Future",
-          "desc": "Committed to eco-friendly practices."
-        },
-        "innovation": {
-          "title": "Innovation",
-          "desc": "Constantly pushing boundaries."
-        },
-        "quality": {
-          "title": "Quality Craftsmanship",
-          "desc": "Every product meets our standards."
-        },
-        "community": {
-          "title": "Community",
-          "desc": "Building meaningful connections."
-        },
-        "transparency": {
-          "title": "Transparency",
-          "desc": "Open about our processes."
-        }
+    "features": {
+      "shipping": {
+        "title": "Shipping Worldwide",
+        "desc": "Special financing and earn rewards."
+      },
+      "return": {
+        "title": "14 Days Return",
+        "desc": "14 days free return policy."
+      },
+      "payment": {
+        "title": "Security Payment",
+        "desc": "We accept all major credit cards."
       }
     },
-    "testimonials": {
-      "title": "What Our Customers Say",
-      "0": { "name": "Sarah A.", "text": "The best shopping experience I've ever had!" },
-      "1": { "name": "John D.", "text": "Fast delivery and amazing support." },
-      "2": { "name": "Fatima K.", "text": "Great selection and easy checkout." }
+    "beautyInspired": {
+      "title": "Beauty inspired",
+      "subtitle": "by real life.",
+      "desc": "Glossier is a new approach to beauty. It's about fun and freedom and being OK with yourself today. We make intuitive, uncomplicated products designed to live with you.",
+      "button": "Shop now"
     },
-    "team": {
-      "title": "Meet the Team",
-      "subtitle": "The brilliant minds behind our success",
-      "ceo": {
-        "name": "Ahmad Alhraki",
-        "role": "SoftWare Enginner",
-        "bio": "Visionary leader..."
-      }
-    },
-    "cta": {
-      "title": "Join Our Community",
-      "subtitle": "Sign up for exclusive offers and updates.",
-      "placeholder": "Your email address",
-      "button": "Subscribe"
+    "newsletter": {
+      "title": "Let's be friends",
+      "desc": "Subscribe to receive updates, access to exclusive deals, and more.",
+      "placeholder": "Email address...",
+      "button": "SUBMIT"
     }
-  },
+  }
+
+,
 
    "footer": {
     "address": "Address",
@@ -1136,18 +1119,20 @@
     "noBrands": "No Brands available",
     "retry": "Retry"
   },
-   "contactus": {
+"contactus": {
   "title": "Contact Us",
   "breadcrumb": "CONTACT US",
   "needHelpTitle": "Need Any Help?",
   "needHelpText": "We are here to help you with any question.",
   "form": {
-    "name": "Name *",
-    "email": "E-mail *",
+    "title": "Send Us Your Questions!",
+    "subtitle": "We'll get back to you within two days.",
+    "name": "Full Name",
+    "email": "Email",
     "phone": "Enter phone number",
-    "message": "Message *",
+    "message": "Message",
     "submit": "Submit",
-    "sending": "Sending...",
+    "submitting": "Submitting...",
     "success": "Thank you! Your message has been sent.",
     "alert": {
       "successTitle": "Message Sent!",
@@ -1157,15 +1142,24 @@
     },
     "errors": {
       "nameRequired": "Name is required.",
-      "nameTooShort": "Name must be at least 2 characters.",
-      "nameTooLong": "Name must be at most 50 characters.",
+      "nameMin": "Name must be at least 2 characters.",
+      "nameMax": "Name must be at most 50 characters.",
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email.",
       "phoneRequired": "Phone number is required.",
       "phoneInvalid": "Please enter a valid phone number.",
       "messageRequired": "Message is required.",
-      "messageTooShort": "Message must be at least 10 characters."
+      "messageMin": "Message must be at least 10 characters."
     }
+  },
+  "features": {
+    "natural": "100% Natural",
+    "shipping": "Free Shipping",
+    "eco": "Eco Friendly"
+  },
+  "modal": {
+    "success": "Thank you! Your message has been sent.",
+    "close": "Close"
   },
   "onlineHelp": "Online Help",
   "workingHours": "Sunday to Thursday – 8am – 6pm",
@@ -1175,7 +1169,8 @@
     "getDirections": "Get Directions"
   },
   "socialMedia": "Social Media"
-},
+}
+,
 "languageSelector": {
   "selectLanguage": "Select language",
   "noLanguagesAvailable": "No languages available",

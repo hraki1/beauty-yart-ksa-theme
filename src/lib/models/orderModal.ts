@@ -1,15 +1,18 @@
 export type OrderStatus =
   | "pending"
   | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled"
   | "completed"
-  | "unknown";
+  | "cancelled"
+  | "refunded"
+  | "on_hold"
+  | "failed"
+  | "delivered";
 
 export type ShipmentStatus = "pending" | "Shipped" | "delivered" | "unknown";
 export type PaymentStatus = "pending" | "paid" | "Cancelled" ;
-export type ReturnRequestStatus = "pending" | "approved" | "rejected" | "completed";
+export type ReturnRequestStatus = "pending" | "received" | "rejected" | "completed";
+
+
 
 export interface Order {
   order_id: number;
@@ -59,7 +62,7 @@ export interface Order {
   created_at: string; // ISO DateTime
   updated_at: string; // ISO DateTime
 
-  /** ✅ Relations (may be omitted if not included in API response) */
+
   items?: OrderItem[];
   shipments?: Shipment[];
   transactions?: Transaction[];
@@ -67,7 +70,7 @@ export interface Order {
   invoices?: Invoice[];
   returnRequests?: ReturnRequest[];
 
-  /** ✅ Computed convenience flags */
+  
   isFullyDelivered?: boolean;
   totalReturnsCount?: number;
 }
@@ -107,10 +110,10 @@ export interface OrderItem {
   created_at: string;
   updated_at: string;
 
-  /** ✅ Product details including return policy */
+ 
   product?: Product;
 
-  /** ✅ Optional computed flag for UI checks */
+ 
   isReturnEligible?: boolean;
 }
 
@@ -145,7 +148,7 @@ export interface Product {
   updated_at: string;
   images: ProductImage[];
 
-  /** ✅ Return policy (optional) */
+ 
   returnPolicy?: ReturnPolicy;
 }
 
@@ -165,7 +168,11 @@ export interface ReturnRequest {
   status: ReturnRequestStatus;
   created_at: string;
   updated_at: string;
+
+  note?: string;   
+  type?: string;   
 }
+
 
 export interface Shipment {
   shipment_id: number;
@@ -204,3 +211,4 @@ export interface Invoice {
   pdf_url: string | null;
   invoice_number: string;
 }
+

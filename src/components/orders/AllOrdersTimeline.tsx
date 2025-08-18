@@ -10,15 +10,15 @@ interface AllOrdersTimelineProps {
   orders: Order[];
 }
 
-// status config (same as before)
+// Updated status config with black/white theme
 const statusConfig = {
-  pending: { color: "text-gray-600", bg: "bg-gray-100", label: "Pending" },
-  processing: { color: "text-yellow-700", bg: "bg-yellow-100", label: "Processing" },
-  shipped: { color: "text-blue-700", bg: "bg-blue-100", label: "Shipped" },
-  delivered: { color: "text-green-700", bg: "bg-green-100", label: "Delivered" },
-  cancelled: { color: "text-red-700", bg: "bg-red-100", label: "Cancelled" },
-  completed: { color: "text-green-700", bg: "bg-green-100", label: "Delivered" },
-  unknown: { color: "text-gray-500", bg: "bg-gray-200", label: "Unknown" }
+  pending: { color: "text-black", bg: "bg-gray-200", label: "Pending" },
+  processing: { color: "text-black", bg: "bg-gray-300", label: "Processing" },
+  shipped: { color: "text-white", bg: "bg-gray-600", label: "Shipped" },
+  delivered: { color: "text-white", bg: "bg-black", label: "Delivered" },
+  cancelled: { color: "text-white", bg: "bg-gray-800", label: "Cancelled" },
+  completed: { color: "text-white", bg: "bg-black", label: "Delivered" },
+  unknown: { color: "text-black", bg: "bg-gray-100", label: "Unknown" }
 } as const;
 
 type StatusKey = keyof typeof statusConfig;
@@ -53,7 +53,7 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
   return (
     <section
       aria-label="All orders timeline"
-      className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-gray-100"
+      className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-gray-200"
     >
       {/* Redesigned Header */}
       <motion.div
@@ -62,14 +62,14 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
         className="flex items-center justify-between mb-6"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-blue-50">
-            <Clock className="w-6 h-6 text-blue-600" aria-hidden="true" />
+          <div className="p-2 rounded-full bg-gray-100">
+            <Clock className="w-6 h-6 text-black" aria-hidden="true" />
           </div>
-          <h3 className="font-bold text-2xl text-gray-800">
+          <h3 className="font-bold text-2xl text-black font-['Playfair_Display'] italic">
             {t("title")}
           </h3>
         </div>
-        <span className="text-sm text-gray-500 select-none">
+        <span className="text-sm text-black select-none">
           {allActivities.length} {t("recentActivities")}
         </span>
       </motion.div>
@@ -87,7 +87,7 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: index * 0.05 }}
         className={`flex gap-4 items-start p-4 rounded-lg transition-colors cursor-default
-          hover:bg-gray-50 border border-gray-100`}
+          hover:bg-gray-50 border border-gray-200`}
         tabIndex={-1}
       >
         <span
@@ -102,7 +102,7 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
               #{activity.order_number}
             </span>
             <time
-              className="text-xs text-gray-500"
+              className="text-xs text-black"
               dateTime={new Date(activity.created_at).toISOString()}
             >
               {new Date(activity.created_at).toLocaleDateString("en-US", {
@@ -113,7 +113,7 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
               })}
             </time>
           </div>
-          <p className="text-sm font-medium text-gray-800 leading-snug">
+          <p className="text-sm font-medium text-black leading-snug">
             {activity.comment}
           </p>
         </div>
