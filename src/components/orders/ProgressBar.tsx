@@ -9,6 +9,7 @@ interface ProgressBarProps {
   status: OrderStatus | string;
   shipmentStatus?: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | null | string;
   animated?: boolean;
+   className?: string;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
