@@ -255,9 +255,7 @@
     "title": "Order Placed Successfully!",
     "description": "Thank you for your order. We'll send you a confirmation email with tracking details shortly.",
     "viewOrders": "View My Orders",
-    "continueShopping": "Continue Shopping",
-    "needHelp": "Need help with your order?",
-    "contactSupport": "Contact Support"
+    "continueShopping": "Continue Shopping"
   },
  "trackOrders": {
   "pageTitle": "Track Your Orders",
@@ -287,44 +285,29 @@
     "totalAmount": "Total Amount",
     "itemsCount": "+{count} more items"
   },
-  "statusLabels": {
-    "pending": "Pending",
+ "progressBar": {
+  "orderProgress": "Order Progress",
+  "placed": "Placed",
+  "pending": "Pending",
+  "processing": "Processing",
+  "shipped": "Shipped",
+  "delivered": "Delivered",
+  "cancelled": "Cancelled",
+  "completed": "Completed",
+  "unknown": "Unknown"
+}
+,
+  "allOrdersTimeline": {
+    "title": "All Orders Timeline",
+      "recentActivities": "recent activities",
+     "pending": "Pending",
     "processing": "Processing",
     "shipped": "Shipped",
     "delivered": "Delivered",
     "cancelled": "Cancelled",
-    "refunded": "Refunded",
-    "on_hold": "On Hold",
-    "failed": "Failed",
     "completed": "Completed",
-    "unknown": "Unknown"
-  },
-  "progressBar": {
-    "placed": "Placed",
-    "processing": "Processing",
-    "shipped": "Shipped",
-    "delivered": "Delivered"
-  },
-  "productItem": {
-    "reviewBtn": "Add Review",
-    "toast": { "addSuccess": "Added review successfully" },
-    "modal": {
-      "title": "Leave a review for {name}",
-      "subtitle": "Share your experience with this product"
-    },
-    "form": {
-      "ratingLabel": "Your Rating",
-      "reviewLabel": "Your Review",
-      "placeholder": "Share your experience with this product...",
-      "cancel": "Cancel",
-      "submit": "Submit Review",
-      "submitting": "Submitting...",
-      "errors": { "emptyReview": "Please write your opinion" }
-    }
-  },
-  "allOrdersTimeline": {
-    "title": "All Orders Timeline",
-      "recentActivities": "recent activities"
+    "unknown": "Unknown",
+    "subtitle": "Track your order progress here"
   },
   "orderDetails": {
     "title": "Order Details",
@@ -355,13 +338,8 @@
     "shippingTax": "Shipping Tax",
     "discountAmount": "Discount Amount",
     "productPrice": "Product Price",
-    "orderAlreadyReturned": "This order has already been returned",
-    "totalPrice": "Total Price",
-    "returnRequest": "Return Request #{id}",
-    "reason": "Reason",
-    "note": "Note",
-    "status": "Status",
-    "createdAt": "Created At"
+     "orderAlreadyReturned": "This order has already been returned",
+    "totalPrice": "Total Price"
   },
   "returnModal": {
     "title": "Return Order",
@@ -427,11 +405,7 @@
     "returnsNotAvailable": "Returns are not available for this item because the seller’s return policy does not allow it.",
     "noReturnPolicy": "This item has no return policy defined by the seller and cannot be returned.",
     "finalSaleItem": "This is a final sale item, which means it is not eligible for return.",
-    "quantityExceeded": "You are trying to return {requestedQty}, but only {availableQty} are eligible.",
-    "unexpectedError": "Unexpected error occurred",
-    "orderAlreadyReturned": "This order has already been returned",
-    "iAgreeContinue": "I Agree - Continue to Return",
-    "returnWindowExpiredDetailed": "The return window of {days} days has expired (deadline was {deadline})."
+    "quantityExceeded": "You are trying to return {requestedQty}, but only {availableQty} are eligible."
   }
 },
 

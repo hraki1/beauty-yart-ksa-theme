@@ -391,33 +391,45 @@ export default function RegistrationLink() {
   }
 
   return (
-    <div className="relative">
-      <div
-        ref={buttonRef}
-        className="group flex items-center gap-2 cursor-pointer text-black hover:text-gray-600"
-        onClick={() => {
-          openAuthModal();
-          setErrors({});
-        }}
-      >
-        <LuUserRound className="font-bold text-2xl text-black" />
-      </div>
+   <div className="relative">
+  {/* Button to open modal */}
+  <div
+    ref={buttonRef}
+    className="group flex items-center gap-2 cursor-pointer text-black hover:text-gray-600"
+    onClick={() => {
+      openAuthModal();
+      setErrors({});
+    }}
+  >
+    <LuUserRound className="font-bold text-2xl text-black" />
+  </div>
 
-      {isAuthModalOpen && (
-        <div
-          ref={modalRef}
-          className="absolute top-full right-0 mt-2 bg-white text-black rounded-lg w-80 p-6 shadow-lg border border-gray-200 z-[1500]"
-          dir={isRTL ? "rtl" : "ltr"}
-          style={{ fontFamily: 'Europa, sans-serif' }}
+  {/* Modal */}
+  {isAuthModalOpen && (
+    <div
+      className="fixed inset-0 z-[1500] flex items-center justify-center "
+      dir={isRTL ? "rtl" : "ltr"}
+    >
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-black opacity-50"
+        onClick={handleCloseModal}
+      ></div>
+
+      {/* Modal content */}
+      <div
+        ref={modalRef}
+        className="relative bg-white text-black rounded-lg w-80 p-6 shadow-lg border border-gray-200 z-[1600]"
+        style={{ fontFamily: 'Europa, sans-serif' }}
+      >
+        {/* Close button */}
+        <button
+          onClick={handleCloseModal}
+          className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-gray-600"
+          aria-label={t("close")}
         >
-          {/* زر الإغلاق */}
-          <button
-            onClick={handleCloseModal}
-            className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-gray-600"
-            aria-label={t("close")}
-          >
-            &times;
-          </button>
+          &times;
+        </button>
 
           {contentView === "login" && (
             <>
@@ -833,6 +845,7 @@ export default function RegistrationLink() {
               )}
             </>
           )}
+        </div>
         </div>
       )}
     </div>

@@ -289,27 +289,29 @@
       "totalAmount": "المبلغ الإجمالي",
       "itemsCount": "+{count} منتجات أخرى"
     },
-    "statusLabels": {
-      "pending": "قيد الانتظار",
-      "processing": "قيد المعالجة",
-      "shipped": "تم الشحن",
-      "delivered": "تم التسليم",
-      "cancelled": "ملغي",
-      "refunded": "تم الاسترداد",
-      "on_hold": "معلق",
-      "failed": "فشل",
-      "completed": "مكتمل",
-      "unknown": "غير معروف"
-    },
-    "progressBar": {
-      "placed": "تم الطلب",
-      "processing": "قيد المعالجة",
-      "shipped": "تم الشحن",
-      "delivered": "تم التسليم"
-    },
+   "progressBar": {
+  "orderProgress": "تقدم الطلب",
+  "placed": "تم الطلب",
+  "pending": "قيد الانتظار",
+  "processing": "قيد المعالجة",
+  "shipped": "تم الشحن",
+  "delivered": "تم التسليم",
+  "cancelled": "ملغي",
+  "completed": "مكتمل",
+  "unknown": "غير معروف"
+},
     "allOrdersTimeline": {
- "title": "الجدول الزمني لجميع الطلبات",
+ "pending": "معلق",
+    "processing": "قيد المعالجة",
+    "shipped": "تم الشحن",
+    "delivered": "تم التسليم",
+    "cancelled": "أُلغيت",
+    "completed": "مكتمل",
+    "unknown": "غير معروف",
+    "title": "الجدول الزمني للطلبات",
+    "subtitle": "تابع تقدم طلبك هنا",
   "recentActivities": "أحدث الأنشطة"    },
+  
     "orderDetails": {
       "title": "تفاصيل الطلب",
       "orderProgress": "تقدم الطلب",
@@ -338,15 +340,11 @@
       "shippingTax": "ضريبة الشحن",
       "discountAmount": "مبلغ الخصم",
       "productPrice": "سعر المنتج",
-      "totalPrice": "السعر الإجمالي",
-      "returnRequest": "طلب إرجاع #{id}",
-      "reason": "السبب",
-      "note": "ملاحظة",
-      "status": "الحالة",
-      "createdAt": "تاريخ الإنشاء"
+      "totalPrice": "السعر الإجمالي"
     },
     "returnModal": {
       "title": "إرجاع الطلب",
+      "iAgreeContinue": "أوافق وأكمل",
       "policy": "سياسة الإرجاع",
       "items": "اختر المنتجات",
       "reason": "سبب الإرجاع",
@@ -361,7 +359,6 @@
       "policyText": "تسمح سياسة الإرجاع لدينا بإرجاع المنتجات خلال 30 يوم من التسليم. يجب أن تكون المنتجات في حالتها الأصلية مع جميع العلامات المرفقة.",
       "expandPolicy": "اقرأ السياسة الكاملة",
       "collapsePolicy": "طي السياسة",
-      "selectItemsToReturn": "اختر المنتجات التي تريد إرجاعها:",
       "chooseReturnReason": "اختر سبب الإرجاع:",
       "returnReasons": {
         "wrongSize": "حجم خاطئ",
@@ -402,11 +399,7 @@
       "qty": "الكمية: {quantity}",
       "sku": "رمز المنتج: {sku}",
       "selectAtLeastOneItem": "يرجى اختيار منتج واحد على الأقل للإرجاع",
-      "returnSubmittedSuccessfully": "تم إرسال طلب الإرجاع بنجاح",
-      "orderAlreadyReturned": "تم إرجاع هذا الطلب بالفعل",
-      "unexpectedError": "حدث خطأ غير متوقع",
-      "iAgreeContinue": "أوافق - متابعة الإرجاع",
-      "returnWindowExpiredDetailed": "انتهت مهلة الإرجاع البالغة {days} يومًا (كان الموعد النهائي {deadline})."
+      "returnSubmittedSuccessfully": "تم إرسال طلب الإرجاع بنجاح"
     }
   },
 
