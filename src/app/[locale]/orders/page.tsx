@@ -137,6 +137,10 @@ export default function TrackOrdersPage() {
       </div>
     );
 
+  function refetchOrder(): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div 
       className="min-h-screen relative overflow-hidden"
@@ -434,11 +438,13 @@ export default function TrackOrdersPage() {
         />
 
         {selectedOrder && (
-          <ReturnModal
-            order={selectedOrder}
-            isOpenModal={isReturnModalOpen}
-            toggleOpenModal={toggleReturnModal}
-          />
+         <ReturnModal
+  order={selectedOrder}
+  isOpenModal={isReturnModalOpen}
+  toggleOpenModal={toggleReturnModal}
+  refetchOrder={refetchOrder} // <-- add this
+/>
+
         )}
       </div>
     </div>
