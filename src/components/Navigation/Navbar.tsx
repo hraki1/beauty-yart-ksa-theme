@@ -74,8 +74,13 @@ export default function Navbar({ languages }: NavbarProps) {
                     }`}
                 >
                   <div className="w-[320px]">
-                    <div className={`transition-all duration-300 ${showSearch ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none -translate-y-1"}`}>
-                      <SearchField openSignal={openSearchTick} overlay={false} />
+                    <div className={`relative transition-all duration-300 ${showSearch ? "opacity-100 translate-y-0" : "opacity-0 pointer-events-none -translate-y-1"}`}>
+                      <SearchField
+                        openSignal={openSearchTick}
+                        overlay
+                        open={showSearch}
+                        onClose={() => setShowSearch(false)}
+                      />
                     </div>
                   </div>
                 </div>

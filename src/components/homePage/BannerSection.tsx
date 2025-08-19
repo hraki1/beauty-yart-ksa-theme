@@ -27,7 +27,7 @@ const BannersSection = ({ banners }: BannerSectionProps) => {
                             x: [0, 4, -7, 4, -7, 0] // يمين، يسار، يمين، يسار، رجوع
                           }}
                           transition={{
-                            duration: 1, // مدة الهزّة
+                            duration: 0.8, // مدة الهزّة
                             ease: "easeInOut"
                           }}
                             key={banner.collection_id}
