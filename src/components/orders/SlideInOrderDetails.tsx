@@ -28,16 +28,15 @@ export default function SlideInOrderDetails({
 
   if (!order) return null;
 
-const statusConfig = {
-  pending:   { color: "text-black", bg: "bg-gray-200", label: "Pending" },
-  processing:{ color: "text-black", bg: "bg-gray-300", label: "Processing" },
-  shipped:   { color: "text-white", bg: "bg-gray-600", label: "Shipped" },
-  delivered: { color: "text-white", bg: "bg-black", label: "Delivered" },
-  cancelled: { color: "text-white", bg: "bg-gray-800", label: "Cancelled" },
-  completed: { color: "text-white", bg: "bg-black", label: "Completed" },
-  unknown:   { color: "text-black", bg: "bg-gray-100", label: "Unknown" },
-} as const;
-
+  const statusConfig = {
+    pending:   { color: "text-black", bg: "bg-gray-200", label: "Pending" },
+    processing:{ color: "text-black", bg: "bg-gray-300", label: "Processing" },
+    shipped:   { color: "text-white", bg: "bg-gray-600", label: "Shipped" },
+    delivered: { color: "text-white", bg: "bg-black", label: "Delivered" },
+    cancelled: { color: "text-white", bg: "bg-gray-800", label: "Cancelled" },
+    completed: { color: "text-white", bg: "bg-black", label: "Completed" },
+    unknown:   { color: "text-black", bg: "bg-gray-100", label: "Unknown" },
+  } as const;
 
   const effectiveStatus = order.status === "completed" ? "delivered" : order.status;
   const isDelivered =
@@ -71,7 +70,7 @@ const statusConfig = {
             <motion.div
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="sticky top-0 bg-white/90 backdrop-blur-lg border-b border-gray-200 px-8 py-6 flex justify-between items-center z-10"
+              className="sticky top-0 bg-white/90 backdrop-blur-lg border-b border-gray-200 px-8 py-6 flex justify-between items-center z-50"
             >
               <div>
                 <h2 className="text-2xl font-bold text-black font-['Playfair_Display'] italic mb-1">
@@ -89,13 +88,13 @@ const statusConfig = {
               </motion.button>
             </motion.div>
 
-            {/* Body */}
-            <div className="p-8 space-y-8">
+            {/* Body — add top padding so content starts below sticky header */}
+            <div className="pt-24 p-8 space-y-8">
               {/* Order Progress */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative rounded-3xl p-8 border border-gray-200 overflow-hidden"
+                className="w-full rounded-3xl p-8 border border-gray-200 overflow-visible"
                 style={{
                   backgroundImage: "linear-gradient(135deg, #FFEDE4 0%, #FFFFFF 100%)",
                 }}
@@ -103,16 +102,23 @@ const statusConfig = {
                 <h3 className="font-bold text-xl text-black font-['Playfair_Display'] italic mb-6">
                   {t("orderProgress")}
                 </h3>
-                <ProgressBar
-                  status={order.status}
-                  shipmentStatus={order.shipment_status}
-                  animated
-                />
+
+                <div className="relative z-0 w-full">
+                
+                  <div className="w-full h-6">
+                    <ProgressBar
+                      status={order.status}
+                      shipmentStatus={order.shipment_status}
+                      animated
+                    />
+                  </div>
+                </div>
+
                 <div className="text-center mt-6">
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className={`inline-block px-6 py-3 rounded-2xl text-sm font-bold ${config.bg} ${config.color} shadow-lg`}
+                    className={`inline-block px-6 py-3 rounded-2xl mt-20 text-sm font-bold ${config.bg} ${config.color} shadow-lg`}
                   >
                     {t("currentStatus", { status: config.label })}
                   </motion.span>
@@ -144,7 +150,7 @@ const statusConfig = {
                 </div>
               </motion.div>
 
-              {/* Enhanced Payment Summary */}
+              {/* Payment Summary */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -157,7 +163,7 @@ const statusConfig = {
                   </div>
                   {t("paymentSummary")}
                 </h3>
-                
+
                 <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-6 border border-gray-200 space-y-4 text-sm shadow-sm">
                   <div className={`flex ${isRTL ? "flex-row-reverse" : "justify-between"} py-2`}>
                     <span className="text-black font-medium">{t("subtotal")}</span>
@@ -173,14 +179,14 @@ const statusConfig = {
                   </div>
                   <div className="text-sm text-black bg-white/60 rounded-2xl p-3">
                     {t("paymentStatus")}:{" "}
-                    <span className={`font-bold ${config.color}`}>
+                    <span className={`font-bold`}>
                       {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                     </span>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Enhanced Additional Info */}
+              {/* Additional Info */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -208,7 +214,7 @@ const statusConfig = {
               {/* Invoice Documents */}
               <InvoiceDocuments invoices={order.invoices ?? []} />
 
-              {/*  Return Section */}
+              {/* Return Section */}
               {isDelivered && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
