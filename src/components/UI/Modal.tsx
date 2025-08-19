@@ -31,7 +31,7 @@ const Modal: React.FC<ModalProps> = ({ children, open, classesName }) => {
       transition={{ duration: 0.3 }}
     >
       <motion.div
-        className={` text-white rounded-2xl shadow-2xl ${classesName}`}
+        className={` rounded-2xl shadow-2xl ${classesName}`}
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
