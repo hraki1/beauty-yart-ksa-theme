@@ -8,14 +8,15 @@ import { useTranslations, useLocale } from "next-intl";
 import { createReturnRequest, CreateReturnRequest } from "@/lib/axios/ReturnAxios";
 import { useMutation } from "@tanstack/react-query";
 
-interface RetrunModalProp {
+interface ReturnModalProp {
   order: Order;
   isOpenModal: boolean;
   toggleOpenModal: () => void;
-  refetchOrder: () => void
+  refetchOrder: () => void; // required
 }
 
-const ReturnModal: React.FC<RetrunModalProp> = ({
+
+const ReturnModal: React.FC<ReturnModalProp> = ({
   order,
   isOpenModal,
   toggleOpenModal,
@@ -23,6 +24,7 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
 }) => {
   const t = useTranslations("trackOrders.returnModal");
   const locale = useLocale();
+
   const mapReturnErrorMessage = (rawMessage?: string) => {
     if (!rawMessage) return t("unexpectedError");
     const normalized = rawMessage.toLowerCase();
@@ -34,13 +36,14 @@ const ReturnModal: React.FC<RetrunModalProp> = ({
     }
     return rawMessage;
   };
+
   const { mutate: submitReturn, isPending: isSubmitting } = useMutation({
     mutationFn: createReturnRequest,
     onSuccess: (data) => {
       toast.success(t("returnSubmittedSuccessfully"));
       toggleOpenModal();
       console.log("Return request created:", data);
-      refetchOrder()
+      refetchOrder(); // ✅ now this works
     },
     onError: (error: Error) => {
       console.error("Return submission error:", error);
