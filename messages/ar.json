@@ -311,7 +311,23 @@
     "title": "الجدول الزمني للطلبات",
     "subtitle": "تابع تقدم طلبك هنا",
   "recentActivities": "أحدث الأنشطة"    },
-  
+    "productItem": {
+      "reviewBtn": "أضف تقييم",
+      "toast": { "addSuccess": "تم إضافة التقييم بنجاح" },
+      "modal": {
+        "title": "اترك تقييمًا لـ {name}",
+        "subtitle": "شارك تجربتك مع هذا المنتج"
+      },
+      "form": {
+        "ratingLabel": "تقييمك",
+        "reviewLabel": "مراجعتك",
+        "placeholder": "شارك تجربتك مع هذا المنتج...",
+        "cancel": "إلغاء",
+        "submit": "إرسال التقييم",
+        "submitting": "جارٍ الإرسال...",
+        "errors": { "emptyReview": "يرجى كتابة رأيك" }
+      }
+    },
     "orderDetails": {
       "title": "تفاصيل الطلب",
       "orderProgress": "تقدم الطلب",
