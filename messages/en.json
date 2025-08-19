@@ -297,6 +297,23 @@
   "unknown": "Unknown"
 }
 ,
+  "productItem": {
+    "reviewBtn": "Add Review",
+    "toast": { "addSuccess": "Added review successfully" },
+    "modal": {
+      "title": "Leave a review for {name}",
+      "subtitle": "Share your experience with this product"
+    },
+    "form": {
+      "ratingLabel": "Your Rating",
+      "reviewLabel": "Your Review",
+      "placeholder": "Share your experience with this product...",
+      "cancel": "Cancel",
+      "submit": "Submit Review",
+      "submitting": "Submitting...",
+      "errors": { "emptyReview": "Please write your opinion" }
+    }
+  },
   "allOrdersTimeline": {
     "title": "All Orders Timeline",
       "recentActivities": "recent activities",
