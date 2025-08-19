@@ -2,41 +2,41 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Clock } from "lucide-react";
-import type { Order, Activity } from "@/lib/models/orderModal";
+import type { Order } from "@/lib/models/orderModal";
 import { useTranslations, useLocale } from "next-intl";
 
 interface AllOrdersTimelineProps {
   orders: Order[];
 }
 
-// Updated status config with black/white theme
-const statusConfig = {
-  pending: { color: "text-black", bg: "bg-gray-200", label: "Pending" },
-  processing: { color: "text-black", bg: "bg-gray-300", label: "Processing" },
-  shipped: { color: "text-white", bg: "bg-gray-600", label: "Shipped" },
-  delivered: { color: "text-white", bg: "bg-black", label: "Delivered" },
-  cancelled: { color: "text-white", bg: "bg-gray-800", label: "Cancelled" },
-  completed: { color: "text-white", bg: "bg-black", label: "Delivered" },
-  unknown: { color: "text-black", bg: "bg-gray-100", label: "Unknown" }
-} as const;
-
-type StatusKey = keyof typeof statusConfig;
-
-interface ActivityWithOrderNumber extends Activity {
-  order_number: string;
-  status: StatusKey | string;
-}
-
-const getStatusConfig = (status: string) => {
-  const normalized = status.toLowerCase() as StatusKey;
-  return statusConfig[normalized] ?? statusConfig.unknown;
-};
-
-export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
+function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
   const t = useTranslations("trackOrders.allOrdersTimeline");
   const locale = useLocale();
   const isRTL = locale === "ar";
+
+  const statusConfig = {
+    pending:   { color: "text-black", bg: "bg-gray-200", label: t("pending"), accent: "bg-gray-300" },
+    processing:{ color: "text-black", bg: "bg-gray-300", label: t("processing"), accent: "bg-gray-400" },
+    shipped:   { color: "text-white", bg: "bg-gray-600", label: t("shipped"), accent: "bg-gray-700" },
+    delivered: { color: "text-white", bg: "bg-black", label: t("delivered"), accent: "bg-gray-800" },
+    cancelled: { color: "text-white", bg: "bg-gray-800", label: t("cancelled"), accent: "bg-gray-900" },
+    completed: { color: "text-white", bg: "bg-black", label: t("delivered"), accent: "bg-gray-800" },
+    unknown:   { color: "text-black", bg: "bg-gray-100", label: t("unknown"), accent: "bg-gray-200" }
+  } as const;
+
+  type StatusKey = keyof typeof statusConfig;
+
+  interface ActivityWithOrderNumber {
+    order_number: string;
+    status: StatusKey | string;
+    comment: string;
+    created_at: string;
+  }
+
+  const getStatusConfig = (status: string) => {
+    const normalized = status.toLowerCase() as StatusKey;
+    return statusConfig[normalized] ?? statusConfig.unknown;
+  };
 
   const allActivities: ActivityWithOrderNumber[] = React.useMemo(() => {
     return orders
@@ -51,88 +51,122 @@ export default function AllOrdersTimeline({ orders }: AllOrdersTimelineProps) {
   }, [orders]);
 
   return (
-    <section
+   <motion.section
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
       aria-label="All orders timeline"
-      className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-gray-200"
+      className="relative"
     >
-      {/* Redesigned Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-6"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-gray-100">
-            <Clock className="w-6 h-6 text-black" aria-hidden="true" />
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl"></div>
+      <div className="absolute top-4 right-4 w-20 h-20 bg-black/5 rounded-full blur-2xl"></div>
+      
+      <div className="relative z-10 p-8">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-8"
+        >
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-lg">
+                <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-black rounded-full animate-pulse"></div>
+            </div>
+            <div>
+              <h3 className="font-bold text-3xl text-black font-['Playfair_Display'] italic mb-1">
+                {t("title")}
+              </h3>
+              <p className="text-gray-600">{t("subtitle")}</p>
+            </div>
           </div>
-          <h3 className="font-bold text-2xl text-black font-['Playfair_Display'] italic">
-            {t("title")}
-          </h3>
-        </div>
-        <span className="text-sm text-black select-none">
-          {allActivities.length} {t("recentActivities")}
-        </span>
-      </motion.div>
-
-     <div
-  className="space-y-4 max-h-96 overflow-y-auto scroll-smooth pr-1 hide-scrollbar"
-  tabIndex={0}
->
-  {allActivities.slice(0, 10).map((activity, index) => {
-    const config = getStatusConfig(activity.status);
-    return (
-      <motion.article
-        key={`${activity.order_number}-${index}`}
-        initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.05 }}
-        className={`flex gap-4 items-start p-4 rounded-lg transition-colors cursor-default
-          hover:bg-gray-50 border border-gray-200`}
-        tabIndex={-1}
-      >
-        <span
-          aria-hidden="true"
-          className={`w-5 h-5 rounded-full border-2 border-white ${config.bg} ${config.color} flex-shrink-0`}
-        />
-        <div className="flex-1">
-          <div className={`flex items-center gap-3 mb-2 flex-wrap ${isRTL ? "flex-row-reverse" : ""}`}>
-            <span
-              className={`text-sm px-3 py-1 rounded-full font-semibold ${config.bg} ${config.color} select-none`}
-            >
-              #{activity.order_number}
-            </span>
-            <time
-              className="text-xs text-black"
-              dateTime={new Date(activity.created_at).toISOString()}
-            >
-              {new Date(activity.created_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </time>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-black">{allActivities.length}</div>
+            <div className="text-sm text-gray-500 uppercase tracking-wide">{t("recentActivities")}</div>
           </div>
-          <p className="text-sm font-medium text-black leading-snug">
-            {activity.comment}
-          </p>
+        </motion.header>
+
+        {/* Timeline */}
+        <div className="relative">
+          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-transparent"></div>
+          
+          <div className="space-y-6 max-h-96 overflow-y-auto scroll-smooth pr-4 timeline-scroll">
+            {allActivities.slice(0, 10).map((activity, index) => {
+              const config = getStatusConfig(activity.status);
+              return (
+                <motion.article
+                  key={`${activity.order_number}-${index}`}
+                  initial={{ opacity: 0, x: isRTL ? 40 : -40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
+                  className="relative flex gap-6 items-start group"
+                >
+                  {/* Timeline Dot */}
+                  <div className="relative z-10 flex-shrink-0">
+                    <motion.div
+                      className={`w-12 h-12 rounded-2xl ${config.bg} ${config.color} flex items-center justify-center shadow-lg border-4 border-white group-hover:scale-110 transition-transform duration-300`}
+                      whileHover={{ rotate: 180 }}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </motion.div>
+                  </div>
+
+                  {/* Content */}
+                  <motion.div
+                    className="flex-1 bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/60 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:bg-white/80"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                  >
+                    <div className={`flex items-center justify-between mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1.5 rounded-xl text-sm font-bold ${config.bg} ${config.color} shadow-sm`}>
+                          #{activity.order_number}
+                        </span>
+                        <time className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-lg">
+                          {new Date(activity.created_at).toLocaleDateString(locale, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </time>
+                      </div>
+                    </div>
+                    <p className="text-sm font-medium text-black leading-relaxed">
+                      {activity.comment}
+                    </p>
+                  </motion.div>
+                </motion.article>
+              );
+            })}
+          </div>
         </div>
-      </motion.article>
-    );
-  })}
-</div>
+      </div>
 
-<style jsx global>{`
-.hide-scrollbar::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;  
-  scrollbar-width: none;  
-}
-`}</style>
-
-    </section>
+      <style jsx global>{`
+        .timeline-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .timeline-scroll::-webkit-scrollbar-track {
+          background: rgba(0,0,0,0.1);
+          border-radius: 3px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+          background: rgba(0,0,0,0.3);
+          border-radius: 3px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(0,0,0,0.5);
+        }
+      `}</style>
+    </motion.section>
   );
 }
+
+export default AllOrdersTimeline;

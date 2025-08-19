@@ -285,15 +285,29 @@
     "totalAmount": "Total Amount",
     "itemsCount": "+{count} more items"
   },
-  "progressBar": {
-    "placed": "Placed",
-    "processing": "Processing",
-    "shipped": "Shipped",
-    "delivered": "Delivered"
-  },
+ "progressBar": {
+  "orderProgress": "Order Progress",
+  "placed": "Placed",
+  "pending": "Pending",
+  "processing": "Processing",
+  "shipped": "Shipped",
+  "delivered": "Delivered",
+  "cancelled": "Cancelled",
+  "completed": "Completed",
+  "unknown": "Unknown"
+}
+,
   "allOrdersTimeline": {
     "title": "All Orders Timeline",
-      "recentActivities": "recent activities"
+      "recentActivities": "recent activities",
+     "pending": "Pending",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "completed": "Completed",
+    "unknown": "Unknown",
+    "subtitle": "Track your order progress here"
   },
   "orderDetails": {
     "title": "Order Details",

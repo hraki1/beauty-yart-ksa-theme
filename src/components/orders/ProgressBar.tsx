@@ -1,92 +1,132 @@
 "use client";
 
 import React from "react";
-import { Package, Clock, Truck, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import type { OrderStatus } from "@/lib/models/orderModal";
 import { useTranslations, useLocale } from "next-intl";
 
-type ShipmentStatus =
-  | "pending"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled"
-  | null
-  | string;
-
 interface ProgressBarProps {
-  status: OrderStatus;
-  shipmentStatus?: ShipmentStatus;
+  status: OrderStatus | string;
+  shipmentStatus?: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | null | string;
   animated?: boolean;
 }
 
-const statusConfig = {
-  pending: { color: "text-gray-600", bg: "bg-gray-100", label: "Pending" },
-  processing: { color: "text-yellow-700", bg: "bg-yellow-100", label: "Processing" },
-  shipped: { color: "text-blue-700", bg: "bg-blue-100", label: "Shipped" },
-  delivered: { color: "text-green-700", bg: "bg-green-100", label: "Delivered" },
-  cancelled: { color: "text-red-700", bg: "bg-red-100", label: "Cancelled" },
-  completed: { color: "text-green-700", bg: "bg-green-100", label: "Delivered" },
-  unknown: { color: "text-gray-500", bg: "bg-gray-200", label: "Unknown" },
-} as const;
-
-const steps = ["pending", "processing", "shipped", "delivered"] as const;
-const icons = [Package, Clock, Truck, CheckCircle];
-
-function getEffectiveStatus(orderStatus: OrderStatus, shipmentStatus: ShipmentStatus): keyof typeof statusConfig {
-  if (shipmentStatus === "delivered") return "delivered";
-  if (orderStatus === "completed") return "delivered";
-  return (orderStatus in statusConfig ? orderStatus : "unknown") as keyof typeof statusConfig;
-}
-
-export default function ProgressBar({
+const ProgressBar: React.FC<ProgressBarProps> = ({
   status,
   shipmentStatus = null,
   animated = false,
-}: ProgressBarProps) {
+}) => {
   const t = useTranslations("trackOrders.progressBar");
   const locale = useLocale();
   const isRTL = locale === "ar";
+const statusConfig = {
+  pending: { color: "text-gray-600", bg: "bg-gray-100", accent: "bg-gray-300", label: t("pending", { defaultMessage: "Pending" }) },
+  processing: { color: "text-yellow-700", bg: "bg-yellow-100", accent: "bg-yellow-400", label: t("processing", { defaultMessage: "Processing" }) },
+  shipped: { color: "text-blue-700", bg: "bg-blue-100", accent: "bg-blue-500", label: t("shipped", { defaultMessage: "Shipped" }) },
+  delivered: { color: "text-green-700", bg: "bg-green-100", accent: "bg-green-500", label: t("delivered", { defaultMessage: "Delivered" }) },
+  cancelled: { color: "text-red-700", bg: "bg-red-100", accent: "bg-red-500", label: t("cancelled", { defaultMessage: "Cancelled" }) },
+  completed: { color: "text-green-700", bg: "bg-green-100", accent: "bg-green-500", label: t("completed", { defaultMessage: "Completed" }) },
+  unknown: { color: "text-gray-500", bg: "bg-gray-200", accent: "bg-gray-400", label: t("unknown", { defaultMessage: "Unknown" }) },
+} as const;
+
+
+  const steps = ["pending", "processing", "shipped", "delivered"] as const;
+
+  const icons = [
+    () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    ),
+    () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+    ),
+    () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  ];
+
+  const getEffectiveStatus = (
+    orderStatus: string,
+    shipmentStatus: string | null
+  ): keyof typeof statusConfig => {
+    if (shipmentStatus === "delivered") return "delivered";
+    if (orderStatus === "completed") return "delivered";
+    return (orderStatus in statusConfig ? orderStatus : "unknown") as keyof typeof statusConfig;
+  };
 
   const effectiveStatus = getEffectiveStatus(status, shipmentStatus);
   const currentStep = steps.indexOf(effectiveStatus as typeof steps[number]);
   const stepLabels = [t("placed"), t("processing"), t("shipped"), t("delivered")];
+  const config = statusConfig[effectiveStatus];
 
   return (
-    <div className={`flex items-center w-full relative ${isRTL ? "flex-row-reverse" : ""}`}>
-      {stepLabels.map((label, index) => {
-        const Icon = icons[index];
-        const isActive = index <= currentStep;
-        const config = statusConfig[effectiveStatus];
+    <div className="relative">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("orderProgress")}</span>
+        <span className={`text-xs font-bold px-2 py-1 rounded-full ${config.bg} ${config.color}`}>
+          {Math.round(((currentStep + 1) / steps.length) * 100)}%
+        </span>
+      </div>
 
-        return (
-          <div key={label} className="flex flex-col items-center flex-1 relative">
-            {/* Connector */}
-            {index < stepLabels.length - 1 && (
-              <div
-                className={`absolute top-1/2 left-1/2 h-0.5 z-0`}
-                style={{
-                  width: "100%",
-                  backgroundColor: index < currentStep ? config.bg.replace("bg-", "") : "#e5e7eb",
-                  transform: "translateX(50%)",
-                }}
-              />
+      <div className={`flex items-center justify-between relative ${isRTL ? "flex-row-reverse" : ""}`}>
+        {/* Progress Line */}
+        <div className="absolute top-1/2 left-0 right-0 h-2 bg-gray-200 rounded-full transform -translate-y-1/2">
+          <motion.div
+            className={`h-full ${config.accent} rounded-full relative overflow-hidden`}
+            initial={{ width: 0 }}
+            animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+          >
+            {animated && (
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
             )}
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center z-10 transition-colors duration-300 ${
-                isActive
-                  ? `${config.bg} ${config.color} ${animated ? "animate-pulse" : ""}`
-                  : "bg-gray-200 text-gray-400"
-              }`}
+          </motion.div>
+        </div>
+
+        {stepLabels.map((label, index) => {
+          const Icon = icons[index];
+          const isActive = index <= currentStep;
+          const isCompleted = index < currentStep;
+
+          return (
+            <motion.div
+              key={label}
+              className="relative z-10 flex flex-col items-center"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: index * 0.1 }}
             >
-              <Icon className="w-5 h-5" />
-            </div>
-            <span className={`text-xs mt-2 text-center ${isActive ? config.color : "text-gray-400"}`}>
-              {label}
-            </span>
-          </div>
-        );
-      })}
+              <motion.div
+                className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                  isCompleted
+                    ? `${config.accent} text-white border-transparent shadow-lg`
+                    : isActive
+                    ? `${config.bg} ${config.color} border-current shadow-md ${animated ? "animate-pulse" : ""}`
+                    : "bg-gray-100 text-gray-400 border-gray-300"
+                }`}
+                whileHover={{ scale: 1.1 }}
+              >
+                <Icon />
+              </motion.div>
+              <span className={`text-xs mt-2 text-center font-medium transition-colors ${isActive ? config.color : "text-gray-400"}`}>
+                {label}
+              </span>
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
+
+export default ProgressBar;
