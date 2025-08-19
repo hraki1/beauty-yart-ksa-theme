@@ -255,7 +255,9 @@
     "title": "Order Placed Successfully!",
     "description": "Thank you for your order. We'll send you a confirmation email with tracking details shortly.",
     "viewOrders": "View My Orders",
-    "continueShopping": "Continue Shopping"
+    "continueShopping": "Continue Shopping",
+    "needHelp": "Need help with your order?",
+    "contactSupport": "Contact Support"
   },
  "trackOrders": {
   "pageTitle": "Track Your Orders",

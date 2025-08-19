@@ -10,7 +10,12 @@ import { CartContext } from "@/store/CartContext";
 import { useCurrency } from "@/store/CurrencyContext";
 import { transformProduct } from "@/utils/trnsformProduct";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import toast from "react-hot-toast";
+import { useWishlist } from "@/store/WishlistContext";
+import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
+import { AddToCart, UpdateCartItemQuantity } from "@/lib/axios/CartAxios";
 
 type QuickViewProps = {
   urlKey: string;
@@ -23,9 +28,11 @@ export default function QuickView({ urlKey, onClose }: QuickViewProps) {
   const [likedProduct, setLikedProduct] = useState<boolean>(false);
 
   const { openAuthModal } = useContext(AuthModalContext);
-  const { addToCart, isLoadingAddToCart } = useContext(CartContext);
+  const { addToCart, isLoadingAddToCart, cartItems, updateCart } = useContext(CartContext);
   const { isAuthenticated } = useContext(AuthContext);
   const { rate, userCurrency } = useCurrency();
+  const router = useRouter();
+  const locale = useLocale();
 
   // Fetch product data
   const { data, isLoading } = useQuery({
@@ -42,20 +49,24 @@ export default function QuickView({ urlKey, onClose }: QuickViewProps) {
     }
   }, [data]);
 
-  // Check if product is in wishlist
+  // Wishlist integration
+  const { isLiked: wishlistIsLiked, toggleLike: wishlistToggleLike, itemIds } = useWishlist();
+
   useEffect(() => {
     if (product) {
-      const stored = localStorage.getItem("wishlist");
-      const wishlist: FrontendProduct[] = stored ? JSON.parse(stored) : [];
-      const exists = wishlist.some((p) => p.id === product.id);
-      setLikedProduct(exists);
+      setLikedProduct(wishlistIsLiked(product.id));
     }
-  }, [product]);
+  }, [product, itemIds, wishlistIsLiked]);
 
   const price = product ? (Number(product.price) * rate).toFixed(2) : "0.00";
   const originalPrice = product?.originalPrice
     ? (Number(product.originalPrice) * rate).toFixed(2)
     : null;
+  const totalPrice = product ? (Number(product.price) * rate * quantity).toFixed(2) : "0.00";
+  const totalOriginalPrice = product?.originalPrice
+    ? (Number(product.originalPrice) * rate * quantity).toFixed(2)
+    : null;
+  const isOutOfStock = product ? (!product.stock_availability || (product.inventory?.qty ?? 0) <= 0) : true;
 
   const decrease = () => setQuantity((q) => Math.max(1, q - 1));
   const increase = () => {
@@ -78,20 +89,60 @@ export default function QuickView({ urlKey, onClose }: QuickViewProps) {
     }
   };
 
-  const toggleLike = () => {
-    if (!product) return;
-    
-    const stored = localStorage.getItem("wishlist");
-    let wishlist: FrontendProduct[] = stored ? JSON.parse(stored) : [];
-    
-    const exists = wishlist.some((p) => p.id === product.id);
-    if (exists) {
-      wishlist = wishlist.filter((p) => p.id !== product.id);
-    } else {
-      wishlist.push(product);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
     }
-    
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    if (!product?.id) return;
+
+    try {
+      setIsBuyingNow(true);
+      const existingItem = cartItems.find((i) => i.product_id === product.id);
+      if (existingItem) {
+        await UpdateCartItemQuantity({
+          cart_item_id: existingItem.cart_item_id,
+          qty: existingItem.qty + quantity,
+        });
+      } else {
+        await AddToCart({ productId: product.id, qty: quantity });
+      }
+      updateCart();
+      setQuantity(1);
+      router.push(`/${locale}/checkout`);
+      onClose();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to add to cart";
+      toast.error(message);
+    } finally {
+      setIsBuyingNow(false);
+    }
+  };
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    const wishlistItem: FrontEndProductCartItem = {
+      id: product.id,
+      name: product.name,
+      image: product.image ?? "",
+      imageHover: product.images?.[1]?.origin_image ?? product.image ?? "",
+      url_key: product.url_key,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      rating: product.rating ?? product.meanRating ?? 0,
+      isNew: product.isNew,
+      tags: product.tags,
+      short_description: product.short_description,
+      description: product.description,
+      features: product.features,
+      colors: product.colors,
+      stock_availability: product.stock_availability,
+    };
+
+    const exists = wishlistIsLiked(product.id);
+    wishlistToggleLike(wishlistItem);
     setLikedProduct(!exists);
     toast.success(exists ? "Removed from wishlist" : "Added to wishlist");
   };
@@ -124,7 +175,7 @@ export default function QuickView({ urlKey, onClose }: QuickViewProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div
@@ -212,15 +263,15 @@ export default function QuickView({ urlKey, onClose }: QuickViewProps) {
 
               <button
                 onClick={handleAddToCart}
-                disabled={isLoadingAddToCart}
+                disabled={isLoadingAddToCart || isOutOfStock}
                 className="flex items-center justify-center gap-2 bg-black text-white px-5 py-2.5 rounded hover:bg-gray-800 transition disabled:opacity-50"
               >
                 <FiShoppingCart className="w-5 h-5" />
-                {isLoadingAddToCart ? "Adding..." : "Add to cart"}
+                {isOutOfStock ? "Out of stock" : isLoadingAddToCart ? "Adding..." : "Add to cart"}
               </button>
 
               <button
-                onClick={toggleLike}
+                onClick={handleToggleWishlist}
                 className={`w-11 h-11 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition ${
                   likedProduct ? "bg-red-50 border-red-300" : ""
                 }`}
@@ -230,10 +281,22 @@ export default function QuickView({ urlKey, onClose }: QuickViewProps) {
               </button>
             </div>
 
+            {/* Total Price for Selected Quantity */}
+            <div className="mb-5">
+              <p className="text-base text-gray-900">
+                Total: <span className="font-semibold">{userCurrency} {totalPrice}</span>
+                {totalOriginalPrice && (
+                  <span className="ml-2 text-gray-400 line-through">{userCurrency} {totalOriginalPrice}</span>
+                )}
+              </p>
+            </div>
+
             {/* Buy Now Button */}
-            <button className="w-full bg-[#8A5A2B] text-white py-3 rounded hover:opacity-90 transition">
-              Buy Now
-            </button>
+            {!isOutOfStock && (
+              <button onClick={handleBuyNow} disabled={isLoadingAddToCart || isBuyingNow} className="w-full bg-[#8A5A2B] text-white py-3 rounded hover:opacity-90 transition disabled:opacity-50">
+                {isLoadingAddToCart || isBuyingNow ? "Processing..." : "Buy Now"}
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
