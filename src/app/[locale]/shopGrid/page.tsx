@@ -11,7 +11,7 @@ import { organizeCategories } from "@/utils/organizeCategories";
 import { organizeBrands } from "@/utils/organizeBrands";
 import { transformProduct } from "@/utils/trnsformProduct";
 import { PriceRange } from "@/models/frontEndPrice";
-import { Category } from "@/lib/models/categoryModal";
+import { Category, CategoryResponse } from "@/lib/models/categoryModal";
 import FilterSidebar from "@/components/shopGrid/FilterSidebar";
 import Toolbar from "@/components/shopGrid/Toolbar";
 import ProductGrid from "@/components/shopGrid/ProductGrid";
@@ -20,8 +20,10 @@ import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import HeroHeader from "@/components/shopGrid/HeroHeader ";
 import { useCategories } from "@/store/CategoriesContext";
 import { useWishlist } from "@/store/WishlistContext";
+import { getCategories } from "@/lib/axios/categoryAxios";
 
 const MAX_PRICE = 5000;
+
 
 const ShopGridPage = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -313,32 +315,38 @@ const ShopGridPage = () => {
   };
 
   // Wishlist handled globally via WishlistProvider
-
+const { data: categoriesResponse } = useQuery<CategoryResponse>({
+  queryKey: ["categories"],
+  queryFn: getCategories,
+});
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50">
-      <HeroHeader
-        collectionData={collectionData ? {
-          name: collectionData.name,
-          description: collectionData.description,
-          image: collectionData.image
-        } : undefined}
-        categoryData={selectedCategory ? {
-          description: {
-            name: selectedCategory.description.name,
-            description: selectedCategory.description.description,
-            image: selectedCategory.description.image
-          }
-        } : undefined}
-        brandData={selectedBrandIds.length > 0 && brandsData?.data ? {
-          name: brandsData.data.find(brand => brand.id === selectedBrandIds[0])?.name || "Brand Products",
-          description: brandsData.data.find(brand => brand.id === selectedBrandIds[0])?.description || "Explore our brand collection",
-          image: brandsData.data.find(brand => brand.id === selectedBrandIds[0])?.image
-        } : undefined}
-        defaultTitle="Discover Amazing Products"
-        defaultDescription="Explore our curated collection of high-quality products"
-        defaultImage="/image/hero/default-hero.jpg"
-      />
+<HeroHeader
+  collectionData={collectionData ? {
+    name: collectionData.name,
+    image: collectionData.image
+  } : undefined}
+  categoryData={selectedCategory ? {
+    description: {
+      name: selectedCategory.description.name,
+      description: selectedCategory.description.description,
+      image: selectedCategory.description.image
+    }
+  } : undefined}
+  brandData={selectedBrandIds.length > 0 && brandsData?.data ? {
+    name: brandsData.data.find(b => b.id === selectedBrandIds[0])?.name || "Brand Products",
+    description: brandsData.data.find(b => b.id === selectedBrandIds[0])?.description || "Explore our brand collection",
+    image: brandsData.data.find(b => b.id === selectedBrandIds[0])?.image
+  } : undefined}
+  categories={categoriesResponse?.data || []} // <-- using your CategoryResponse type
+  defaultTitle="Shop"
+  defaultImage="https://crido.wpbingosite.com/wp-content/uploads/2021/10/high-angle-view-spa-products-white-backdrop-scaled.jpg"
+/>
+
+
+
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Toolbar
