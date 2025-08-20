@@ -26,6 +26,8 @@ import { BrandsProvider } from "@/store/BrandsContext";
 import { WishlistProvider } from "@/store/WishlistContext";
 import ClientLayoutPart from "./ClientLayoutPart";
 import { Language } from "@/lib/models/languagesModal";
+import HelpButton from "@/components/shared/HelpButton";
+
 // import Notification from "@/components/shared/Notification";
 
 // Fonts: Europa via globals.css, Playfair via next/font variable
@@ -91,41 +93,43 @@ const settings = (parseSettings(rawSettings) ?? defaultSettings) as Settings;
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
-      <body className={`${playfair.variable} antialiased`}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <SettingsProvider settings={settings}>
-            <CurrencyProvider
-              defaultSettingCurrrency={baseSystemCurrency}
-              userIpCurrency={userIpCurrency}
-              userIp={ip}
-            >
-              <QueryClientProvider client={queryClient}>
-                <AuthModalProvider>
-                  <SearchProvider>
-                    <AuthProvider>
-                      <CartContextProvider>
-                        <CategoriesProvider>
-                          <BrandsProvider>
-                            <Toaster />
-                            <div id="root-modal"></div>
-                            <WishlistProvider>
-                              <ClientLayoutPart />
-                              <Navbar languages={languages} />
-                              {/* <Notification /> */}
-                              {children}
-                              <Footer settings={settings} />
-                            </WishlistProvider>
-                          </BrandsProvider>
-                        </CategoriesProvider>
-                      </CartContextProvider>
-                    </AuthProvider>
-                  </SearchProvider>
-                </AuthModalProvider>
-              </QueryClientProvider>
-            </CurrencyProvider>
-          </SettingsProvider>
-        </NextIntlClientProvider>
-      </body>
+     <body className={`${playfair.variable} antialiased`}>
+  <NextIntlClientProvider locale={locale} messages={messages}>
+    <SettingsProvider settings={settings}>
+      <CurrencyProvider
+        defaultSettingCurrrency={baseSystemCurrency}
+        userIpCurrency={userIpCurrency}
+        userIp={ip}
+      >
+        <QueryClientProvider client={queryClient}>
+          <AuthModalProvider>
+            <SearchProvider>
+              <AuthProvider>
+                <CartContextProvider>
+                  <CategoriesProvider>
+                    <BrandsProvider>
+                      <Toaster />
+                      <div id="root-modal"></div>
+                      <WishlistProvider>
+                        <ClientLayoutPart />
+                        <Navbar languages={languages} />
+                        {/* Global Help / Scroll button */}
+                        <HelpButton />
+                        {children}
+                        <Footer settings={settings} />
+                      </WishlistProvider>
+                    </BrandsProvider>
+                  </CategoriesProvider>
+                </CartContextProvider>
+              </AuthProvider>
+            </SearchProvider>
+          </AuthModalProvider>
+        </QueryClientProvider>
+      </CurrencyProvider>
+    </SettingsProvider>
+  </NextIntlClientProvider>
+</body>
+
     </html>
   );
 }
