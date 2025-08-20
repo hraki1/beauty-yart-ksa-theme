@@ -419,7 +419,7 @@ export default function RegistrationLink() {
       {/* Modal content */}
       <div
         ref={modalRef}
-        className="relative bg-white text-black rounded-lg w-80 p-6 shadow-lg border border-gray-200 z-[1600]"
+        className="relative bg-white text-black rounded-lg w-[70%] md:w-[40%]  p-6 shadow-lg border border-gray-200 z-[1600]"
         style={{ fontFamily: 'Europa, sans-serif' }}
       >
         {/* Close button */}
