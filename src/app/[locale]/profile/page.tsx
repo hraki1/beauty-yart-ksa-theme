@@ -11,6 +11,14 @@ import Settings from "@/components/profile/Settings";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+// ✅ Import Playfair Display font
+import { Playfair_Display } from "next/font/google";
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  style: ["italic", "normal"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export default function AccountPage() {
   const t = useTranslations("account");
   const { user, logout, isAuthenticated } = useContext(AuthContext);
@@ -52,29 +60,27 @@ export default function AccountPage() {
   const accountTabs = [
     { id: "profile", icon: <FiUser size={18} />, label: t("tabs.profile") },
     { id: "security", icon: <FiLock size={18} />, label: t("tabs.security") },
-
-    {
-      id: "addresses",
-      icon: <FiMapPin size={18} />,
-      label: t("tabs.addresses"),
-    },
-    {
-      id: "notifications",
-      icon: <FiBell size={18} />,
-      label: t("tabs.notifications"),
-    },
+    { id: "addresses", icon: <FiMapPin size={18} />, label: t("tabs.addresses") },
+    { id: "notifications", icon: <FiBell size={18} />, label: t("tabs.notifications") },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div
+      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 text-black"
+      style={{
+        backgroundImage: "linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)",
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            <h1
+              className={`text-2xl md:text-3xl font-bold italic ${playfair.className} text-black`}
+            >
               {t("title")}
             </h1>
-            <p className="text-gray-600">{t("subtitle")}</p>
+            <p className="text-gray-800">{t("subtitle")}</p>
           </div>
           <div className="">
             <button
@@ -110,10 +116,10 @@ export default function AccountPage() {
                     />
                   )}
                 </div>
-                <h3 className="font-medium text-gray-900 text-center text-lg">
+                <h3 className="font-medium text-black text-center text-lg">
                   {formData.name || t("guest")}
                 </h3>
-                <p className="text-sm text-gray-500 text-center mt-1">
+                <p className="text-sm text-gray-600 text-center mt-1">
                   {formData.email || t("noEmail")}
                 </p>
               </div>
@@ -125,7 +131,7 @@ export default function AccountPage() {
                     className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
                       activeTab === tab.id
                         ? "bg-blue-50 text-blue-600 font-medium"
-                        : "text-gray-700 hover:bg-gray-50"
+                        : "text-black hover:bg-gray-100"
                     }`}
                   >
                     <span
@@ -144,7 +150,7 @@ export default function AccountPage() {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 min-h-[500px]">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 min-h-[500px] text-black">
               {activeTab === "profile" && <ProfileInfo />}
               {activeTab === "security" && <SecurityInfo />}
               {activeTab === "addresses" && <AddressesInfo />}
