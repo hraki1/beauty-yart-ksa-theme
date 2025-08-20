@@ -191,14 +191,18 @@ const CheckoutPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
+        className="min-h-screen py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'
+        }}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <motion.h1
               initial={{ y: -20 }}
               animate={{ y: 0 }}
-              className="text-3xl font-bold text-gray-900 mb-2"
+              className="text-3xl font-bold text-black mb-2 italic"
+              style={{ fontFamily: 'Playfair Display, serif' }}
             >
               {t("headings.main")}
             </motion.h1>
@@ -220,7 +224,7 @@ const CheckoutPage = () => {
                     onClick={() => setActiveTab("information")}
                     className={`flex-1 text-center pb-2 ${
                       activeTab === "information"
-                        ? "border-b-2 border-indigo-600 text-indigo-600 font-medium"
+                        ? "border-b-2 border-black text-black font-medium"
                         : `text-black `
                     }`}
                   >
@@ -231,7 +235,7 @@ const CheckoutPage = () => {
                     onClick={() => setActiveTab("shipping")}
                     className={`flex-1 text-center pb-2 ${
                       activeTab === "shipping"
-                        ? "border-b-2 border-indigo-600 text-indigo-600 font-medium"
+                        ? "border-b-2 border-black text-black font-medium"
                         : `${
                             orderData.addressId
                               ? "text-black "
@@ -246,7 +250,7 @@ const CheckoutPage = () => {
                     onClick={() => setActiveTab("payment")}
                     className={`flex-1 text-center pb-2 ${
                       activeTab === "payment"
-                        ? "border-b-2 border-indigo-600 text-indigo-600 font-medium"
+                        ? "border-b-2 border-black text-black font-medium"
                         : `${readyToPay ? "text-black cursor-not-allowed" : "text-gray-500"} `
                     }`}
                   >
@@ -282,7 +286,7 @@ const CheckoutPage = () => {
                   />
                 ) : (
                   <div className="text-center my-20">
-                    <h1> {t("messages.selectAddress")}</h1>
+                    <h1 className="text-black"> {t("messages.selectAddress")}</h1>
                   </div>
                 ))}
 
@@ -299,7 +303,10 @@ const CheckoutPage = () => {
                 transition={{ delay: 0.2 }}
                 className="bg-white shadow-sm rounded-lg p-6 h-fit sticky top-8"
               >
-                <h2 className="text-lg font-medium text-gray-900 mb-6">
+                <h2 
+                  className="text-lg font-medium text-black mb-6 italic"
+                  style={{ fontFamily: 'Playfair Display, serif' }}
+                >
                   {t("headings.orderSummary")}
                 </h2>
 
@@ -326,7 +333,7 @@ const CheckoutPage = () => {
                           </div>
 
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-black">
                               {item.product_name}
                             </p>
                             <p className="text-sm text-gray-500">
@@ -334,7 +341,7 @@ const CheckoutPage = () => {
                             </p>
                           </div>
                         </div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-black">
                           {userCurrency}{" "}
                           {viewPriceCurencyHandler(summaryCart.grandTotal ?? 0)}
                         </p>
@@ -350,7 +357,7 @@ const CheckoutPage = () => {
                       <span className="text-gray-600">
                         {t("orderSummary.subtotal")}
                       </span>
-                      <span className="text-gray-900">
+                      <span className="text-black">
                         {userCurrency}{" "}
                         {viewPriceCurencyHandler(summaryCart.subTotal)}
                       </span>
@@ -360,7 +367,7 @@ const CheckoutPage = () => {
                         {" "}
                         {t("orderSummary.shipping")}
                       </span>
-                      <span className="text-gray-900">
+                      <span className="text-black">
                         {/* {summaryCart.shippingFee ?  : 0} */}
                         {userCurrency}{" "}
                         {viewPriceCurencyHandler(summaryCart.shippingFee ?? 0)}
@@ -371,7 +378,7 @@ const CheckoutPage = () => {
                         {" "}
                         {t("orderSummary.tax")}
                       </span>
-                      <span className="text-gray-900">
+                      <span className="text-black">
                         {userCurrency}{" "}
                         {viewPriceCurencyHandler(summaryCart.tax ?? 0)}
                       </span>
@@ -389,11 +396,11 @@ const CheckoutPage = () => {
                       </div>
                     )}
                     <div className="flex justify-between pt-2 border-t border-gray-200">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-black">
                         {" "}
                         {t("orderSummary.total")}
                       </span>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-black">
                         {userCurrency}{" "}
                         {viewPriceCurencyHandler(summaryCart.grandTotal ?? 0)}
                       </span>

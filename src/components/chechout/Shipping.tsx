@@ -64,7 +64,7 @@ const Shipping: React.FC<{
     if (error) {
       return (
         <div className="text-center my-40">
-          <h1>{error.message}</h1>
+          <h1 className="text-black">{error.message}</h1>
         </div>
       );
     }
@@ -72,7 +72,7 @@ const Shipping: React.FC<{
     if (!data || data.length === 0) {
       return (
         <div className="text-center my-40">
-          <h1>{t("noDelivery")}</h1>
+          <h1 className="text-black">{t("noDelivery")}</h1>
         </div>
       );
     }
@@ -83,14 +83,19 @@ const Shipping: React.FC<{
         animate={{ opacity: 1, y: 0 }}
         className="bg-white shadow-sm rounded-lg p-6 space-y-6"
       >
-        <h2 className="text-xl font-medium text-gray-900">{t("title")}</h2>
+        <h2 
+          className="text-xl font-medium text-black italic"
+          style={{ fontFamily: 'Playfair Display, serif' }}
+        >
+          {t("title")}
+        </h2>
 
         <div className="space-y-4">
 
           {data.map((method, index) => (
             <div
               key={index}
-              className="flex items-center justify-between border p-4 border-gray-200 rounded-md hover:border-indigo-500 cursor-pointer"
+              className="flex items-center justify-between border p-4 border-gray-200 rounded-md hover:border-black cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <input
@@ -99,7 +104,7 @@ const Shipping: React.FC<{
                   name="shipping"
                   value={method.methodId}
                   onChange={handleSelectDelevaryMethod}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  className="h-4 w-4 text-black focus:ring-black border-gray-300"
                   defaultChecked={
                     selectedShippingMethod !== null &&
                     selectedShippingMethod === method.methodId
@@ -112,7 +117,7 @@ const Shipping: React.FC<{
                   {method.name}
                 </label>
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-black">
                 {userCurrency} {viewPriceCurencyHandler(method.cost ?? 0)}
               </span>
             </div>
@@ -121,14 +126,14 @@ const Shipping: React.FC<{
         </div>
 
         <div className="flex justify-between pt-4">
-          <button className="text-indigo-600 hover:text-indigo-500 font-medium cursor-pointer">
+          <button className="text-black hover:text-gray-800 font-medium cursor-pointer">
             {t("back")}
           </button>
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
             onClick={handleFinishSelectDelevary}
-            className="bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition font-medium cursor-pointer"
+            className="bg-black text-white py-3 px-6 rounded-md hover:bg-gray-800 transition font-medium cursor-pointer"
           >
             {t("continue")}
           </motion.button>

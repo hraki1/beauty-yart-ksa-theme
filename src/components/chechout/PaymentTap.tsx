@@ -61,13 +61,18 @@ const PaymentTap: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       className="bg-white shadow-sm rounded-lg p-6 space-y-6"
     >
-      <h2 className="text-xl font-medium text-gray-900">{t("title")}</h2>
+      <h2 
+        className="text-xl font-medium text-black italic"
+        style={{ fontFamily: 'Playfair Display, serif' }}
+      >
+        {t("title")}
+      </h2>
 
       <div className="space-y-4">
         <div
           onClick={() => setPaymentMethod("stripe")}
           className={`p-4 border rounded-md cursor-pointer ${paymentMethod === "stripe"
-              ? "border-indigo-500 bg-indigo-50"
+              ? "border-black bg-gray-50"
               : "border-gray-200 hover:border-gray-300"
             }`}
         >
@@ -78,7 +83,7 @@ const PaymentTap: React.FC = () => {
               name="payment"
               checked={paymentMethod === "stripe"}
               onChange={() => { }}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              className="h-4 w-4 text-black focus:ring-black border-gray-300"
             />
             <label
               htmlFor="credit-card"
@@ -92,7 +97,7 @@ const PaymentTap: React.FC = () => {
         <div
           onClick={() => setPaymentMethod("cash_on_delivery")}
           className={`p-4 border rounded-md cursor-pointer ${paymentMethod === "cash_on_delivery"
-              ? "border-indigo-500 bg-indigo-50"
+              ? "border-black bg-gray-50"
               : "border-gray-200 hover:border-gray-300"
             }`}
         >
@@ -103,7 +108,7 @@ const PaymentTap: React.FC = () => {
               name="payment"
               checked={paymentMethod === "cash_on_delivery"}
               onChange={() => { }}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              className="h-4 w-4 text-black focus:ring-black border-gray-300"
             />
             <label
               htmlFor="paypal"
@@ -120,15 +125,15 @@ const PaymentTap: React.FC = () => {
           <input
             type="checkbox"
             id="terms"
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
           />
           <label htmlFor="terms" className=" block text-sm text-gray-700">
             {t("terms")}
-            <a href="#" className="text-indigo-600 hover:text-indigo-500">
+            <a href="#" className="text-black hover:text-gray-800">
               {t("termsLinks.terms")}
             </a>{" "}
             {t("and")}{" "}
-            <a href="#" className="text-indigo-600 hover:text-indigo-500">
+            <a href="#" className="text-black hover:text-gray-800">
               {t("termsLinks.privacy")}
             </a>
           </label>
@@ -138,7 +143,7 @@ const PaymentTap: React.FC = () => {
       <div className="flex justify-between pt-4">
         <button
           onClick={() => { }}
-          className="text-indigo-600 hover:text-indigo-500 font-medium"
+          className="text-black hover:text-gray-800 font-medium"
         >
           {t("navigation.back")}
         </button>
@@ -146,7 +151,7 @@ const PaymentTap: React.FC = () => {
           onClick={handlePlaceOrder}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition font-medium cursor-pointer"
+          className="bg-black text-white py-3 px-6 rounded-md hover:bg-gray-800 transition font-medium cursor-pointer"
           disabled={isPending}
         >
           {isPending ? t("loading") : t("navigation.complete")}

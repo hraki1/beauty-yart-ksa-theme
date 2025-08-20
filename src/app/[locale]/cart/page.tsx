@@ -92,10 +92,16 @@ const CartPage = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
+        className="min-h-screen py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'
+        }}
       >
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          <h1 
+            className="text-3xl font-bold text-black mb-8 italic"
+            style={{ fontFamily: 'Playfair Display, serif' }}
+          >
             {t("title")}{" "}
           </h1>
 
@@ -105,7 +111,8 @@ const CartPage = () => {
               <div className="bg-white shadow-sm rounded-lg overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
                   <h2
-                    className="text-lg font-medium text-gray-900"
+                    className="text-lg font-medium text-black italic"
+                    style={{ fontFamily: 'Playfair Display, serif' }}
                     dir={isRTL ? "rtl" : "ltr"}
                   >
                     {/* {margeItems.length}{" "} */}
@@ -126,7 +133,7 @@ const CartPage = () => {
                     </p>
                     <Link
                       href={"/"}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                      className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
                     >
                       {t("emptyCart.continueShopping")}
                     </Link>
@@ -155,7 +162,7 @@ const CartPage = () => {
 
                           <div className="mt-4 sm:mt-0 flex-grow">
                             <div className="flex justify-between">
-                              <h3 className="text-lg font-medium text-gray-900">
+                              <h3 className="text-lg font-medium text-black">
                                 {item.product_name}
                               </h3>
                               <button
@@ -203,7 +210,7 @@ const CartPage = () => {
                                 >
                                   -
                                 </button>
-                                <span className="px-3 py-1">{item.qty}</span>
+                                <span className="px-3 py-1 text-black">{item.qty}</span>
                                 <button
                                   disabled={
                                     isLoadingUpdateCartQuantity && isLoadingCart
@@ -223,7 +230,7 @@ const CartPage = () => {
                                 </button>
                               </div>
 
-                              <p className="text-lg font-medium text-gray-900">
+                              <p className="text-lg font-medium text-black">
                                 {userCurrency}{" "}
                                 {converPrice(
                                   Number(
@@ -251,7 +258,10 @@ const CartPage = () => {
                 transition={{ delay: 0.2 }}
                 className="bg-white shadow-sm rounded-lg p-6 h-fit top-8"
               >
-                <h2 className="text-lg font-medium text-gray-900 mb-6">
+                <h2 
+                  className="text-lg font-medium text-black mb-6 italic"
+                  style={{ fontFamily: 'Playfair Display, serif' }}
+                >
                   {t("orderSummary.title")}
                 </h2>
 
@@ -260,7 +270,7 @@ const CartPage = () => {
                     <span className="text-gray-600">
                       {t("orderSummary.subtotal")}
                     </span>
-                    <span className="text-gray-900">
+                    <span className="text-black">
                       {userCurrency}{" "}
                       {converPrice(Number(summaryCart.subTotal ?? 0)).toFixed(
                         2
@@ -272,7 +282,7 @@ const CartPage = () => {
                     <span className="text-gray-600">
                       {t("orderSummary.tax")}
                     </span>
-                    <span className="text-gray-900">
+                    <span className="text-black">
                       {userCurrency}{" "}
                       {converPrice(Number(summaryCart.tax ?? 0)).toFixed(2)}
                     </span>
@@ -293,10 +303,10 @@ const CartPage = () => {
                   )}
 
                   <div className="border-t border-gray-200 pt-4 flex justify-between">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-black">
                       {t("orderSummary.total")}
                     </span>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-black">
                       {userCurrency}{" "}
                       {converPrice(Number(summaryCart.grandTotal ?? 0)).toFixed(
                         2
@@ -311,7 +321,7 @@ const CartPage = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className={`${margeItems.length > 0 ? "opacity-100" : "opacity-45"
-                    } cursor-pointer mt-6 w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition font-medium`}
+                    } cursor-pointer mt-6 w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition font-medium`}
                 >
                   {t("checkout")}
                 </motion.button>
@@ -322,7 +332,7 @@ const CartPage = () => {
 
                     <Link
                       href={"/"}
-                      className="text-indigo-600 hover:text-indigo-500 cursor-pointer "
+                      className="text-black hover:text-gray-800 cursor-pointer ml-1"
                     >
                       {t("emptyCart.continueShopping")}
                     </Link>
@@ -338,16 +348,19 @@ const CartPage = () => {
                   transition={{ delay: 0.2 }}
                   className="bg-white shadow-sm rounded-lg p-6 h-fit sticky top-8"
                 >
-                  <h2 className="text-lg font-medium text-gray-900 mb-6">
+                  <h2 
+                    className="text-lg font-medium text-black mb-6 italic"
+                    style={{ fontFamily: 'Playfair Display, serif' }}
+                  >
                     {t("coupon.title")}
                   </h2>
 
                   <div>
                     {summaryCart.coupon ? (
                       <div className="flex justify-between ">
-                        <span>
+                        <span className="text-black">
                           {t("coupon.title")}
-                          <span className="text-indigo-600">
+                          <span className="text-black font-medium">
                             {" "}
                             {summaryCart.coupon}
                           </span>{" "}
@@ -357,7 +370,7 @@ const CartPage = () => {
                           onClick={() =>
                             handleDeletAppliedCoupon(summaryCart.cart_id)
                           }
-                          className="text-gray-900"
+                          className="text-black"
                         >
                           <BiX className="text-3xl text-red-400 cursor-pointer"></BiX>
                         </button>
@@ -370,7 +383,7 @@ const CartPage = () => {
                             placeholder={t("coupon.placeholder")}
                             value={coupon}
                             onChange={(e) => setCoupon(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-black focus:border-black text-black"
                           />
                         </div>
                       </div>
@@ -384,7 +397,7 @@ const CartPage = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className={`${margeItems.length > 0 ? "opacity-100" : "opacity-45"
-                        } cursor-pointer mt-6 w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition font-medium`}
+                        } cursor-pointer mt-6 w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition font-medium`}
                     >
                       {t("coupon.apply")}
                     </motion.button>
@@ -399,17 +412,20 @@ const CartPage = () => {
                 transition={{ delay: 0.3 }}
                 className="bg-white shadow-sm rounded-lg p-6"
               >
-                <h3 className="text-md font-medium text-gray-900 mb-4">
+                <h3 
+                  className="text-md font-medium text-black mb-4 italic"
+                  style={{ fontFamily: 'Playfair Display, serif' }}
+                >
                   {t("paymentMethods.title")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-black">
                     {t("paymentMethods.visa")}
                   </span>
-                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-black">
                     {t("paymentMethods.cashOnDelivery")}
                   </span>
-                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-sm text-black">
                     {t("paymentMethods.mastercard")}
                   </span>
 

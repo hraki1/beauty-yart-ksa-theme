@@ -226,7 +226,7 @@ const AddressTap: React.FC<{
   if (error)
     return (
       <div className="text-center my-40">
-        <h2>{error.message}</h2>
+        <h2 className="text-black">{error.message}</h2>
       </div>
     );
 
@@ -234,7 +234,10 @@ const AddressTap: React.FC<{
     <>
       <Modal open={isModalOpen} classesName="pr-bg">
         <div className="pr-bg text-white rounded-2xl w-full max-w-md p-6 relative">
-          <h2 className="text-xl font-bold mb-4 text-center">
+          <h2 
+            className="text-xl font-bold mb-4 text-center italic"
+            style={{ fontFamily: 'Playfair Display, serif' }}
+          >
             {t("modal.title")}
           </h2>
           <ul className="space-y-2 px-4 list-disc">
@@ -250,7 +253,7 @@ const AddressTap: React.FC<{
           <div className="text-center mt-4 text-sm">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 rounded-2xl bg-amber-600"
+              className="px-4 py-2 rounded-2xl bg-black text-white hover:bg-gray-800 transition"
             >
               {t("modal.close")}
             </button>
@@ -264,7 +267,10 @@ const AddressTap: React.FC<{
         animate={{ opacity: 1, y: 0 }}
         className="bg-white shadow-sm rounded-lg p-6 space-y-6 relative"
       >
-        <h2 className="text-xl font-medium text-gray-900">
+        <h2 
+          className="text-xl font-medium text-black italic"
+          style={{ fontFamily: 'Playfair Display, serif' }}
+        >
           {t("form.contactInfo")}
         </h2>
 
@@ -273,7 +279,7 @@ const AddressTap: React.FC<{
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md flex justify-between items-center text-sm text-gray-700"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md flex justify-between items-center text-sm text-black focus:ring-black focus:border-black"
           >
             {selectedAddress
               ? `${selectedAddress.address_1}, ${selectedAddress.city_id}`
@@ -289,8 +295,8 @@ const AddressTap: React.FC<{
                     key={addr.id}
                     type="button"
                     onClick={() => handleSelectAddress(addr)}
-                    className={`w-full text-left px-4 py-3 hover:bg-indigo-50 ${
-                      selectedAddress?.id === addr.id ? "bg-indigo-100" : ""
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 ${
+                      selectedAddress?.id === addr.id ? "bg-gray-100" : ""
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -301,7 +307,7 @@ const AddressTap: React.FC<{
                         </p>
                       </div>
                       {selectedAddress?.id === addr.id && (
-                        <FaCheck className="text-indigo-600 mt-1" />
+                        <FaCheck className="text-black mt-1" />
                       )}
                     </div>
                   </button>
@@ -328,7 +334,7 @@ const AddressTap: React.FC<{
               onChange={handleChange}
               className={`${
                 !isEditing && "opacity-60"
-              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"`}
+              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
               placeholder={t("form.placeholderName")}
             />
           </div>
@@ -348,13 +354,16 @@ const AddressTap: React.FC<{
               onChange={handleChange}
               className={`${
                 !isEditing && "opacity-60"
-              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500`}
+              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
               placeholder="+1 (555) 123-4567"
             />
           </div>
         </div>
 
-        <h2 className="text-xl font-medium text-gray-900 pt-4 border-t border-gray-200">
+        <h2 
+          className="text-xl font-medium text-black pt-4 border-t border-gray-200 italic"
+          style={{ fontFamily: 'Playfair Display, serif' }}
+        >
           {t("form.shippingAddress")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -376,7 +385,7 @@ const AddressTap: React.FC<{
               onChange={handleChange}
               className={`${
                 !isEditing && "opacity-60"
-              } w-full px-4 py-2 border border-gray-300 rounded-md`}
+              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
               placeholder="123 Main St"
             />
           </div>
@@ -396,7 +405,7 @@ const AddressTap: React.FC<{
               onChange={handleChange}
               className={`${
                 !isEditing && "opacity-60"
-              } w-full px-4 py-2 border border-gray-300 rounded-md`}
+              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
               placeholder="Apartment, suite, etc."
             />
           </div>
@@ -416,7 +425,7 @@ const AddressTap: React.FC<{
               onChange={handleChange}
               className={`${
                 !isEditing && "opacity-60"
-              } w-full px-4 py-2 border border-gray-300 rounded-md`}
+              } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
             >
               <option value={0}> {t("form.selectCountry")}</option>
               {countries &&
@@ -444,7 +453,7 @@ const AddressTap: React.FC<{
                 onChange={handleChange}
                 className={`${
                   !isEditing && "opacity-60"
-                } w-full px-4 py-2 border border-gray-300 rounded-md`}
+                } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
               >
                 <option value={0}> {t("form.selectCity")}</option>
                 {selectedCountry.cities.map((city) => (
@@ -473,7 +482,7 @@ const AddressTap: React.FC<{
             onChange={handleChange}
             className={`${
               !isEditing && "opacity-60"
-            } w-full px-4 py-2 border border-gray-300 rounded-md`}
+            } w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-black focus:border-black text-black`}
             placeholder="10001"
           />
         </div>
@@ -485,7 +494,7 @@ const AddressTap: React.FC<{
               whileTap={{ scale: 0.99 }}
               type="button"
               onClick={handleStartEdit}
-              className="w-full  bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition font-medium"
+              className="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition font-medium"
             >
               {t("form.edit")}
             </motion.button>
@@ -497,7 +506,7 @@ const AddressTap: React.FC<{
               whileTap={{ scale: 0.99 }}
               type={`button`}
               onClick={handleCancelButton}
-              className={`w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition font-medium`}
+              className={`w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition font-medium`}
             >
               {t("form.cancel")}
             </motion.button>
@@ -509,7 +518,7 @@ const AddressTap: React.FC<{
             onClick={
               dataReady.addressReady ? handleFinishAddressFiled : () => {}
             }
-            className="w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition font-medium cursor-pointer"
+            className="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition font-medium cursor-pointer"
           >
             {dataReady.addressReady
               ? t("form.continueShipping")
