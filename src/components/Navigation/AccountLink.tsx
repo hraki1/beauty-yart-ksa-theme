@@ -60,11 +60,11 @@ export default function PremiumUserMenu() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:shadow-lg"
+        className="group flex items-center gap-3 p-2 rounded-xl transition-all duration-300"
         style={{
           backgroundImage: isOpen
             ? "linear-gradient(135deg, #000000 0%, #333333 100%)"
-            : "linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)",
+            : "linear-gradient(180deg, #FFEDE4 70%, #FFEDE4 100%)",
         }}
         aria-label="User menu"
       >
