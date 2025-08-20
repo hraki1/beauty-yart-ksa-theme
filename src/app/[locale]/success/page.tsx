@@ -1,5 +1,4 @@
 "use client";
-
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { FiCheckCircle, FiArrowRight } from "react-icons/fi";
@@ -10,7 +9,12 @@ const OrderSuccessPage = () => {
   const t = useTranslations("orderSuccess");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundImage: "linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)"
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -22,29 +26,34 @@ const OrderSuccessPage = () => {
             <FiCheckCircle className="h-12 w-12 text-green-500" />
           </div>
         </div>
-
-        <h2 className="text-2xl font-bold text-gray-800 mb-3">{t("title")}</h2>
-        <p className="text-gray-600 mb-6">{t("description")}</p>
-
+        <h2 
+          className="text-2xl font-bold mb-3"
+          style={{ 
+            fontFamily: 'Playfair Display, serif', 
+            fontStyle: 'italic',
+            color: '#000000'
+          }}
+        >
+          {t("title")}
+        </h2>
+        <p className="text-black mb-6">{t("description")}</p>
         <div className="space-y-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/orders")}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all hover:bg-gray-800"
           >
             {t("viewOrders")}
             <FiArrowRight className="text-lg" />
           </motion.button>
-
           <button
             onClick={() => router.push("/")}
-            className="w-full text-blue-500 py-2.5 px-6 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+            className="w-full text-black border border-black py-2.5 px-6 rounded-lg font-medium hover:bg-black hover:text-white transition-colors"
           >
             {t("continueShopping")}
           </button>
         </div>
-
         <div className="mt-6 pt-6 border-t border-gray-100">
           <p className="text-sm text-gray-500">
             {t("needHelp")}{" "}

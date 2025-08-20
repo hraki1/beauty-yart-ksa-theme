@@ -251,12 +251,15 @@
     },
     "loading": "Loading..."
   },
-  "orderSuccess": {
-    "title": "Order Placed Successfully!",
-    "description": "Thank you for your order. We'll send you a confirmation email with tracking details shortly.",
-    "viewOrders": "View My Orders",
-    "continueShopping": "Continue Shopping"
-  },
+"orderSuccess": {
+  "title": "Order Placed Successfully!",
+  "description": "Thank you for your order. We'll send you a confirmation email with tracking details shortly.",
+  "viewOrders": "View My Orders",
+  "continueShopping": "Continue Shopping",
+  "needHelp": "Need help?",
+  "contactSupport": "Contact Support"
+}
+,
  "trackOrders": {
   "pageTitle": "Track Your Orders",
   "pageDescription": "Monitor all your orders in real-time with our premium tracking dashboard",
