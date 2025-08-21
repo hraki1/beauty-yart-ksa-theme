@@ -1,207 +1,277 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
 import {
-  FiChevronDown,
-  FiTruck,
-  FiCreditCard,
-  FiRefreshCw,
-  FiUser,
-} from "react-icons/fi";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+  ChevronDown,
+  ChevronUp,
+  Phone,
+  Mail,
+  MessageCircle,
+  Heart,
+  Leaf,
+  Shield,
+} from "lucide-react";
 
-type FAQItem = {
-  question: string;
-  answer: string;
-  category: string;
-  icon: React.ReactNode;
-};
-
-export default function FAQPage() {
-  const t = useTranslations("faq");
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-
-  const faqs: FAQItem[] = [
-    {
-      question: t("questions.shippingTime.question"),
-      answer: t("questions.shippingTime.answer"),
-      category: "shipping",
-      icon: <FiTruck className="text-blue-500" />,
-    },
-    {
-      question: t("questions.paymentMethods.question"),
-      answer: t("questions.paymentMethods.answer"),
-      category: "payments",
-      icon: <FiCreditCard className="text-green-500" />,
-    },
-    {
-      question: t("questions.returns.question"),
-      answer: t("questions.returns.answer"),
-      category: "returns",
-      icon: <FiRefreshCw className="text-purple-500" />,
-    },
-    {
-      question: t("questions.tracking.question"),
-      answer: t("questions.tracking.answer"),
-      category: "shipping",
-      icon: <FiTruck className="text-blue-500" />,
-    },
-    {
-      question: t("questions.internationalShipping.question"),
-      answer: t("questions.internationalShipping.answer"),
-      category: "shipping",
-      icon: <FiTruck className="text-blue-500" />,
-    },
-    {
-      question: t("questions.createAccount.question"),
-      answer: t("questions.createAccount.answer"),
-      category: "account",
-      icon: <FiUser className="text-orange-500" />,
-    },
-  ];
-
-  const categories = [
-    { id: "all", name: t("categories.all") },
-    { id: "shipping", name: t("categories.shipping") },
-    { id: "payments", name: t("categories.payments") },
-    { id: "returns", name: t("categories.returns") },
-    { id: "account", name: t("categories.account") },
-  ];
-
-  const filteredFaqs =
-    activeCategory === "all"
-      ? faqs
-      : faqs.filter((faq) => faq.category === activeCategory);
+const HelpFAQPage: React.FC = () => {
+  // ensure type safety
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
-    setActiveIndex(activeIndex === index ? null : index);
+    setOpenFAQ(openFAQ === index ? null : index);
   };
 
+  const faqs = [
+    {
+      category: "Product Information",
+      questions: [
+        {
+          question: "What makes your skincare products truly organic?",
+          answer:
+            "All our products are certified organic, containing 95%+ organic ingredients. We source from sustainable farms and use no synthetic preservatives, parabens, sulfates, or artificial fragrances. Each product is third-party certified by USDA Organic standards.",
+        },
+        {
+          question: "Are your products suitable for sensitive skin?",
+          answer:
+            "Yes! Our gentle, natural formulations are specifically designed for all skin types, including sensitive skin. We avoid harsh chemicals and allergens. However, we always recommend doing a patch test before using any new product.",
+        },
+        {
+          question: "How long do organic skincare products last?",
+          answer:
+            "Our products have a shelf life of 12-24 months unopened. Once opened, we recommend using within 6-12 months. Since we don't use synthetic preservatives, natural products have shorter lifespans but maintain their potency and purity.",
+        },
+        {
+          question: "Do you test on animals?",
+          answer:
+            "Absolutely not. We are proudly cruelty-free and never test on animals. We're certified by Leaping Bunny and use only ethically sourced, plant-based ingredients.",
+        },
+      ],
+    },
+    {
+      category: "Orders & Shipping",
+      questions: [
+        {
+          question: "How long does shipping take?",
+          answer:
+            "Standard shipping takes 3-5 business days within the US. Express shipping (1-2 days) is available. International shipping takes 7-14 business days. You'll receive tracking information once your order ships.",
+        },
+        {
+          question: "What is your return policy?",
+          answer:
+            "We offer a 30-day satisfaction guarantee. If you're not completely happy with your purchase, return it within 30 days for a full refund. Products should be at least 50% full for hygiene reasons.",
+        },
+        {
+          question: "Do you offer free shipping?",
+          answer:
+            "Yes! We offer free standard shipping on orders over $50 within the US. For orders under $50, shipping is $5.95. Free international shipping is available on orders over $100.",
+        },
+        {
+          question: "Can I track my order?",
+          answer:
+            "Absolutely! Once your order ships, you'll receive an email with tracking information. You can also track your order by logging into your account on our website.",
+        },
+      ],
+    },
+    {
+      category: "Usage & Care",
+      questions: [
+        {
+          question: "How should I store my organic skincare products?",
+          answer:
+            "Store products in a cool, dry place away from direct sunlight. Most products are fine at room temperature, but some serums and oils benefit from refrigerator storage to extend freshness.",
+        },
+        {
+          question: "In what order should I apply my skincare products?",
+          answer:
+            "Follow this order: cleanser, toner, serums (thinnest to thickest), moisturizer, then sunscreen (AM only). Wait 1-2 minutes between each step to allow proper absorption.",
+        },
+        {
+          question: "How often should I use face masks?",
+          answer:
+            "For most skin types, 1-2 times per week is ideal. If you have sensitive skin, start with once a week. Clay masks can be drying, so limit to once weekly, while hydrating masks can be used more frequently.",
+        },
+        {
+          question: "Can I use multiple serums together?",
+          answer:
+            "Yes, but introduce one at a time to see how your skin reacts. Apply from thinnest to thickest consistency. Avoid mixing active ingredients like vitamin C and retinol in the same routine.",
+        },
+      ],
+    },
+  ];
+
+  const contactOptions = [
+    {
+      icon: <Phone className="w-6 h-6" />,
+      title: "Phone Support",
+      description: "Mon-Fri, 9AM-6PM EST",
+      contact: "1-800-NATURAL",
+      action: "Call Now",
+    },
+    {
+      icon: <Mail className="w-6 h-6" />,
+      title: "Email Support",
+      description: "Response within 24 hours",
+      contact: "hello@naturalorganic.com",
+      action: "Send Email",
+    },
+    {
+      icon: <MessageCircle className="w-6 h-6" />,
+      title: "Live Chat",
+      description: "Instant help when online",
+      contact: "Chat available 9AM-9PM EST",
+      action: "Start Chat",
+    },
+  ];
+
   return (
-    <div className="bg-gray-50 min-h-screen py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div
+      className="min-h-screen"
+      style={{
+        background: "linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)",
+        fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif',
+      }}
+    >
+      <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {t("title")}
-          </h1>
-          <p className="text-xl text-gray-600">{t("subtitle")}</p>
-        </motion.div>
-
-        {/* Category Filters */}
-        <motion.div
-          className="flex flex-wrap justify-center gap-3 mb-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          {categories.map((category) => (
-            <motion.button
-              key={category.id}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveCategory(category.id)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === category.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
+        <div className="text-center mb-16">
+          <div className="flex items-center justify-center mb-6">
+            <Leaf className="w-8 h-8 text-green-600 mr-3" />
+            <h1
+              className="text-5xl font-light text-gray-800"
+              style={{ fontFamily: '"Playfair Display", serif' }}
             >
-              {category.name}
-            </motion.button>
-          ))}
-        </motion.div>
-
-        {/* FAQ List */}
-        <motion.div
-          className="space-y-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          {filteredFaqs.map((faq, index) => (
-            <motion.div
-              key={index}
-              layout
-              className="bg-white rounded-xl shadow-sm overflow-hidden"
-              whileHover={{ scale: 1.01 }}
-            >
-              <motion.button
-                layout
-                onClick={() => toggleFAQ(index)}
-                className="w-full flex justify-between items-center p-6 text-left"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="text-2xl">{faq.icon}</div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {faq.question}
-                  </h3>
-                </div>
-                <motion.div
-                  animate={{ rotate: activeIndex === index ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <FiChevronDown className="text-gray-400" />
-                </motion.div>
-              </motion.button>
-
-              <AnimatePresence>
-                {activeIndex === index && (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="px-6 pb-6 ml-14"
-                  >
-                    <p className="text-gray-600">{faq.answer}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          viewport={{ once: true }}
-          className="mt-20 bg-blue-50 rounded-xl p-8 text-center"
-        >
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            {t("cta.title")}
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            {t("cta.description")}
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium"
-            >
-              {t("cta.contactSupport")}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-white text-gray-700 rounded-lg font-medium border border-gray-300"
-            >
-              {t("cta.liveChat")}
-            </motion.button>
+              Help & Support
+            </h1>
           </div>
-        </motion.div>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            We&apos;re here to help you on your natural skincare journey. Find
+            answers to common questions or reach out to our expert team.
+          </p>
+        </div>
+
+        {/* Contact Options */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          {contactOptions.map((option, index) => (
+            <div
+              key={index}
+              className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-lg"
+            >
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
+                <div className="text-green-600">{option.icon}</div>
+              </div>
+              <h3 className="text-xl font-medium text-gray-800 mb-2">
+                {option.title}
+              </h3>
+              <p className="text-gray-600 mb-2 text-sm">{option.description}</p>
+              <p className="text-green-700 font-medium mb-4">
+                {option.contact}
+              </p>
+              <button className="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-colors duration-200 text-sm font-medium">
+                {option.action}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* FAQ Sections */}
+        <div className="space-y-8">
+          <div className="text-center mb-12">
+            <h2
+              className="text-4xl font-light text-gray-800 mb-4"
+              style={{ fontFamily: '"Playfair Display", serif' }}
+            >
+              Frequently Asked Questions
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Everything you need to know about our natural organic skincare
+              products and services.
+            </p>
+          </div>
+
+          {faqs.map((category, categoryIndex) => (
+            <div
+              key={categoryIndex}
+              className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-sm"
+            >
+              <div className="flex items-center mb-8">
+                <div className="w-2 h-8 bg-green-500 rounded-full mr-4"></div>
+                <h3
+                  className="text-2xl font-light text-gray-800"
+                  style={{ fontFamily: '"Playfair Display", serif' }}
+                >
+                  {category.category}
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                {category.questions.map((faq, index) => {
+                  const faqIndex = categoryIndex * 100 + index;
+                  return (
+                    <div
+                      key={faqIndex}
+                      className="border-b border-gray-200 last:border-b-0"
+                    >
+                      <button
+                        onClick={() => toggleFAQ(faqIndex)}
+                        className="w-full text-left py-6 flex justify-between items-start hover:bg-white/50 rounded-lg px-4 transition-colors duration-200"
+                      >
+                        <h4 className="text-lg font-medium text-gray-800 pr-4 leading-relaxed">
+                          {faq.question}
+                        </h4>
+                        <div className="flex-shrink-0 ml-4">
+                          {openFAQ === faqIndex ? (
+                            <ChevronUp className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                          )}
+                        </div>
+                      </button>
+
+                      {openFAQ === faqIndex && (
+                        <div className="px-4 pb-6 -mt-2">
+                          <p className="text-gray-600 leading-relaxed">
+                            {faq.answer}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-16 text-center">
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-12 shadow-sm">
+            <div className="flex items-center justify-center mb-6">
+              <Heart className="w-6 h-6 text-pink-500 mr-2" />
+              <Shield className="w-6 h-6 text-green-600" />
+            </div>
+            <h3
+              className="text-3xl font-light text-gray-800 mb-4"
+              style={{ fontFamily: '"Playfair Display", serif' }}
+            >
+              Still have questions?
+            </h3>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Our skincare experts are passionate about helping you achieve
+              healthy, glowing skin naturally. We&apos;re here to provide
+              personalized guidance for your unique skin needs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors duration-200 font-medium">
+                Contact Our Experts
+              </button>
+              <button className="border-2 border-green-600 text-green-600 px-8 py-3 rounded-full hover:bg-green-50 transition-colors duration-200 font-medium">
+                Browse Products
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default HelpFAQPage;
