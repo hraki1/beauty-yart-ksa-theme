@@ -1,7 +1,7 @@
 "use client";
 
 import { FiFilter, FiSearch } from "react-icons/fi";
-import { useTranslations, useLocale } from "next-intl";
+import { useState } from "react";
 
 interface ToolbarProps {
   searchQuery: string;
@@ -18,59 +18,50 @@ const Toolbar = ({
   setSortOption,
   setShowFilters,
 }: ToolbarProps) => {
-  const t = useTranslations("shopGrid.Toolbar");
-  const locale = useLocale();
-  const isRTL = locale === "ar"; // Add other RTL languages as needed
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  const sortOptions = [
+    { value: "default", label: "Default Sorting" },
+    { value: "price-low", label: "Sort By Price: Low To High" },
+    { value: "price-high", label: "Sort By Price: High To Low" },
+  ];
+
+  const getCurrentSortLabel = () => {
+    const option = sortOptions.find(opt => opt.value === sortOption);
+    return option ? option.label : "Default Sorting";
+  };
 
   return (
-    <div
-      className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 ${
-        isRTL ? "text-right" : "text-left"
-      }`}
-      dir={isRTL ? "rtl" : "ltr"}
-    >
-      {/* Search Input */}
-      <div className="relative w-full md:w-72">
-        <div
-          className={`absolute inset-y-0 ${
-            isRTL ? "right-0 pr-3" : "left-0 pl-3"
-          } flex items-center pointer-events-none`}
-        >
-          <FiSearch className="text-gray-400" />
+    <div className="mb-8 space-y-6 m-7">
+      {/* Toolbar Controls */}
+      <div className="flex justify-between items-center">
+        {/* Left side - Search Bar */}
+        <div className="relative w-64">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FiSearch className="text-gray-400" size={16} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 focus:ring-1 focus:ring-[#a07542] focus:border-[#a07542] shadow-sm text-sm"
+            style={{ fontFamily: "Europa, sans-serif", borderRadius: '2px' }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-        <input
-          type="text"
-          placeholder={t("searchPlaceholder")}
-          className={`${
-            isRTL ? "pr-10 pl-4" : "pl-10 pr-4"
-          } py-3 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all duration-200`}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
 
-      {/* Sort and Filter Controls */}
-      <div className="flex gap-3 w-full md:w-auto">
-        {/* Sort Dropdown */}
-        <div className="relative group">
-          <select
-            className={`appearance-none bg-white border border-gray-200 rounded-lg ${
-              isRTL ? "pr-4 pl-10" : "pl-4 pr-10"
-            } py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm cursor-pointer transition-all duration-200 hover:border-gray-300`}
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+        {/* Right side - Sort Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowSortDropdown(!showSortDropdown)}
+            className="flex items-center justify-between min-w-[180px] px-4 py-2 bg-white border border-gray-300 text-sm transition-all hover:border-gray-400"
+            style={{ fontFamily: "Europa, sans-serif", borderRadius: '2px' }}
           >
-            <option value="featured">{t("sortOptions.featured")}</option>
-            <option value="price-low">{t("sortOptions.priceLow")}</option>
-            <option value="price-high">{t("sortOptions.priceHigh")}</option>
-          </select>
-          <div
-            className={`absolute inset-y-0 ${
-              isRTL ? "left-3" : "right-3"
-            } flex items-center pointer-events-none`}
-          >
+            <span className="text-gray-600">{getCurrentSortLabel()}</span>
             <svg
-              className="w-4 h-4 text-gray-400"
+              className={`w-4 h-4 text-gray-500 ml-2 transition-transform ${
+                showSortDropdown ? 'rotate-180' : ''
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -82,16 +73,53 @@ const Toolbar = ({
                 d="M19 9l-7 7-7-7"
               />
             </svg>
-          </div>
-        </div>
+          </button>
 
-        {/* Mobile Filter Button */}
+          {showSortDropdown && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowSortDropdown(false)}
+              />
+              <div 
+                className="absolute right-0 mt-1 w-60 bg-white border border-gray-200 shadow-lg z-20"
+                style={{ borderRadius: '2px' }}
+              >
+                <div className="py-1">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSortOption(option.value);
+                        setShowSortDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-gray-50 ${
+                        sortOption === option.value
+                          ? 'text-[#a07542] bg-gray-50'
+                          : 'text-gray-600'
+                      }`}
+                      style={{ fontFamily: "Europa, sans-serif" }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Filter Button */}
+      <div className="md:hidden flex justify-center">
         <button
-          className="md:hidden flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm hover:border-gray-300 transition-all"
+          className="flex items-center gap-2 bg-white border border-gray-300 rounded px-6 py-3 shadow-sm hover:border-gray-400 transition-all"
           onClick={() => setShowFilters(true)}
         >
-          <FiFilter className="text-gray-600" />
-          <span className="text-gray-700">{t("filters")}</span>
+          <FiFilter className="text-gray-600" size={16} />
+          <span className="text-gray-700 text-sm" style={{ fontFamily: "Europa, sans-serif" }}>
+            Filters
+          </span>
         </button>
       </div>
     </div>

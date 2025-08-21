@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import ProductItem from "@/components/homePage/productItem/ProductItem";
 import { useWishlist } from "@/store/WishlistContext";
-import PaginationControls from "./PaginationControls";
+import BlackPagination from "@/components/shopGrid/BlackPagination";
 import { Category } from "@/lib/models/categoryModal";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import { useTranslations, useLocale } from "next-intl";
@@ -46,11 +46,15 @@ const ProductGrid = ({
   const isRTL = locale === "ar"; // Add other RTL languages as needed
   console.log(selectedCategory);
 
+  // Calculate pagination for 6 items per page
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(pagination.total / itemsPerPage);
+
   return (
     <div className="flex-1" dir={isRTL ? "rtl" : "ltr"}>
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(6)].map((_, i) => ( // Changed from 8 to 6 for loading state
             <motion.div
               key={i}
               initial={{ opacity: 0 }}
@@ -146,7 +150,7 @@ const ProductGrid = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-2  sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-6"
+            className="grid grid-cols-2  sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-1 "
           >
             {products.map((product) => (
               <ProductItem
@@ -158,9 +162,10 @@ const ProductGrid = ({
             ))}
           </motion.div>
 
-          <PaginationControls
+          {/* Replace PaginationControls with BlackPagination */}
+          <BlackPagination
             currentPage={pagination.page}
-            totalPages={Math.ceil(pagination.total / 10)}
+            totalPages={totalPages}
             onPageChange={handlePageChange}
           />
         </>
