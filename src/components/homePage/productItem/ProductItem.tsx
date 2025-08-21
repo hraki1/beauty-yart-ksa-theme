@@ -35,6 +35,11 @@ const ProductItem = ({
     ? (Number(product.originalPrice) * rate).toFixed(2)
     : null;
 
+  // Calculate discount percentage
+  const discountPercentage = originalPrice && product.price
+    ? Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100)
+    : null;
+
   const getTagColor = (tag: string) => {
     switch (tag) {
       case "HOT":
@@ -57,11 +62,11 @@ const ProductItem = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300 }}
-        className="w-48 md:w-[360px] relative  rounded transition-all duration-300 overflow-hidden flex flex-col h-full"
+        className="w-48 md:w-[360px] relative rounded transition-all duration-300 overflow-visible flex flex-col h-full bg-[white] mb-2.5"
       >
         {/* Product Image */}
         <div
-          className="relative aspect-square overflow-hidden bg-[#F7F7F7]"
+          className="relative aspect-square overflow-hidden  rounded-lg"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -79,22 +84,31 @@ const ProductItem = ({
             }
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 hover:scale-105 p-10 bg-[#F7F7F7]"
+            className="object-cover transition-transform duration-500 hover:scale-105 p-10 bg-[#F7F7F7] rounded-lg"
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
             priority={false}
           />
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col items-start gap-2 z-20">
+          {/* Discount Badge - Red Box */}
+          {discountPercentage && discountPercentage > 0 && (
+            <div className="absolute top-2 left-2 z-30">
+              <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-sm">
+                -{discountPercentage}%
+              </div>
+            </div>
+          )}
+
+          {/* Other Badges */}
+          <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-20">
             {product.isNew && (
-              <span className="bg-black text-white text-xs px-2 py-1 rounded-[2px] font-medium">
+              <span className="bg-black text-white text-xs px-2 py-1 rounded-sm font-medium">
                 new
               </span>
             )}
             {product.tags?.slice(0, 2).map((tag, i) => (
               <span
                 key={i}
-                className={`text-xs px-2 py-1 rounded font-medium shadow-sm bg-gradient-to-r ${getTagColor(
+                className={`text-xs px-2 py-1 rounded-sm font-medium shadow-sm bg-gradient-to-r ${getTagColor(
                   tag
                 )} text-white`}
               >
@@ -103,7 +117,7 @@ const ProductItem = ({
             ))}
           </div>
 
-          {/* Top right overlay: Arrow and Wishlist Heart */}
+          {/* Bottom center overlay: Arrow, Wishlist Heart, and Search */}
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
             {/* Arrow: only on hover, desktop only */}
             <motion.button
@@ -167,29 +181,25 @@ const ProductItem = ({
         </div>
 
         {/* Product Info */}
-        <div className="p-3 mt-2 flex flex-col flex-1">
-          <div className="flex justify-center items-start gap-1 mb-2">
-            <div className="flex flex-col items-center justify-center">
-              <Link href={`/product/${product.url_key}`} className="group">
-                <h3 className="leading-tight line-clamp-2 text-base font-medium group-hover:text-blue-600 transition-colors">
-                  {product.name}
-                </h3>
-              </Link>
-            </div>
-          </div>
-          <div className="mt-1 w-full flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-2">
-            <span className="text-[15px] font-bold text-gray-500">
+        <div className="p-3 mt-2 flex flex-col flex-1 text-center">
+          <Link href={`/product/${product.url_key}`} className="group mb-2">
+            <h3 className="text-sm text-gray-800 font-normal leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
+              {product.name}
+            </h3>
+          </Link>
+          
+          <div className="mt-auto flex flex-col items-center gap-1">
+            <span className="text-base font-semibold text-gray-900">
               {userCurrency} {price}
             </span>
             {originalPrice && (
-              <span className="text-[15px] text-gray-400 line-through font-medium">
+              <span className="text-sm text-gray-400 line-through">
                 {userCurrency} {originalPrice}
               </span>
             )}
           </div>
         </div>
       </motion.div>
-
 
       <AnimatePresence>
         {quickViewOpen && (

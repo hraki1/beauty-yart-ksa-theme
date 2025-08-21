@@ -328,59 +328,60 @@ const toggleColor = (color: string) => {
   );
 };
 
-  return (
-    <div ref={scrollRef} className="min-h-screen bg-gray-50">
-<HeroHeader
-  collectionData={collectionData ? {
-    name: collectionData.name,
-    image: collectionData.image
-  } : undefined}
-  categoryData={selectedCategory ? {
-    description: {
-      name: selectedCategory.description.name,
-      description: selectedCategory.description.description,
-      image: selectedCategory.description.image
-    }
-  } : undefined}
-  brandData={selectedBrandIds.length > 0 && brandsData?.data ? {
-    name: brandsData.data.find(b => b.id === selectedBrandIds[0])?.name || "Brand Products",
-    description: brandsData.data.find(b => b.id === selectedBrandIds[0])?.description || "Explore our brand collection",
-    image: brandsData.data.find(b => b.id === selectedBrandIds[0])?.image
-  } : undefined}
-  categories={categoriesResponse?.data || []} // <-- using your CategoryResponse type
-  defaultTitle="Shop"
-  defaultImage="https://crido.wpbingosite.com/wp-content/uploads/2021/10/high-angle-view-spa-products-white-backdrop-scaled.jpg"
-/>
+ return (
+  <div ref={scrollRef} className="min-h-screen bg-white w-full">
 
+    <HeroHeader
+      collectionData={collectionData ? {
+        name: collectionData.name,
+        image: collectionData.image
+      } : undefined}
+      categoryData={selectedCategory ? {
+        description: {
+          name: selectedCategory.description.name,
+          description: selectedCategory.description.description,
+          image: selectedCategory.description.image
+        }
+      } : undefined}
+      brandData={selectedBrandIds.length > 0 && brandsData?.data ? {
+        name: brandsData.data.find(b => b.id === selectedBrandIds[0])?.name || "Brand Products",
+        description: brandsData.data.find(b => b.id === selectedBrandIds[0])?.description || "Explore our brand collection",
+        image: brandsData.data.find(b => b.id === selectedBrandIds[0])?.image
+      } : undefined}
+      categories={categoriesResponse?.data || []}
+      defaultTitle="Shop"
+      defaultImage="https://crido.wpbingosite.com/wp-content/uploads/2021/10/high-angle-view-spa-products-white-backdrop-scaled.jpg"
+    />
 
+    {/* Remove max-w and mx-auto */}
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
+      <Toolbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
+        setShowFilters={setShowFilters}
+      />
 
+      <div className="flex flex-col md:flex-row w-full gap-12 ">
+        <div className="w-full md:w-1/4">
+          <FilterSidebar
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            organizedCategories={organizedCategories}
+            selectedCategoriesIds={selectedCategoriesIds}
+            toggleCategoryId={toggleCategoryId}
+            organizedBrands={organizedBrands}
+            selectedBrandIds={selectedBrandIds}
+            toggleBrandId={toggleBrandId}
+            selectedColors={selectedColors}
+            toggleColor={toggleColor}
+            resetFilters={resetFilters}
+            MAX_PRICE={MAX_PRICE}
+          />
+        </div>
 
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Toolbar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          sortOption={sortOption}
-          setSortOption={setSortOption}
-          setShowFilters={setShowFilters}
-        />
-
-        <div className="flex flex-col md:flex-row gap-4">
-        <FilterSidebar
-  priceRange={priceRange}
-  setPriceRange={setPriceRange}
-  organizedCategories={organizedCategories}
-  selectedCategoriesIds={selectedCategoriesIds}
-  toggleCategoryId={toggleCategoryId}
-  organizedBrands={organizedBrands}
-  selectedBrandIds={selectedBrandIds}
-  toggleBrandId={toggleBrandId}
-  selectedColors={selectedColors}   // ✅ Add this
-  toggleColor={toggleColor}         // ✅ Add this
-  resetFilters={resetFilters}
-  MAX_PRICE={MAX_PRICE}
-/>
-
+        <div className="w-full md:w-3/4">
           <ProductGrid
             products={displayedProducts}
             isLoading={isLoadingFetchProducts}
@@ -395,24 +396,25 @@ const toggleColor = (color: string) => {
           />
         </div>
       </div>
-
-      <MobileFiltersModal
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        priceRange={priceRange}
-        setPriceRange={setPriceRange}
-        organizedCategories={organizedCategories}
-        selectedCategoriesIds={selectedCategoriesIds}
-        toggleCategoryId={toggleCategoryId}
-        organizedBrands={organizedBrands}
-        selectedBrandIds={selectedBrandIds}
-        toggleBrandId={toggleBrandId}
-        resetFilters={resetFilters}
-        MAX_PRICE={MAX_PRICE}
-      />
     </div>
-     
-  );
+
+    <MobileFiltersModal
+      showFilters={showFilters}
+      setShowFilters={setShowFilters}
+      priceRange={priceRange}
+      setPriceRange={setPriceRange}
+      organizedCategories={organizedCategories}
+      selectedCategoriesIds={selectedCategoriesIds}
+      toggleCategoryId={toggleCategoryId}
+      organizedBrands={organizedBrands}
+      selectedBrandIds={selectedBrandIds}
+      toggleBrandId={toggleBrandId}
+      resetFilters={resetFilters}
+      MAX_PRICE={MAX_PRICE}
+    />
+  </div>
+);
+
 };
 
 export default ShopGridPage;
