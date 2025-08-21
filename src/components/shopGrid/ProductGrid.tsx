@@ -32,29 +32,27 @@ const ProductGrid = ({
   handlePageChange,
   selectedCategory,
   toggleCategoryId,
-  // likedProducts and toggleLike are managed by WishlistContext
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  likedProducts: _likedProducts,
+ 
   selectedCategoriesIds,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  toggleLike: _toggleLike,
   resetFilters,
 }: ProductGridProps) => {
   const t = useTranslations("shopGrid.ProductGrid");
   const { itemIds, toggleLike: toggleWishlist } = useWishlist();
   const locale = useLocale();
-  const isRTL = locale === "ar"; // Add other RTL languages as needed
-  console.log(selectedCategory);
+  const isRTL = locale === "ar";
 
-  // Calculate pagination for 6 items per page
+  // ✅ Pagination logic (always 6 per page)
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(pagination.total / itemsPerPage);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const startIndex = (pagination.page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = products.slice(startIndex, endIndex);
 
   return (
     <div className="flex-1" dir={isRTL ? "rtl" : "ltr"}>
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[...Array(6)].map((_, i) => ( // Changed from 8 to 6 for loading state
+          {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0 }}
@@ -73,7 +71,7 @@ const ProductGrid = ({
             </motion.div>
           ))}
         </div>
-      ) : products.length > 0 ? (
+      ) : paginatedProducts.length > 0 ? (
         <>
           {selectedCategory?.categoryParent && (
             <div className="mb-8">
@@ -86,15 +84,14 @@ const ProductGrid = ({
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       onClick={() => toggleCategoryId(subC.id)}
-                      className={`p-2 rounded-full border-2 ${selectedCategoriesIds.includes(subC.id)
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200"
-                        }`}
+                      className={`p-2 rounded-full border-2 ${
+                        selectedCategoriesIds.includes(subC.id)
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200"
+                      }`}
                     >
                       <Image
-                        src={
-                          subC.description.image ?? "/image/products/img.png"
-                        }
+                        src={subC.description.image ?? "/image/products/img.png"}
                         alt={subC.description.name}
                         width={64}
                         height={64}
@@ -122,10 +119,11 @@ const ProductGrid = ({
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         onClick={() => toggleCategoryId(subC.id)}
-                        className={`p-2 rounded-full border-2 ${selectedCategoriesIds.includes(subC.id)
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200"
-                          }`}
+                        className={`p-2 rounded-full border-2 ${
+                          selectedCategoriesIds.includes(subC.id)
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200"
+                        }`}
                       >
                         <Image
                           src={
@@ -146,13 +144,14 @@ const ProductGrid = ({
               </div>
             )}
 
+          {/* ✅ Paginated products */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-2  sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-1 "
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-1"
           >
-            {products.map((product) => (
+            {paginatedProducts.map((product) => (
               <ProductItem
                 key={product.id}
                 product={product}
@@ -162,7 +161,6 @@ const ProductGrid = ({
             ))}
           </motion.div>
 
-          {/* Replace PaginationControls with BlackPagination */}
           <BlackPagination
             currentPage={pagination.page}
             totalPages={totalPages}
@@ -170,78 +168,8 @@ const ProductGrid = ({
           />
         </>
       ) : (
-
         <>
-          {selectedCategory?.categoryParent && (
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold mb-4">
-                {t("subcategories")}
-              </h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                {[selectedCategory?.categoryParent].map((subC) => (
-                  <div key={subC.id} className="flex flex-col items-center">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      onClick={() => toggleCategoryId(subC.id)}
-                      className={`p-2 rounded-full border-2 ${selectedCategoriesIds.includes(subC.id)
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200"
-                        }`}
-                    >
-                      <Image
-                        src={
-                          subC.description.image ?? "/image/products/img.png"
-                        }
-                        alt={subC.description.name}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                    </motion.button>
-                    <span className="mt-2 text-sm text-center">
-                      {subC.description.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {selectedCategory?.subCategory &&
-            selectedCategory.subCategory.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">
-                  {t("subcategories")}
-                </h2>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                  {selectedCategory.subCategory.map((subC) => (
-                    <div key={subC.id} className="flex flex-col items-center">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        onClick={() => toggleCategoryId(subC.id)}
-                        className={`p-2 rounded-full border-2 ${selectedCategoriesIds.includes(subC.id)
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200"
-                          }`}
-                      >
-                        <Image
-                          src={
-                            subC.description.image ?? "/image/products/img.png"
-                          }
-                          alt={subC.description.name}
-                          width={64}
-                          height={64}
-                          className="w-16 h-16 rounded-full object-cover"
-                        />
-                      </motion.button>
-                      <span className="mt-2 text-sm text-center">
-                        {subC.description.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* No Products UI */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -264,9 +192,14 @@ const ProductGrid = ({
               <h3 className="text-xl font-medium mb-2 mt-4">
                 {t("noProducts.title")}
               </h3>
-              <p className="text-gray-600 mb-6">{t("noProducts.description")}</p>
+              <p className="text-gray-600 mb-6">
+                {t("noProducts.description")}
+              </p>
               <button
-                onClick={() => resetFilters()}
+                onClick={() => {
+                  resetFilters();
+                  handlePageChange(1); // ✅ Reset back to page 1
+                }}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 {t("noProducts.action")}
