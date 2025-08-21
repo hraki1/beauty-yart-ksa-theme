@@ -802,8 +802,12 @@
       }
     },
     "FilterSidebar": {
-      "Filters": "Filters",
-      "ResetAll": "Reset all"
+    "Filters": "Filters",
+      "ResetAll": "Reset all",
+      "Categories": "Categories",
+      "Colors": "Colors",
+      "Brands": "Brands",
+      "Price": "Price"
     }
   },
   "HorizontalProductList": {

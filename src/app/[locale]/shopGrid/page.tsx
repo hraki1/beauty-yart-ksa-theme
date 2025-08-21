@@ -225,17 +225,18 @@ const ShopGridPage = () => {
   }, [filteredProducts, priceRange, sortOption]);
 
   // Reset all filters
-  const resetFilters = () => {
-    setSearchQuery("");
-    setSortOption("featured");
-    setPriceRange([0, MAX_PRICE]);
-    setSelectedCategoriesIds([]);
-    setSelectedBrandIds([]);
-    setSelectedCategory(null);
-    setPagination({ ...pagination, page: 1 });
-    setProductQuery({ page: 1 });
-    clearSearchTerm();
-  };
+const resetFilters = () => {
+  setSearchQuery("");
+  setSortOption("featured");
+  setPriceRange([0, MAX_PRICE]);
+  setSelectedCategoriesIds([]);
+  setSelectedBrandIds([]);
+  setSelectedColors([]); // ✅ reset colors
+  setSelectedCategory(null);
+  setPagination({ ...pagination, page: 1 });
+  setProductQuery({ page: 1 });
+  clearSearchTerm();
+};
 
   // Toggle category selection
   const toggleCategoryId = (categoryId: number) => {
@@ -319,6 +320,13 @@ const { data: categoriesResponse } = useQuery<CategoryResponse>({
   queryKey: ["categories"],
   queryFn: getCategories,
 });
+const [selectedColors, setSelectedColors] = useState<string[]>([]);
+
+const toggleColor = (color: string) => {
+  setSelectedColors((prev) =>
+    prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
+  );
+};
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50">
@@ -358,18 +366,20 @@ const { data: categoriesResponse } = useQuery<CategoryResponse>({
         />
 
         <div className="flex flex-col md:flex-row gap-4">
-          <FilterSidebar
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            organizedCategories={organizedCategories}
-            selectedCategoriesIds={selectedCategoriesIds}
-            toggleCategoryId={toggleCategoryId}
-            organizedBrands={organizedBrands}
-            selectedBrandIds={selectedBrandIds}
-            toggleBrandId={toggleBrandId}
-            resetFilters={resetFilters}
-            MAX_PRICE={MAX_PRICE}
-          />
+        <FilterSidebar
+  priceRange={priceRange}
+  setPriceRange={setPriceRange}
+  organizedCategories={organizedCategories}
+  selectedCategoriesIds={selectedCategoriesIds}
+  toggleCategoryId={toggleCategoryId}
+  organizedBrands={organizedBrands}
+  selectedBrandIds={selectedBrandIds}
+  toggleBrandId={toggleBrandId}
+  selectedColors={selectedColors}   // ✅ Add this
+  toggleColor={toggleColor}         // ✅ Add this
+  resetFilters={resetFilters}
+  MAX_PRICE={MAX_PRICE}
+/>
 
           <ProductGrid
             products={displayedProducts}
@@ -401,6 +411,7 @@ const { data: categoriesResponse } = useQuery<CategoryResponse>({
         MAX_PRICE={MAX_PRICE}
       />
     </div>
+     
   );
 };
 
