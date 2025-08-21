@@ -791,7 +791,11 @@
     },
     "FilterSidebar": {
       "Filters": "فلاتر",
-      "ResetAll": "إعادة تعيين الفلاتر"
+      "ResetAll": "إعادة تعيين الفلاتر",
+      "Categories": "الفئات",
+      "Colors": "الألوان",
+      "Brands": "الماركات",
+      "Price": "السعر"
     }
   },
 

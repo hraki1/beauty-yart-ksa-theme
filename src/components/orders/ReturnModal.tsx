@@ -12,7 +12,7 @@ interface ReturnModalProp {
   order: Order;
   isOpenModal: boolean;
   toggleOpenModal: () => void;
-  refetchOrder: () => void; // required
+  refetchOrder: () => void; 
 }
 
 
