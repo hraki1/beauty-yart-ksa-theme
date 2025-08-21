@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { SearchContext } from "@/store/SearchContext";
@@ -24,29 +24,20 @@ import { getCategories } from "@/lib/axios/categoryAxios";
 
 const MAX_PRICE = 5000;
 
-
 const ShopGridPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("featured");
   const [priceRange, setPriceRange] = useState<PriceRange>([0, 2500]);
-  const [selectedCategoriesIds, setSelectedCategoriesIds] = useState<number[]>(
-    []
-  );
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
+  const [selectedCategoriesIds, setSelectedCategoriesIds] = useState<number[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedBrandIds, setSelectedBrandIds] = useState<number[]>([]);
-  const [selectedCollectionId, setSelectedCollectionId] = useState<
-    number | null
-  >(null);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(null);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+
   const { itemIds: likedProducts, toggleLike } = useWishlist();
-  const [filteredProducts, setFilteredProducts] = useState<
-    FrontEndProductCartItem[]
-  >([]);
-  const [displayedProducts, setDisplayedProducts] = useState<
-    FrontEndProductCartItem[]
-  >([]);
+  const [filteredProducts, setFilteredProducts] = useState<FrontEndProductCartItem[]>([]);
+  const [displayedProducts, setDisplayedProducts] = useState<FrontEndProductCartItem[]>([]);
 
   const param = useSearchParams();
   const { clearSearchTerm } = useContext(SearchContext);
@@ -81,8 +72,7 @@ const ShopGridPage = () => {
 
       if (productQuery.name?.trim()) query.name = productQuery.name.trim();
       if (productQuery.categoryId) query.categoryId = productQuery.categoryId;
-      if (productQuery.collectionId)
-        query.collectionId = productQuery.collectionId;
+      if (productQuery.collectionId) query.collectionId = productQuery.collectionId;
       if (productQuery.brandId?.length) query.brandId = productQuery.brandId[0];
 
       return getProducts(query, signal);
@@ -96,14 +86,20 @@ const ShopGridPage = () => {
 
   const { data: collectionData } = useQuery({
     queryKey: ["collection", selectedCollectionId],
-    queryFn: ({ signal }) =>
-      getCollectionById(signal, Number(selectedCollectionId)),
+    queryFn: ({ signal }) => getCollectionById(signal, Number(selectedCollectionId)),
     enabled: !!selectedCollectionId,
   });
 
-  // Derived state
-  const organizedCategories = categories ? organizeCategories(categories) : null;
-  const organizedBrands = brandsData?.data?.map(organizeBrands) || [];
+  // ✅ Memoize to avoid infinite loops
+  const organizedCategories = useMemo(
+    () => (categories ? organizeCategories(categories) : null),
+    [categories]
+  );
+
+  const organizedBrands = useMemo(
+    () => brandsData?.data?.map(organizeBrands) || [],
+    [brandsData]
+  );
 
   // Update pagination when data changes
   useEffect(() => {
@@ -115,31 +111,21 @@ const ShopGridPage = () => {
     }
   }, [productsData]);
 
-  // Handle initial URL params
+  // ✅ Handle initial URL params (runs when params or categories change)
   useEffect(() => {
     const cateID = param.get("categoryid");
     const brandID = param.get("brandid");
     const searchTerm = param.get("query");
     const collectionID = param.get("collectionId");
 
-    const initialQuery: Omit<
-      GetProductsParams,
-      "name" | "limit" | "brandId" | "collectionId"
-    > & {
-      name?: string;
-      limit?: number;
-      brandId?: number[];
-      collectionId?: number;
-    } = { page: 1 };
+    const initialQuery: typeof productQuery = { page: 1 };
 
     if (cateID) {
       const categoryId = Number(cateID);
       setSelectedCategoriesIds([categoryId]);
       initialQuery.categoryId = categoryId;
 
-      const c = organizedCategories?.allWithSub.find(
-        (c) => c.id === categoryId
-      );
+      const c = organizedCategories?.allWithSub.find((c) => c.id === categoryId);
       if (c) setSelectedCategory(c);
     }
 
@@ -163,9 +149,9 @@ const ShopGridPage = () => {
     if (cateID || brandID || searchTerm || collectionID) {
       setProductQuery(initialQuery);
     }
-  }, [param, clearSearchTerm]);
+  }, [param, organizedCategories]);
 
-  // Handle search query changes
+  // Handle search query changes (debounced)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery) {
@@ -178,10 +164,7 @@ const ShopGridPage = () => {
         setProductQuery((prev) => {
           const rest = { ...prev };
           delete rest.name;
-          return {
-            ...rest,
-            page: 1,
-          };
+          return { ...rest, page: 1 };
         });
       }
     }, 500);
@@ -194,15 +177,18 @@ const ShopGridPage = () => {
     if (!productsData?.data) return;
 
     const allProducts = productsData.data.map(transformProduct);
-    const filtered = allProducts.map(product => ({
+    const filtered = allProducts.map((product) => ({
       ...product,
-      imageHover: product.images?.[1]?.origin_image || product.images?.[0]?.origin_image || ""
+      imageHover:
+        product.images?.[1]?.origin_image ||
+        product.images?.[0]?.origin_image ||
+        "",
     }));
 
     setFilteredProducts(filtered);
   }, [productsData, selectedCategoriesIds, selectedBrandIds, searchQuery]);
 
-  // Second filter: Apply price range and sorting to the pre-filtered products
+  // Second filter: Apply price range and sorting
   useEffect(() => {
     if (filteredProducts.length === 0) {
       setDisplayedProducts([]);
@@ -211,10 +197,10 @@ const ShopGridPage = () => {
 
     const [min, max] = priceRange;
     const filtered = filteredProducts.filter(
-      (product) => Number(product.price) >= min && Number(product.price) <= max
+      (product) =>
+        Number(product.price) >= min && Number(product.price) <= max
     );
 
-    // Apply sorting
     if (sortOption === "price-low") {
       filtered.sort((a, b) => Number(a.price) - Number(b.price));
     } else if (sortOption === "price-high") {
@@ -225,23 +211,21 @@ const ShopGridPage = () => {
   }, [filteredProducts, priceRange, sortOption]);
 
   // Reset all filters
-const resetFilters = () => {
-  setSearchQuery("");
-  setSortOption("featured");
-  setPriceRange([0, MAX_PRICE]);
-  setSelectedCategoriesIds([]);
-  setSelectedBrandIds([]);
-  setSelectedColors([]); // ✅ reset colors
-  setSelectedCategory(null);
-  setPagination({ ...pagination, page: 1 });
-  setProductQuery({ page: 1 });
-  clearSearchTerm();
-};
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSortOption("featured");
+    setPriceRange([0, MAX_PRICE]);
+    setSelectedCategoriesIds([]);
+    setSelectedBrandIds([]);
+    setSelectedColors([]);
+    setSelectedCategory(null);
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    setProductQuery({ page: 1 });
+    clearSearchTerm();
+  };
 
-  // Toggle category selection
+  // Toggle category
   const toggleCategoryId = (categoryId: number) => {
-    console.log(selectedCategory?.id === categoryId);
-
     setSelectedCategoriesIds((prev) =>
       prev.includes(categoryId)
         ? prev.filter((c) => c !== categoryId)
@@ -258,18 +242,14 @@ const resetFilters = () => {
         delete updated.categoryId;
         return { ...updated, page: 1 };
       }
-      return {
-        ...prev,
-        categoryId,
-        page: 1,
-      };
+      return { ...prev, categoryId, page: 1 };
     });
 
     const c = organizedCategories?.allWithSub.find((c) => c.id === categoryId);
     if (c) setSelectedCategory(c);
   };
 
-  // Toggle brand selection
+  // Toggle brand
   const toggleBrandId = (brandId: number) => {
     setSelectedBrandIds((prev) => {
       const newBrandIds = prev.includes(brandId)
@@ -286,135 +266,136 @@ const resetFilters = () => {
     });
   };
 
-  // Handle page changes
+  // Toggle color
+  const toggleColor = (color: string) => {
+    setSelectedColors((prev) =>
+      prev.includes(color)
+        ? prev.filter((c) => c !== color)
+        : [...prev, color]
+    );
+  };
+
+  // Handle pagination
   const handlePageChange = (newPage: number) => {
     const scrollPosition = window.scrollY || document.documentElement.scrollTop;
 
-    const page = Math.max(
-      1,
-      Math.min(newPage, Math.ceil(pagination.total / 10))
-    );
+    const page = Math.max(1, Math.min(newPage, Math.ceil(pagination.total / 10)));
     const limit = productQuery.limit ?? 10;
 
     if (page !== pagination.page) {
-      setPagination((prev) => ({
-        ...prev,
-        page,
-        limit,
-      }));
+      setPagination((prev) => ({ ...prev, page, limit }));
+      setProductQuery((prev) => ({ ...prev, page, limit }));
 
-      setProductQuery((prev) => ({
-        ...prev,
-        page,
-        limit,
-      }));
-      // / Restore scroll position after state updates
       setTimeout(() => {
         window.scrollTo(0, scrollPosition);
       }, 0);
     }
   };
 
-  // Wishlist handled globally via WishlistProvider
-const { data: categoriesResponse } = useQuery<CategoryResponse>({
-  queryKey: ["categories"],
-  queryFn: getCategories,
-});
-const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const { data: categoriesResponse } = useQuery<CategoryResponse>({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
 
-const toggleColor = (color: string) => {
-  setSelectedColors((prev) =>
-    prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
-  );
-};
-
- return (
-  <div ref={scrollRef} className="min-h-screen bg-white w-full">
-
-    <HeroHeader
-      collectionData={collectionData ? {
-        name: collectionData.name,
-        image: collectionData.image
-      } : undefined}
-      categoryData={selectedCategory ? {
-        description: {
-          name: selectedCategory.description.name,
-          description: selectedCategory.description.description,
-          image: selectedCategory.description.image
+  return (
+    <div ref={scrollRef} className="min-h-screen bg-white w-full">
+      <HeroHeader
+        collectionData={
+          collectionData
+            ? { name: collectionData.name, image: collectionData.image }
+            : undefined
         }
-      } : undefined}
-      brandData={selectedBrandIds.length > 0 && brandsData?.data ? {
-        name: brandsData.data.find(b => b.id === selectedBrandIds[0])?.name || "Brand Products",
-        description: brandsData.data.find(b => b.id === selectedBrandIds[0])?.description || "Explore our brand collection",
-        image: brandsData.data.find(b => b.id === selectedBrandIds[0])?.image
-      } : undefined}
-      categories={categoriesResponse?.data || []}
-      defaultTitle="Shop"
-      defaultImage="https://crido.wpbingosite.com/wp-content/uploads/2021/10/high-angle-view-spa-products-white-backdrop-scaled.jpg"
-    />
-
-    {/* Remove max-w and mx-auto */}
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
-      <Toolbar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        sortOption={sortOption}
-        setSortOption={setSortOption}
-        setShowFilters={setShowFilters}
+        categoryData={
+          selectedCategory
+            ? {
+                description: {
+                  name: selectedCategory.description.name,
+                  description: selectedCategory.description.description,
+                  image: selectedCategory.description.image,
+                },
+              }
+            : undefined
+        }
+        brandData={
+          selectedBrandIds.length > 0 && brandsData?.data
+            ? {
+                name:
+                  brandsData.data.find((b) => b.id === selectedBrandIds[0])
+                    ?.name || "Brand Products",
+                description:
+                  brandsData.data.find((b) => b.id === selectedBrandIds[0])
+                    ?.description || "Explore our brand collection",
+                image: brandsData.data.find(
+                  (b) => b.id === selectedBrandIds[0]
+                )?.image,
+              }
+            : undefined
+        }
+        categories={categoriesResponse?.data || []}
+        defaultTitle="Shop"
+        defaultImage="https://crido.wpbingosite.com/wp-content/uploads/2021/10/high-angle-view-spa-products-white-backdrop-scaled.jpg"
       />
 
-      <div className="flex flex-col md:flex-row w-full gap-12 ">
-        <div className="w-full md:w-1/4">
-          <FilterSidebar
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            organizedCategories={organizedCategories}
-            selectedCategoriesIds={selectedCategoriesIds}
-            toggleCategoryId={toggleCategoryId}
-            organizedBrands={organizedBrands}
-            selectedBrandIds={selectedBrandIds}
-            toggleBrandId={toggleBrandId}
-            selectedColors={selectedColors}
-            toggleColor={toggleColor}
-            resetFilters={resetFilters}
-            MAX_PRICE={MAX_PRICE}
-          />
-        </div>
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
+        <Toolbar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sortOption={sortOption}
+          setSortOption={setSortOption}
+          setShowFilters={setShowFilters}
+        />
 
-        <div className="w-full md:w-3/4">
-          <ProductGrid
-            products={displayedProducts}
-            isLoading={isLoadingFetchProducts}
-            pagination={pagination}
-            handlePageChange={handlePageChange}
-            selectedCategory={selectedCategory}
-            toggleCategoryId={toggleCategoryId}
-            likedProducts={likedProducts}
-            toggleLike={toggleLike}
-            selectedCategoriesIds={selectedCategoriesIds}
-            resetFilters={resetFilters}
-          />
+        <div className="flex flex-col md:flex-row w-full gap-12">
+          <div className="w-full md:w-1/4">
+            <FilterSidebar
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+              organizedCategories={organizedCategories}
+              selectedCategoriesIds={selectedCategoriesIds}
+              toggleCategoryId={toggleCategoryId}
+              organizedBrands={organizedBrands}
+              selectedBrandIds={selectedBrandIds}
+              toggleBrandId={toggleBrandId}
+              selectedColors={selectedColors}
+              toggleColor={toggleColor}
+              resetFilters={resetFilters}
+              MAX_PRICE={MAX_PRICE}
+            />
+          </div>
+
+          <div className="w-full md:w-3/4">
+            <ProductGrid
+              products={displayedProducts}
+              isLoading={isLoadingFetchProducts}
+              pagination={pagination}
+              handlePageChange={handlePageChange}
+              selectedCategory={selectedCategory}
+              toggleCategoryId={toggleCategoryId}
+              likedProducts={likedProducts}
+              toggleLike={toggleLike}
+              selectedCategoriesIds={selectedCategoriesIds}
+              resetFilters={resetFilters}
+            />
+          </div>
         </div>
       </div>
+
+      <MobileFiltersModal
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        organizedCategories={organizedCategories}
+        selectedCategoriesIds={selectedCategoriesIds}
+        toggleCategoryId={toggleCategoryId}
+        organizedBrands={organizedBrands}
+        selectedBrandIds={selectedBrandIds}
+        toggleBrandId={toggleBrandId}
+        resetFilters={resetFilters}
+        MAX_PRICE={MAX_PRICE}
+      />
     </div>
-
-    <MobileFiltersModal
-      showFilters={showFilters}
-      setShowFilters={setShowFilters}
-      priceRange={priceRange}
-      setPriceRange={setPriceRange}
-      organizedCategories={organizedCategories}
-      selectedCategoriesIds={selectedCategoriesIds}
-      toggleCategoryId={toggleCategoryId}
-      organizedBrands={organizedBrands}
-      selectedBrandIds={selectedBrandIds}
-      toggleBrandId={toggleBrandId}
-      resetFilters={resetFilters}
-      MAX_PRICE={MAX_PRICE}
-    />
-  </div>
-);
-
+  );
 };
 
 export default ShopGridPage;

@@ -8,7 +8,6 @@ export default function ShippingPolicy() {
   const contactEmail = "shipping@example.com";
   const contactPhone = "+123 456 7890";
 
-
   const domesticTableHeaders: string[] = t.raw(
     "sections.domesticShipping.table.headers"
   ) as string[];
@@ -19,13 +18,13 @@ export default function ShippingPolicy() {
 
   return (
     <div
-      className="min-h-screen  py-16"
+      className="min-h-screen py-16"
       style={{
         backgroundImage: "linear-gradient(180deg, #FFEDE4 70%, white 100%)",
       }}
     >
       <div className="container mx-auto px-6 max-w-7xl">
-        <div className=" backdrop-blur-sm  p-8 md:p-12 ">
+        <div className="backdrop-blur-sm p-8 md:p-12">
           <h1
             className="text-4xl md:text-5xl font-bold text-black mb-8 italic"
             style={{ fontFamily: "Playfair Display, serif" }}
@@ -184,14 +183,7 @@ export default function ShippingPolicy() {
               </h2>
               <div className="text-gray-800 leading-relaxed text-lg">
                 {t.rich("sections.returnsExchanges.content", {
-                  link: (chunks: React.ReactNode) => (
-                    <Link
-                      href="/return-policy"
-                      className="text-black font-semibold hover:text-orange-700 transition-colors underline decoration-orange-200 hover:decoration-orange-700"
-                    >
-                      {chunks}
-                    </Link>
-                  ),
+                  link: (chunks) => <Link href="/contact">{chunks}</Link>,
                 })}
               </div>
             </section>
