@@ -17,8 +17,7 @@ export default function FooterBottom({ settings }: FooterBottomProps) {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left quick links */}
           <nav className="flex items-center gap-6 text-xs tracking-widest text-gray-500 uppercase">
-            <Link href="#" className="hover:text-gray-800">Store Locator</Link>
-            <Link href="#" className="hover:text-gray-800">Gift Cards</Link>
+            <Link href="infoPages/contact" className="hover:text-gray-800">Store Locator</Link>
             <Link href="/orders" className="hover:text-gray-800">My Orders</Link>
           </nav>
 

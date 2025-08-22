@@ -1031,8 +1031,7 @@
       },
       "returnsExchanges": {
         "title": "9. Returns & Exchanges",
-        "content": "For information about returning or exchanging items, please see our {link}. Customers are responsible for return shipping costs unless the return is due to our error."
-      },
+"content": "For returns or exchanges, please <link>contact us</link> for assistance."      },
       "contact": {
         "title": "10. Contact Us",
         "content": "For shipping-related questions:",

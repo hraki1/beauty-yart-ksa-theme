@@ -24,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({ children, open, classesName }) => {
 
   return createPortal(
     <motion.div
-      className="fixed inset-0 z-50 w-[80%] md:w-[50%] flex items-center shadow-xl justify-center bg-black/50"
+      className="fixed inset-0 z-50 w-[80%] md:w-[50%] max-wflex items-center shadow-xl justify-center bg-black/50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

@@ -1,19 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronDown,
   ChevronUp,
-  Phone,
-  Mail,
-  MessageCircle,
   Heart,
   Leaf,
   Shield,
 } from "lucide-react";
 
 const HelpFAQPage: React.FC = () => {
-  // ensure type safety
+  const router = useRouter(); // Added for navigation
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
@@ -98,30 +96,6 @@ const HelpFAQPage: React.FC = () => {
     },
   ];
 
-  const contactOptions = [
-    {
-      icon: <Phone className="w-6 h-6" />,
-      title: "Phone Support",
-      description: "Mon-Fri, 9AM-6PM EST",
-      contact: "1-800-NATURAL",
-      action: "Call Now",
-    },
-    {
-      icon: <Mail className="w-6 h-6" />,
-      title: "Email Support",
-      description: "Response within 24 hours",
-      contact: "hello@naturalorganic.com",
-      action: "Send Email",
-    },
-    {
-      icon: <MessageCircle className="w-6 h-6" />,
-      title: "Live Chat",
-      description: "Instant help when online",
-      contact: "Chat available 9AM-9PM EST",
-      action: "Start Chat",
-    },
-  ];
-
   return (
     <div
       className="min-h-screen"
@@ -146,30 +120,6 @@ const HelpFAQPage: React.FC = () => {
             We&apos;re here to help you on your natural skincare journey. Find
             answers to common questions or reach out to our expert team.
           </p>
-        </div>
-
-        {/* Contact Options */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {contactOptions.map((option, index) => (
-            <div
-              key={index}
-              className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 text-center hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-lg"
-            >
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
-                <div className="text-green-600">{option.icon}</div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-800 mb-2">
-                {option.title}
-              </h3>
-              <p className="text-gray-600 mb-2 text-sm">{option.description}</p>
-              <p className="text-green-700 font-medium mb-4">
-                {option.contact}
-              </p>
-              <button className="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-colors duration-200 text-sm font-medium">
-                {option.action}
-              </button>
-            </div>
-          ))}
         </div>
 
         {/* FAQ Sections */}
@@ -260,10 +210,16 @@ const HelpFAQPage: React.FC = () => {
               personalized guidance for your unique skin needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors duration-200 font-medium">
+              <button
+                onClick={() => router.push("/infoPages/contact")}
+                className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors duration-200 font-medium"
+              >
                 Contact Our Experts
               </button>
-              <button className="border-2 border-green-600 text-green-600 px-8 py-3 rounded-full hover:bg-green-50 transition-colors duration-200 font-medium">
+              <button
+                onClick={() => router.push("/shopGrid")}
+                className="border-2 border-green-600 text-green-600 px-8 py-3 rounded-full hover:bg-green-50 transition-colors duration-200 font-medium"
+              >
                 Browse Products
               </button>
             </div>
