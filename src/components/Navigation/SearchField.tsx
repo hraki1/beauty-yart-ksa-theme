@@ -167,7 +167,7 @@ export default function SearchField({ openSignal = 0, overlay = false, open = fa
 
       {/* Modal (overlay) */}
       {overlay && (
-        <Modal open={open ?? false} onClose={onClose} classesName="w-full h-screen bg-white">
+        <Modal open={open ?? false} onClose={onClose} classesName="!w-screen !h-screen bg-white">
           <div className="w-full h-full bg-white overflow-y-auto">
             <div className="max-w-5xl mx-auto px-5 sm:px-8 pt-6 pb-10">
               <div className="flex items-center justify-between">

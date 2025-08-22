@@ -12,11 +12,14 @@ type FooterLinksProps = {
 export default function FooterLinks({ settings }: FooterLinksProps) {
   const t = useTranslations("footer");
 
+  // Static PDF path in /public folder
+  const pdfPath = "/guides/beauty-tips.pdf";
+
   return (
     <div className="bg-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          
+
           {/* Brand & Contact */}
           <div className="space-y-5">
             <h2 className="text-4xl font-serif text-gray-900">{settings.store_name}</h2>
@@ -58,7 +61,6 @@ export default function FooterLinks({ settings }: FooterLinksProps) {
                   <FiFacebook className="w-5 h-5" />
                 </Link>
               )}
-              
             </div>
           </div>
 
@@ -67,24 +69,13 @@ export default function FooterLinks({ settings }: FooterLinksProps) {
             <h4 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">{t("company")}</h4>
             <ul className="space-y-3 text-sm sm:text-base break-words">
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("aboutUs")}
-                </Link>
+                <Link href="/infoPages/about" className="text-gray-600 hover:text-purple-600 transition-colors">{t("aboutUs")}</Link>
               </li>
               <li>
-                <Link href="/shop" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("shop")}
-                </Link>
+                <Link href="/shopGrid" className="text-gray-600 hover:text-purple-600 transition-colors">{t("shop")}</Link>
               </li>
               <li>
-                <Link href="/infoPages/contact" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("contactUs")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("blog")}
-                </Link>
+                <Link href="/infoPages/contact" className="text-gray-600 hover:text-purple-600 transition-colors">{t("contactUs")}</Link>
               </li>
             </ul>
           </div>
@@ -94,56 +85,33 @@ export default function FooterLinks({ settings }: FooterLinksProps) {
             <h4 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">{t("support")}</h4>
             <ul className="space-y-3 text-sm sm:text-base break-words">
               <li>
-                <Link href="/help" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("helpFaqs")}
-                </Link>
+                <Link href="/infoPages/faq" className="text-gray-600 hover:text-purple-600 transition-colors">{t("helpFaqs")}</Link>
               </li>
               <li>
-                <Link href="/login" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("loginRegister")}
-                </Link>
+                <Link href="/infoPages/orders" className="text-gray-600 hover:text-purple-600 transition-colors">{t("trackOrder")}</Link>
               </li>
               <li>
-                <Link href="/track-order" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("trackOrder")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/infoPages/shippingPolicy" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("shippingReturns")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/accessibility" className="text-gray-600 hover:text-purple-600 transition-colors">
-                  {t("accessibility")}
-                </Link>
+                <Link href="/infoPages/shippingPolicy" className="text-gray-600 hover:text-purple-600 transition-colors">{t("shippingReturns")}</Link>
               </li>
             </ul>
           </div>
 
-          {/* JOIN NOW (Newsletter) */}
+          {/* Download Guide Button */}
           <div className="min-w-0">
-            <h4 className="text-sm tracking-[0.35em] text-gray-900 font-semibold mb-6">JOIN NOW</h4>
+            <h4 className="text-sm tracking-[0.35em] text-gray-900 font-semibold mb-6">FREE GUIDE</h4>
             <p className="text-gray-600 mb-6">
-              Become a {settings.store_name || "Siena"} member and get 10% off your next purchase!
+              Get our <strong>Top 10 Beauty Tips</strong> PDF instantly!
             </p>
-            <form onSubmit={(e) => e.preventDefault()} aria-label="Join newsletter" className="max-w-sm">
-              <div className="flex items-center gap-3">
-                <input
-                  type="email"
-                  placeholder="Email address..."
-                  className="flex-1 bg-transparent border-0 border-b border-black focus:border-black focus:ring-0 px-0 py-2 placeholder:text-gray-500"
-                  required
-                />
-                <button type="submit" aria-label="Subscribe" className="border-b-2 border-black pb-2 px-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
-                    <path d="M4 6l8 6 8-6" />
-                  </svg>
-                </button>
-              </div>
-            </form>
+
+            <a
+              href={pdfPath}
+              download="Top_10_Beauty_Tips.pdf"
+              className="px-6 py-3 bg-black text-white font-bold shadow hover:opacity-80 transition inline-block"
+            >
+              Download Guide
+            </a>
           </div>
+
         </div>
       </div>
     </div>
