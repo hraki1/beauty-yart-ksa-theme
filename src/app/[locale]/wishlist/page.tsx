@@ -16,14 +16,20 @@ import { useState, useMemo } from "react";
 import { FrontEndProductCartItem } from "@/models/frontEndProductCartItem";
 import Image from "next/image";
 import { useSearchParams, useParams } from "next/navigation";
+import { useSettings } from "@/store/SettingsContext";
 
 export default function WishlistPage() {
+  const settings = useSettings(); // ✅ get settings
+  const SITE_URL = settings.store_name
+    ? `https://${settings.store_name}.com`
+    : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
   const { items: wishlist, remove } = useWishlist();
   const [copiedLink, setCopiedLink] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
 
   const searchParams = useSearchParams();
-  const { locale } = useParams() as { locale: string }; // 👈 نفترض عندك [locale] في الـ routes
+  const { locale } = useParams() as { locale: string };
 
   const sharedItemsParam = searchParams.get("items");
 
@@ -44,11 +50,6 @@ export default function WishlistPage() {
     }
     return wishlist;
   }, [sharedItemsParam, wishlist]);
-
-  const SITE_URL =
-    process.env.NODE_ENV === "production"
-      ? process.env.NEXT_PUBLIC_SITE_URL
-      : "http://localhost:3000";
 
   const wishlistUrl = () => {
     if (!displayedWishlist.length) return `${SITE_URL}/${locale}/wishlist`;
@@ -78,6 +79,7 @@ export default function WishlistPage() {
     }
   };
 
+  // ✅ Use dynamic social media links from settings
   const handleShareFacebook = () => {
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -112,11 +114,8 @@ export default function WishlistPage() {
   };
 
   return (
-    <div
-      className="bg-white min-h-screen"
-      dir={locale === "ar" ? "rtl" : "ltr"} // ✅ RTL / LTR toggle
-    >
-      {/* ✅ Header */}
+    <div className="bg-white min-h-screen" dir={locale === "ar" ? "rtl" : "ltr"}>
+      {/* Header */}
       <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -151,16 +150,14 @@ export default function WishlistPage() {
         </div>
       </div>
 
-      {/* ✅ Content */}
+      {/* Content */}
       <div className="pt-12 pb-16 px-4 md:px-8 lg:px-16 font-europa">
         <div className="w-full">
           {displayedWishlist.length === 0 ? (
             <div className="bg-white shadow-sm p-12 text-center">
               <FiHeart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium font-europa text-gray-900 mb-2">
-                {locale === "ar"
-                  ? "قائمة الأمنيات فارغة"
-                  : "Your wishlist is empty"}
+                {locale === "ar" ? "قائمة الأمنيات فارغة" : "Your wishlist is empty"}
               </h3>
               <p className="text-gray-500 font-europa mb-6">
                 {locale === "ar"
@@ -176,7 +173,7 @@ export default function WishlistPage() {
             </div>
           ) : (
             <>
-              {/* ✅ Wishlist Items */}
+              {/* Wishlist Items */}
               <div className="space-y-0 mb-12">
                 {displayedWishlist.map((product) => (
                   <div
@@ -184,7 +181,6 @@ export default function WishlistPage() {
                     className="bg-white border border-gray-200 border-t-0 first:border-t transition-shadow duration-200"
                   >
                     <div className="flex flex-col md:flex-row md:items-center px-4 sm:px-6 py-6 gap-4 rtl:md:flex-row-reverse">
-                      {/* Remove */}
                       {!sharedItemsParam && (
                         <button
                           onClick={() => handleRemove(product.id)}
@@ -198,7 +194,6 @@ export default function WishlistPage() {
                         </button>
                       )}
 
-                      {/* Image */}
                       <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 bg-gray-50 overflow-hidden border border-gray-100 mx-auto md:mx-0">
                         <Image
                           src={product.image}
@@ -209,7 +204,6 @@ export default function WishlistPage() {
                         />
                       </div>
 
-                      {/* Info */}
                       <div className="flex-grow min-w-0 pr-0 md:pr-6 text-center md:text-left rtl:text-right">
                         <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2">
                           {product.name}
@@ -234,14 +228,11 @@ export default function WishlistPage() {
                         <p className="text-sm text-gray-500">August 15, 2025</p>
                       </div>
 
-                      {/* Action */}
                       <div className="flex-shrink-0 text-center md:text-right rtl:text-left border-t md:border-t-0 md:border-l rtl:md:border-r rtl:md:border-l-0 border-gray-200 pt-4 md:pt-0 md:pl-6 rtl:md:pl-0 rtl:md:pr-6">
                         {!product.stock_availability ? (
                           <>
                             <p className="text-sm text-gray-500 mb-3">
-                              {locale === "ar"
-                                ? "غير متوفر في المخزون"
-                                : "Out of stock"}
+                              {locale === "ar" ? "غير متوفر في المخزون" : "Out of stock"}
                             </p>
                             <Link
                               href={`/${locale}/product/${product.url_key}`}
@@ -255,9 +246,7 @@ export default function WishlistPage() {
                             href={`/${locale}/product/${product.url_key}`}
                             className="inline-block px-4 py-2 bg-[#a07542] text-white text-sm font-medium hover:bg-amber-800 transition-colors min-w-[100px]"
                           >
-                            {locale === "ar"
-                              ? "اختر الخيارات"
-                              : "Select options"}
+                            {locale === "ar" ? "اختر الخيارات" : "Select options"}
                           </Link>
                         )}
                       </div>
@@ -266,26 +255,29 @@ export default function WishlistPage() {
                 ))}
               </div>
 
-              {/* ✅ Share Section */}
+              {/* Share Section */}
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 py-8 border-t border-gray-200">
-                {/* Social */}
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm text-gray-700 font-medium">
                     {locale === "ar" ? "شارك على:" : "Share on:"}
                   </span>
                   <div className="flex gap-2">
-                    <button
-                      onClick={handleShareFacebook}
-                      className="w-9 h-9 rounded-full bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center"
-                    >
-                      <Facebook className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleShareTwitter}
-                      className="w-9 h-9 rounded-full bg-blue-400 text-white hover:bg-blue-500 flex items-center justify-center"
-                    >
-                      <Twitter className="w-4 h-4" />
-                    </button>
+                    {settings.social_media_links.facebook && (
+                      <button
+                        onClick={handleShareFacebook}
+                        className="w-9 h-9 rounded-full bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center"
+                      >
+                        <Facebook className="w-4 h-4" />
+                      </button>
+                    )}
+                    {settings.social_media_links.twitter && (
+                      <button
+                        onClick={handleShareTwitter}
+                        className="w-9 h-9 rounded-full bg-blue-400 text-white hover:bg-blue-500 flex items-center justify-center"
+                      >
+                        <Twitter className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={() =>
                         window.open(
@@ -309,39 +301,36 @@ export default function WishlistPage() {
                 </div>
 
                 {/* Copy Link */}
-     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto rtl:sm:flex-row-reverse">
-  <span className="text-sm text-gray-700 font-medium whitespace-nowrap">
-    {locale === "ar" ? "رابط القائمة:" : "Wishlist link:"}
-  </span>
-  <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2 flex-1 overflow-hidden">
-    <span
-      className="text-sm text-gray-700 truncate flex-1 overflow-hidden"
-      style={{ direction: "ltr" }}
-      title={wishlistUrl()} // كامل الرابط يظهر بالـtooltip
-    >
-      {/* عرض مختصر */}
-      {`${SITE_URL}/${locale}/wishlist/...`}
-    </span>
-    <button
-      onClick={handleCopyLink}
-      className={`px-4 py-1.5 rounded-full text-sm font-medium ml-2 rtl:ml-0 rtl:mr-2 whitespace-nowrap ${
-        copiedLink
-          ? "bg-green-600 text-white shadow-sm"
-          : "bg-black text-white hover:bg-gray-800 shadow-sm"
-      }`}
-    >
-      {copiedLink
-        ? locale === "ar"
-          ? "تم النسخ!"
-          : "Copied!"
-        : locale === "ar"
-        ? "نسخ"
-        : "Copy"}
-    </button>
-  </div>
-</div>
-
-
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto rtl:sm:flex-row-reverse">
+                  <span className="text-sm text-gray-700 font-medium whitespace-nowrap">
+                    {locale === "ar" ? "رابط القائمة:" : "Wishlist link:"}
+                  </span>
+                  <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2 flex-1 overflow-hidden">
+                    <span
+                      className="text-sm text-gray-700 truncate flex-1 overflow-hidden"
+                      style={{ direction: "ltr" }}
+                      title={wishlistUrl()}
+                    >
+                      {`${SITE_URL}/${locale}/wishlist/...`}
+                    </span>
+                    <button
+                      onClick={handleCopyLink}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium ml-2 rtl:ml-0 rtl:mr-2 whitespace-nowrap ${
+                        copiedLink
+                          ? "bg-green-600 text-white shadow-sm"
+                          : "bg-black text-white hover:bg-gray-800 shadow-sm"
+                      }`}
+                    >
+                      {copiedLink
+                        ? locale === "ar"
+                          ? "تم النسخ!"
+                          : "Copied!"
+                        : locale === "ar"
+                        ? "نسخ"
+                        : "Copy"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </>
           )}

@@ -116,11 +116,17 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
   }, [isOpenModal, order.items]);
 
 
-  const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSelectedItems = { ...selectedItems };
-    for (const key in newSelectedItems) {
-      newSelectedItems[key].checked = e.target.checked;
-    }
+    
+    // Only toggle returnable items
+    order.items?.forEach(item => {
+      const status = getItemReturnStatus(item, order);
+      if (status.canReturn) {
+        newSelectedItems[item.order_item_id].checked = e.target.checked;
+      }
+    });
+    
     setSelectedItems(newSelectedItems);
   };
 
@@ -377,6 +383,7 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
         )}
 
         {/* Items Selection Screen */}
+      {/* Items Selection Screen */}
         {returnStep === "items" && (
           <motion.div
             key="items"
@@ -434,10 +441,18 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
                 <input
                   type="checkbox"
                   className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  checked={
-                    Object.values(selectedItems).every((item) => item.checked) &&
-                    Object.values(selectedItems).length > 0
-                  }
+                  checked={(() => {
+                    // Get all returnable items
+                    const returnableItems = order.items?.filter(item => {
+                      const status = getItemReturnStatus(item, order);
+                      return status.canReturn;
+                    }) || [];
+                    
+                    // Check if all returnable items are selected
+                    return returnableItems.length > 0 && returnableItems.every(item => 
+                      selectedItems[item.order_item_id]?.checked
+                    );
+                  })()}
                   onChange={toggleSelectAll}
                   disabled={!allItemsCanReturn}
                 />
@@ -458,14 +473,20 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
                 return (
                   <motion.div
                     key={item.order_item_id}
-                    className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${!status.canReturn
-                      && "hidden"
-                      }`}
+                    className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
+                      !status.canReturn 
+                        ? "bg-gray-50 border-gray-200 opacity-70" 
+                        : "hover:bg-gray-50 border-gray-300"
+                    }`}
                   >
                     {/* Checkbox */}
                     <input
                       type="checkbox"
-                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      className={`h-4 w-4 rounded border-gray-300 focus:ring-blue-500 ${
+                        status.canReturn 
+                          ? "text-blue-600 cursor-pointer" 
+                          : "text-gray-300 cursor-not-allowed"
+                      }`}
                       checked={isSelected}
                       disabled={status.disabled}
                       title={status.tooltip}
@@ -473,7 +494,9 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
                     />
 
                     {/* Product Image */}
-                    <div className="relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                    <div className={`relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100 ${
+                      !status.canReturn ? "grayscale" : ""
+                    }`}>
                       <Image
                         src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
                         alt={item.product_name || "Product Image"}
@@ -484,18 +507,26 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
 
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{item.product_name}</p>
+                      <p className={`font-medium truncate ${
+                        status.canReturn ? "text-gray-900" : "text-gray-500"
+                      }`}>
+                        {item.product_name}
+                      </p>
                       <p className="text-xs text-gray-500">
                         {t("sku", { sku: item.product?.sku ?? "N/A" })}
                       </p>
                       {!status.canReturn && status.tooltip && (
-                        <p className="text-xs mt-1 italic text-red-500">{status.tooltip}</p>
+                        <p className="text-xs mt-1 text-red-500 font-medium">
+                          {status.tooltip}
+                        </p>
                       )}
                     </div>
 
                     {/* Price / Qty */}
                     <div className="flex-shrink-0 flex flex-col items-end gap-1">
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className={`text-sm font-semibold ${
+                        status.canReturn ? "text-gray-900" : "text-gray-500"
+                      }`}>
                         {item.product_price} {order.currency}
                       </p>
 
@@ -505,6 +536,7 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
                         min={1}
                         max={item.qty}
                         value={selectedItems[item.order_item_id]?.quantity || 1}
+                        disabled={!status.canReturn || !isSelected}
                         onChange={(e) =>
                           setSelectedItems((prev) => ({
                             ...prev,
@@ -514,21 +546,19 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
                             },
                           }))
                         }
-                        className={`w-16 text-sm border rounded px-2 py-1 text-blue-500 ${!isSelected || !status.canReturn ? "bg-gray-100 cursor-not-allowed" : ""
-                          }`}
+                        className={`w-16 text-sm border rounded px-2 py-1 ${
+                          status.canReturn && isSelected
+                            ? "text-blue-500 bg-white border-gray-300" 
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                        }`}
                       />
-
-
 
                       <p className="text-xs text-gray-500">{t("qty", { quantity: item.qty })}</p>
                     </div>
                   </motion.div>
-
                 );
               }) ?? null}
             </motion.div>
-
-
 
             <motion.div
               className="mt-6 pt-4 border-t border-gray-200 flex justify-between"

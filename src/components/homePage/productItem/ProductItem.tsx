@@ -62,7 +62,7 @@ const ProductItem = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300 }}
-        className="w-48 md:w-[360px] relative rounded transition-all duration-300 overflow-visible flex flex-col h-full bg-[white] mb-2.5"
+        className="w-48 md:w-[360px] relative rounded transition-all duration-300 overflow-visible flex flex-col h-full bg-[white] p-3.5 mb-2.5"
       >
         {/* Product Image */}
         <div

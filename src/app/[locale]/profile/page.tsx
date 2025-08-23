@@ -1,17 +1,17 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
-import { FiUser, FiLock, FiMapPin, FiBell } from "react-icons/fi";
+import { FiUser, FiLock, FiMapPin } from "react-icons/fi";
 import Image from "next/image";
 import { AuthContext } from "@/store/AuthContext";
 import ProfileInfo from "@/components/profile/ProfileInfo";
 import SecurityInfo from "@/components/profile/SecurityInfo";
 import AddressesInfo from "@/components/profile/Addresses";
-import Settings from "@/components/profile/Settings";
+// import Settings from "@/components/profile/Settings";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-// ✅ Import Playfair Display font
+// ✅ Import Playfair Display font for headings
 import { Playfair_Display } from "next/font/google";
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -58,52 +58,58 @@ export default function AccountPage() {
   }
 
   const accountTabs = [
-    { id: "profile", icon: <FiUser size={18} />, label: t("tabs.profile") },
-    { id: "security", icon: <FiLock size={18} />, label: t("tabs.security") },
-    { id: "addresses", icon: <FiMapPin size={18} />, label: t("tabs.addresses") },
-    { id: "notifications", icon: <FiBell size={18} />, label: t("tabs.notifications") },
+    { id: "profile", icon: <FiUser size={20} />, label: t("tabs.profile") },
+    { id: "security", icon: <FiLock size={20} />, label: t("tabs.security") },
+    { id: "addresses", icon: <FiMapPin size={20} />, label: t("tabs.addresses") },
+    // { id: "notifications", icon: <FiBell size={20} />, label: t("tabs.notifications") },
   ];
 
   return (
     <div
-      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 text-black"
+      className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 text-slate-800"
       style={{
-        backgroundImage: "linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)",
+        background: "linear-gradient(135deg, #FFEDE4 0%, #FFF8F3 50%, #FFFFFF 100%)",
       }}
     >
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-          <div>
+      <div className="max-w-7xl mx-auto">
+        {/* Enhanced Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+          <div className="space-y-2">
             <h1
-              className={`text-2xl md:text-3xl font-bold italic ${playfair.className} text-black`}
+              className={`text-4xl md:text-5xl font-bold italic ${playfair.className} text-slate-900 tracking-tight`}
             >
               {t("title")}
             </h1>
-            <p className="text-gray-800">{t("subtitle")}</p>
+            <p className="text-lg text-slate-600 font-light tracking-wide" style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+              {t("subtitle")}
+            </p>
           </div>
-          <div className="">
+          <div className="flex items-center gap-1">
             <button
-              className="text-white bg-red-600 hover:bg-red-700 text-lg px-6 py-2 rounded-xl transition-all shadow-md"
+              className="group relative overflow-hidden bg-black hover:bg-red-900 text-white font-medium px-8 py-3 transition-all duration-300 transform hover:-translate-y-0.5"
               onClick={logout}
             >
-              Logout
+              <span className="relative z-10 text-lg tracking-wide" style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+                Logout
+              </span>
+              <div className="absolute inset-0  bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar Navigation */}
-          <div className="w-full lg:w-72 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-              <div className="p-6 flex flex-col items-center border-b border-gray-100">
-                <div className="relative w-24 h-24 rounded-full bg-gray-100 mb-4 overflow-hidden border-2 border-white shadow-md">
+        <div className="flex flex-col xl:flex-row gap-8">
+          {/* Modern Sidebar Navigation */}
+          <div className="w-full xl:w-80 flex-shrink-0">
+            <div className="bg-white/90 backdrop-blur-sm overflow-hidden border border-gray-200 hover:border-gray-300 transition-all duration-500">
+              {/* User Profile Section */}
+              <div className="p-8 flex flex-col items-center border-b border-slate-200/50">
+                <div className="relative w-28 h-28 bg-gradient-to-br from-slate-100 to-slate-200 mb-6 overflow-hidden border-4 border-white ring-4 ring-slate-100/50">
                   {user?.avatar ? (
                     <Image
                       src={formData?.avatar}
                       alt={t("avatarAlt")}
                       fill
-                      className="object-cover"
+                      className="object-cover hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   ) : (
@@ -111,54 +117,88 @@ export default function AccountPage() {
                       src={"/image/users/user.png"}
                       alt={t("avatarAlt")}
                       fill
-                      className="object-cover"
+                      className="object-cover hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   )}
                 </div>
-                <h3 className="font-medium text-black text-center text-lg">
+                <h3 className={`font-semibold text-slate-900 text-center text-xl mb-2 ${playfair.className}`}>
                   {formData.name || t("guest")}
                 </h3>
-                <p className="text-sm text-gray-600 text-center mt-1">
+                <p className="text-sm text-slate-500 text-center font-medium tracking-wide" style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}>
                   {formData.email || t("noEmail")}
                 </p>
               </div>
-              <nav className="p-2 space-y-1">
+
+              {/* Navigation Tabs */}
+              <nav className="p-4 space-y-2">
                 {accountTabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-4 p-4 transition-all duration-300 group border-l-4 ${
                       activeTab === tab.id
-                        ? "bg-blue-50 text-blue-600 font-medium"
-                        : "text-black hover:bg-gray-100"
+                        ? "bg-gradient-to-r from-orange-50 to-amber-50 text-gray-800 font-semibold border-l-gray-500"
+                        : "text-slate-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:border-l-slate-400 border-l-transparent"
                     }`}
                   >
                     <span
-                      className={`${
-                        activeTab === tab.id ? "text-blue-500" : "text-gray-500"
+                      className={`transition-all duration-300 ${
+                        activeTab === tab.id 
+                          ? "text-gray-600 scale-110" 
+                          : "text-slate-500 group-hover:text-slate-700 group-hover:scale-105"
                       }`}
                     >
                       {tab.icon}
                     </span>
-                    <span className="text-left">{tab.label}</span>
+                    <span className="text-left font-medium tracking-wide" style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+                      {tab.label}
+                    </span>
                   </button>
                 ))}
               </nav>
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Modern Main Content */}
           <div className="flex-1">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 min-h-[500px] text-black">
-              {activeTab === "profile" && <ProfileInfo />}
-              {activeTab === "security" && <SecurityInfo />}
-              {activeTab === "addresses" && <AddressesInfo />}
-              {activeTab === "notifications" && <Settings />}
+            <div className="bg-white/90 backdrop-blur-sm p-8 md:p-10 border border-gray-200 min-h-[600px] text-slate-800 hover:border-gray-300 transition-all duration-500">
+              <div className="h-full" style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+                {activeTab === "profile" && <ProfileInfo />}
+                {activeTab === "security" && <SecurityInfo />}
+                {activeTab === "addresses" && <AddressesInfo />}
+                {/* {activeTab === "notifications" && <Settings />} */}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Subtle Decorative Elements */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-orange-100 to-amber-100 opacity-20 blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-slate-100 to-gray-100 opacity-15 blur-3xl"></div>
+        </div>
       </div>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        /* Europa font fallback to Inter for better web compatibility */
+        * {
+          font-family: 'Europa', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Smooth scrolling for better UX */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* Custom backdrop blur for better browser support */
+        .backdrop-blur-sm {
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+      `}</style>
     </div>
   );
 }
