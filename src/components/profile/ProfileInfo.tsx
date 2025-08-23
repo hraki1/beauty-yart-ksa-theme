@@ -94,70 +94,85 @@ const ProfileInfo: React.FC = () => {
 
     console.log(formData);
   };
+
   return (
     <>
+      {/* Updated Modal */}
       <Modal open={isModalOpen} classesName="pr-bg">
-        <div className="pr-bg text-white rounded-2xl w-full max-w-md p-6 relative">
-          <h2 className="text-xl font-bold mb-4 text-center">
+        <div className="pr-bg text-white w-full max-w-md p-8 relative border border-gray-400">
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-100" style={{ fontFamily: 'Playfair Display, serif' }}>
             {t("validationErrors")}
           </h2>
-          <ul className="space-y-2 px-4 list-disc">
+          <ul className="space-y-3 px-4 list-disc">
             {userInfo.map((err, idx) => (
               <li
                 key={idx}
-                className="w-full transition-colors rounded text-red-300"
+                className="w-full transition-colors text-red-200 font-medium"
+                style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}
               >
                 {err}
               </li>
             ))}
           </ul>
-          <div className="text-center mt-4 text-sm">
+          <div className="text-center mt-8">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 rounded-2xl bg-amber-600"
+              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium transition-all duration-300 border-l-4 border-gray-400"
+              style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}
             >
               {t("cancel")}
             </button>
           </div>
         </div>
       </Modal>
+      
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-xl shadow-sm overflow-hidden"
+        className="text-black"
+        style={{ fontFamily: 'Europa, -apple-system, BlinkMacSystemFont, sans-serif' }}
       >
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-lg font-medium"> {t("personalInfo")}</h2>
+        {/* Header Section */}
+        <div className="p-8 border-b-2 border-gray-200 flex justify-between items-center bg-gradient-to-r from-gray-50 to-amber-50">
+          <h2 
+            className="text-2xl font-bold text-slate-800" 
+            style={{ fontFamily: 'Playfair Display, serif' }}
+          >
+            {t("personalInfo")}
+          </h2>
           {isEditing ? (
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg border border-gray-300"
+                className="px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100 border-2 border-slate-300 hover:border-slate-400 transition-all duration-300"
               >
                 {t("cancel")}
               </button>
               <button
                 disabled={isPending}
                 onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+                className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-gray-500 to-amber-500 hover:from-gray-600 hover:to-amber-600 transition-all duration-300 border-l-4 border-gray-400"
               >
-                {isPending ? "Saving ..." : "Save Changes"}
+                {isPending ? "Saving..." : "Save Changes"}
               </button>
             </div>
           ) : (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200"
+              className="px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100 border-2 border-slate-300 hover:border-slate-400 transition-all duration-300"
             >
               {t("editProfile")}
             </button>
           )}
         </div>
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+        
+        {/* Form Section */}
+        <div className="p-8 space-y-8 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Full Name Field */}
+            <div className="space-y-3">
+              <label className="block text-base font-semibold text-slate-700 mb-2 tracking-wide">
                 {t("fullName")}
               </label>
               {isEditing ? (
@@ -166,16 +181,19 @@ const ProfileInfo: React.FC = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-4 border-2 border-slate-300 focus:border-gray-400 focus:outline-none text-slate-800 transition-all duration-300 bg-white hover:border-slate-400"
+                  placeholder="Enter your full name"
                 />
               ) : (
-                <p className="px-4 py-2 bg-gray-50 rounded-lg">
-                  {formData.name}
-                </p>
+                <div className="w-full px-4 py-4 bg-gradient-to-r from-slate-50 to-gray-50 text-slate-800 border-l-4 border-gray-300 font-medium">
+                  {formData.name || "Not provided"}
+                </div>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            
+            {/* Birthday Field */}
+            <div className="space-y-3">
+              <label className="block text-base font-semibold text-slate-700 mb-2 tracking-wide">
                 {t("birthday")}
               </label>
               {isEditing ? (
@@ -184,16 +202,18 @@ const ProfileInfo: React.FC = () => {
                   name="birthday"
                   value={formData.birthday}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-4 border-2 border-slate-300 focus:border-gray-400 focus:outline-none text-slate-800 transition-all duration-300 bg-white hover:border-slate-400"
                 />
               ) : (
-                <p className="px-4 py-2 bg-gray-50 rounded-lg">
-                  {formData.birthday}
-                </p>
+                <div className="w-full px-4 py-4 bg-gradient-to-r from-slate-50 to-gray-50 text-slate-800 border-l-4 border-gray-300 font-medium">
+                  {formData.birthday || "Not provided"}
+                </div>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            
+            {/* Phone Number Field */}
+            <div className="space-y-3 md:col-span-2">
+              <label className="block text-base font-semibold text-slate-700 mb-2 tracking-wide">
                 {t("phoneNumber")}
               </label>
               {isEditing ? (
@@ -202,15 +222,36 @@ const ProfileInfo: React.FC = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-4 border-2 border-slate-300 focus:border-gray-400 focus:outline-none text-slate-800 transition-all duration-300 bg-white hover:border-slate-400"
+                  placeholder="Enter your phone number"
                 />
               ) : (
-                <p className="px-4 py-2 bg-gray-50 rounded-lg">
-                  {formData.phone}
-                </p>
+                <div className="w-full px-4 py-4 bg-gradient-to-r from-slate-50 to-gray-50 text-slate-800 border-l-4 border-gray-300 font-medium">
+                  {formData.phone || "Not provided"}
+                </div>
               )}
             </div>
           </div>
+
+          {/* Info Notice */}
+          {!isEditing && (
+            <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-amber-50 border-l-4 border-gray-400">
+              <p className="text-slate-600 text-sm leading-relaxed">
+                <strong className="text-gray-700">Note:</strong> Click&quot;Edit Profile&rdquo; to modify your personal information. 
+                Make sure all information is accurate as it will be used for account verification and communication.
+              </p>
+            </div>
+          )}
+
+          {/* Action Hints for Editing Mode */}
+          {isEditing && (
+            <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-400">
+              <p className="text-slate-600 text-sm leading-relaxed">
+                <strong className="text-blue-700">Editing Mode:</strong> Make your changes and click &quot;Save Changes&rdquo; to update your profile, 
+                or&quot;Cancel&rdquo; to discard changes.
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
     </>

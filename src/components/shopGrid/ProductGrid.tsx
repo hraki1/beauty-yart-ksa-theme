@@ -41,7 +41,7 @@ const ProductGrid = ({
   const locale = useLocale();
   const isRTL = locale === "ar";
 
-  // ✅ Pagination logic (always 6 per page)
+  // Pagination logic (always 6 per page)
   const itemsPerPage = 6;
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const startIndex = (pagination.page - 1) * itemsPerPage;
@@ -144,7 +144,7 @@ const ProductGrid = ({
               </div>
             )}
 
-          {/* ✅ Paginated products */}
+          {/*  Paginated products */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

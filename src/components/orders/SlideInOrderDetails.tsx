@@ -2,12 +2,13 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Package, CreditCard } from "lucide-react";
+import { X, Package, CreditCard, AlertCircle } from "lucide-react";
 import ProgressBar from "./ProgressBar";
-import type { Order } from "@/lib/models/orderModal";
+import type { Order, OrderItem } from "@/lib/models/orderModal";
 import InvoiceDocuments from "./InvoiceDocuments";
 import ProductItem from "@/components/orders/ProductItem";
 import { useTranslations, useLocale } from "next-intl";
+import { getEffectiveStatus } from "@/components/orders/ProgressBar";
 
 interface SlideInOrderDetailsProps {
   order: Order | null;
@@ -38,12 +39,76 @@ export default function SlideInOrderDetails({
     unknown:   { color: "text-black", bg: "bg-gray-100", label: "Unknown" },
   } as const;
 
-  const effectiveStatus = order.status === "completed" ? "delivered" : order.status;
+  // ✅ Use getEffectiveStatus instead of manual completed check
+  const effectiveStatus = getEffectiveStatus(
+    order.status,
+    order.shipment_status,
+    order.payment_status
+  );
+
   const isDelivered =
     effectiveStatus === "delivered" || order.shipment_status === "delivered";
+
   const config =
     statusConfig[effectiveStatus as keyof typeof statusConfig] ??
     statusConfig.unknown;
+
+  // Function to check if an item can be returned
+  const getItemReturnStatus = (item: OrderItem, order: Order) => {
+    let canReturn = true;
+    let reason = "";
+
+    const isItemAlreadyReturned = order.returnRequests?.some(
+      (r) => r.order_item_id === item.order_item_id
+    );
+
+    if (isItemAlreadyReturned) {
+      canReturn = false;
+      reason = "Item already returned";
+    } else if (!item.product?.returnPolicy) {
+      canReturn = false;
+      reason = `No return policy for ${item.product_name}`;
+    } else {
+      const deliveredDate = item.created_at ? new Date(item.created_at) : null;
+      const daysLimit = item.product.returnPolicy?.days_limit || 0;
+
+      if (deliveredDate) {
+        const returnDeadline = new Date(deliveredDate);
+        returnDeadline.setDate(returnDeadline.getDate() + daysLimit);
+
+        if (new Date() > returnDeadline) {
+          canReturn = false;
+          reason = `Return window expired (${daysLimit} days limit, deadline was ${returnDeadline.toLocaleDateString()})`;
+        }
+      }
+    }
+
+    return { canReturn, reason };
+  };
+
+  const getOrderReturnability = () => {
+    if (!order.items || order.items.length === 0) {
+      return { canReturn: false, reasons: ["No items in order"] };
+    }
+
+    const returnableItems: OrderItem[] = [];
+    const nonReturnableReasons: string[] = [];
+
+    for (const item of order.items) {
+      const status = getItemReturnStatus(item, order);
+      if (status.canReturn) returnableItems.push(item);
+      else nonReturnableReasons.push(status.reason);
+    }
+
+    return {
+      canReturn: returnableItems.length > 0,
+      reasons: nonReturnableReasons,
+      returnableCount: returnableItems.length,
+      totalCount: order.items.length,
+    };
+  };
+
+  const orderReturnStatus = getOrderReturnability();
 
   return (
     <AnimatePresence>
@@ -88,7 +153,7 @@ export default function SlideInOrderDetails({
               </motion.button>
             </motion.div>
 
-            {/* Body — add top padding so content starts below sticky header */}
+            {/* Body */}
             <div className="pt-24 p-8 space-y-8">
               {/* Order Progress */}
               <motion.div
@@ -104,14 +169,12 @@ export default function SlideInOrderDetails({
                 </h3>
 
                 <div className="relative z-0 w-full">
-                
-                  <div className="w-full h-6">
-                    <ProgressBar
-                      status={order.status}
-                      shipmentStatus={order.shipment_status}
-                      animated
-                    />
-                  </div>
+                  <ProgressBar
+                    status={order.status}
+                    shipmentStatus={order.shipment_status}
+                    paymentStatus={order.payment_status}
+                    animated
+                  />
                 </div>
 
                 <div className="text-center mt-6">
@@ -179,7 +242,7 @@ export default function SlideInOrderDetails({
                   </div>
                   <div className="text-sm text-black bg-white/60 rounded-2xl p-3">
                     {t("paymentStatus")}:{" "}
-                    <span className={`font-bold`}>
+                    <span className="font-bold">
                       {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                     </span>
                   </div>
@@ -244,7 +307,7 @@ export default function SlideInOrderDetails({
                         </div>
                       </div>
                     ))
-                  ) : (
+                  ) : orderReturnStatus.canReturn ? (
                     <motion.button
                       onClick={onReturnClick}
                       whileHover={{ scale: 1.02, y: -2 }}
@@ -252,7 +315,30 @@ export default function SlideInOrderDetails({
                       className="w-full py-4 bg-black hover:bg-gray-800 text-white rounded-3xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                       {t("returnOrder")}
+                      {orderReturnStatus.returnableCount && orderReturnStatus.totalCount &&
+                        orderReturnStatus.returnableCount < orderReturnStatus.totalCount && (
+                        <span className="block text-sm font-normal mt-1 opacity-80">
+                          {orderReturnStatus.returnableCount} of {orderReturnStatus.totalCount} items eligible
+                        </span>
+                      )}
                     </motion.button>
+                  ) : (
+                    <div className="w-full p-6 bg-gradient-to-r from-red-50 to-red-100 text-red-800 rounded-3xl border border-red-200 shadow-sm">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-xl bg-white shadow-sm">
+                          <AlertCircle className="h-6 w-6 text-red-600" />
+                        </div>
+                        <span className="font-bold text-lg">This Order Cannot Be Returned</span>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <p className="font-medium mb-2">Reasons:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {orderReturnStatus.reasons.map((reason, index) => (
+                            <li key={index}>{reason}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   )}
                 </motion.div>
               )}

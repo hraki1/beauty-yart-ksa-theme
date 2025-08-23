@@ -6,6 +6,8 @@ import ProgressBar from "./ProgressBar";
 import type { Order } from "@/lib/models/orderModal";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
+import { getEffectiveStatus } from "@/components/orders/ProgressBar";
+
 interface OrderCardProps {
   order: Order;
   onViewDetails: (order: Order) => void;
@@ -13,28 +15,34 @@ interface OrderCardProps {
 }
 
 const statusConfig = {
- pending: { color: "text-black", bg: "bg-gray-200", label: "Pending", accent: "border-gray-300" },
-    processing: { color: "text-black", bg: "bg-gray-300", label: "Processing", accent: "border-gray-400" },
-    shipped: { color: "text-white", bg: "bg-gray-600", label: "Shipped", accent: "border-gray-600" },
-    completed: { color: "text-white", bg: "bg-black", label: "Delivered", accent: "border-black" },
-    delivered: { color: "text-white", bg: "bg-black", label: "Delivered", accent: "border-black" },
-    cancelled: { color: "text-white", bg: "bg-gray-800", label: "Cancelled", accent: "border-gray-800" },
-    refunded: { color: "text-white", bg: "bg-gray-700", label: "Refunded", accent: "border-gray-700" },
-    on_hold: { color: "text-black", bg: "bg-gray-300", label: "On Hold", accent: "border-gray-400" },
-    failed: { color: "text-white", bg: "bg-gray-800", label: "Failed", accent: "border-gray-800" },
-    unknown: { color: "text-black", bg: "bg-gray-100", label: "Unknown", accent: "border-gray-200" },
-  } as const;
+  pending: { color: "text-black", bg: "bg-gray-200", label: "Pending", accent: "border-gray-300" },
+  processing: { color: "text-black", bg: "bg-gray-300", label: "Processing", accent: "border-gray-400" },
+  shipped: { color: "text-white", bg: "bg-gray-600", label: "Shipped", accent: "border-gray-600" },
+  completed: { color: "text-white", bg: "bg-black", label: "Delivered", accent: "border-black" },
+  delivered: { color: "text-white", bg: "bg-black", label: "Delivered", accent: "border-black" },
+  cancelled: { color: "text-white", bg: "bg-gray-800", label: "Cancelled", accent: "border-gray-800" },
+  refunded: { color: "text-white", bg: "bg-gray-700", label: "Refunded", accent: "border-gray-700" },
+  on_hold: { color: "text-black", bg: "bg-gray-300", label: "On Hold", accent: "border-gray-400" },
+  failed: { color: "text-white", bg: "bg-gray-800", label: "Failed", accent: "border-gray-800" },
+  unknown: { color: "text-black", bg: "bg-gray-100", label: "Unknown", accent: "border-gray-200" },
+} as const;
 
 export default function OrderCard({ order, onViewDetails }: OrderCardProps) {
   const t = useTranslations("trackOrders.orderCard");
   const locale = useLocale();
   const isRTL = locale === "ar";
 
-  const effectiveStatus = order.status === "completed" ? "delivered" : order.status;
+  // ✅ Only one effectiveStatus now
+  const effectiveStatus = getEffectiveStatus(
+    order.status,
+    order.shipment_status,
+    order.payment_status
+  );
+
   const config = statusConfig[effectiveStatus as keyof typeof statusConfig] ?? statusConfig.unknown;
 
   return (
-   <motion.article
+    <motion.article
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -8, scale: 1.02 }}
@@ -43,7 +51,7 @@ export default function OrderCard({ order, onViewDetails }: OrderCardProps) {
     >
       {/* Backdrop Card */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-lg rounded-3xl border border-white/40 shadow-xl transform rotate-1"></div>
-      
+
       {/* Main Card */}
       <div className={`relative bg-white/90 backdrop-blur-sm border-2 ${config.accent} rounded-3xl p-8 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-black/10`}>
         {/* Floating Status Badge */}
@@ -78,20 +86,20 @@ export default function OrderCard({ order, onViewDetails }: OrderCardProps) {
         {/* Product Gallery */}
         <div className={`mb-6 ${isRTL ? "flex-row-reverse" : ""}`}>
           <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Items Preview</h4>
-          <div className={`flex gap-3  overflow-x-auto pb-2 ${isRTL ? "flex-row-reverse" : ""}`}>
+          <div className={`flex gap-3 overflow-x-auto pb-2 ${isRTL ? "flex-row-reverse" : ""}`}>
             {(order.items || []).slice(0, 4).map((item, index) => (
               <motion.div
                 key={index}
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 className="relative flex-shrink-0 mr-1.5"
               >
-              <Image
-  src={item.product?.images?.[0]?.origin_image || "/placeholder.png"}
-  alt={item.product_name || "Product image"}
-  width={64}   
-  height={64}  
-  className="rounded-2xl object-cover border-2 mt-2.5  border-white shadow-md"
-/>
+                <Image
+                  src={item.product?.images?.[0]?.origin_image || "/placeholder.png"}
+                  alt={item.product_name || "Product image"}
+                  width={64}
+                  height={64}
+                  className="rounded-2xl object-cover border-2 mt-2.5 border-white shadow-md"
+                />
                 <div className="absolute -top-2 mt-2.5 -right-2 w-6 h-6 bg-black text-white rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">
                   {item.qty}
                 </div>
@@ -109,16 +117,21 @@ export default function OrderCard({ order, onViewDetails }: OrderCardProps) {
 
         {/* Progress */}
         <div className="mb-6">
-          <ProgressBar status={order.status} animated />
+          <ProgressBar
+            status={order.status}
+            shipmentStatus={order.shipment_status}
+            paymentStatus={order.payment_status}
+            animated
+          />
         </div>
 
         {/* Footer Actions */}
-        <div className={`flex ${isRTL ? "flex-row-reverse gap-24" : "justify-between "} items-center`}>
+        <div className={`flex ${isRTL ? "flex-row-reverse gap-24" : "justify-between"} items-center`}>
           <div className="space-y-1">
             <span className="text-2xl font-bold text-black tracking-tight">${order.grand_total}</span>
             <p className="text-xs text-gray-500 uppercase tracking-wide">Total Amount</p>
           </div>
-          
+
           <motion.button
             onClick={() => onViewDetails(order)}
             whileHover={{ scale: 1.05 }}
