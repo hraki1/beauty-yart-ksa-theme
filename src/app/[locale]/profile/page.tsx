@@ -11,7 +11,7 @@ import AddressesInfo from "@/components/profile/Addresses";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-// ✅ Import Playfair Display font for headings
+
 import { Playfair_Display } from "next/font/google";
 const playfair = Playfair_Display({
   subsets: ["latin"],
