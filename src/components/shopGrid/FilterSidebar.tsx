@@ -39,21 +39,21 @@ const FilterSidebar = ({
   organizedBrands,
   selectedBrandIds,
   toggleBrandId,
-  selectedColors = [],
-  toggleColor,
+  // selectedColors = [],
+  // toggleColor,
   resetFilters,
   MAX_PRICE,
 }: FilterSidebarProps) => {
   const t = useTranslations("shopGrid.FilterSidebar");
 
-  const COLORS = [
-    { id: 1, name: "Black", value: "#000000" },
-    { id: 2, name: "Blue", value: "#3B82F6" },
-    { id: 3, name: "Green", value: "#10B981" },
-    { id: 4, name: "Pink", value: "#EC4899" },
-    { id: 5, name: "Red", value: "#EF4444" },
-    { id: 6, name: "Yellow", value: "#FACC15" },
-  ];
+  // const COLORS = [
+  //   { id: 1, name: "Black", value: "#000000" },
+  //   { id: 2, name: "Blue", value: "#3B82F6" },
+  //   { id: 3, name: "Green", value: "#10B981" },
+  //   { id: 4, name: "Pink", value: "#EC4899" },
+  //   { id: 5, name: "Red", value: "#EF4444" },
+  //   { id: 6, name: "Yellow", value: "#FACC15" },
+  // ];
 
 
 
@@ -103,7 +103,7 @@ const FilterSidebar = ({
             </div>
           </div>
 
-          {/* Colors */}
+          {/* Colors
           <FilterSection
             title={t("Colors")}
             items={COLORS}
@@ -117,7 +117,7 @@ const FilterSidebar = ({
             getItemName={(item) => item.name}
             isColorSection
             getColorValue={(item) => item.value}
-          />
+          /> */}
 
           {/* Brands */}
           {organizedBrands?.length > 0 && (
