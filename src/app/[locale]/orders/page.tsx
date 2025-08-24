@@ -113,6 +113,40 @@ export default function TrackOrdersPage() {
     },
     [orders]
   );
+const refetchOrder = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const data = await getOrders();
+    setOrders(data);
+
+    if (selectedOrder) {
+      const updatedOrder = data.find(
+        (order) => order.order_id === selectedOrder.order_id
+      );
+      if (updatedOrder) {
+        setSelectedOrder(updatedOrder);
+      }
+    }
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : "Failed to load orders");
+  } finally {
+    setLoading(false);
+  }
+}, [selectedOrder]);
+
+// ❌ these can be below
+if (loading) {
+  return (
+    <div>Loading…</div>
+  );
+}
+
+if (error) {
+  return (
+    <div>Error: {error}</div>
+  );
+}
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'}}>
@@ -137,9 +171,7 @@ export default function TrackOrdersPage() {
       </div>
     );
 
-  function refetchOrder(): void {
-    throw new Error("Function not implemented.");
-  }
+
 
   return (
     <div 

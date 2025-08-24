@@ -15,7 +15,6 @@ interface ReturnModalProp {
   refetchOrder: () => void; 
 }
 
-
 const ReturnModal: React.FC<ReturnModalProp> = ({
   order,
   isOpenModal,
@@ -43,7 +42,7 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
       toast.success(t("returnSubmittedSuccessfully"));
       toggleOpenModal();
       console.log("Return request created:", data);
-      refetchOrder(); // ✅ now this works
+      refetchOrder();
     },
     onError: (error: Error) => {
       console.error("Return submission error:", error);
@@ -51,17 +50,13 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
       toast.error(message);
     },
   });
+  
   const isRTL = locale === "ar";
-  const [returnStep, setReturnStep] = useState<"policy" | "items" | "reason">(
-    "policy"
-  );
-  const [selectedItems, setSelectedItems] = useState<
-    Record<number, { checked: boolean; quantity: number }>
-  >({});
+  const [returnStep, setReturnStep] = useState<"policy" | "items" | "reason">("policy");
+  const [selectedItems, setSelectedItems] = useState<Record<number, { checked: boolean; quantity: number }>>({});
   const [returnReason, setReturnReason] = useState("");
   const [returnNote, setReturnNote] = useState("");
   const [isPolicyExpanded, setIsPolicyExpanded] = useState(false);
-
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -96,7 +91,6 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
     },
   };
 
-
   useEffect(() => {
     if (isOpenModal) {
       const initialSelection = order.items?.reduce(
@@ -115,11 +109,9 @@ const ReturnModal: React.FC<ReturnModalProp> = ({
     }
   }, [isOpenModal, order.items]);
 
-
-const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSelectedItems = { ...selectedItems };
     
-    // Only toggle returnable items
     order.items?.forEach(item => {
       const status = getItemReturnStatus(item, order);
       if (status.canReturn) {
@@ -137,8 +129,6 @@ const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     }));
   };
 
-
-
   const handleNextStep = () => {
     const hasExistingOrderReturn = (order.returnRequests?.length ?? 0) > 0;
     if (hasExistingOrderReturn) {
@@ -150,9 +140,7 @@ const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
       return;
     }
 
-    const hasSelectedItems = Object.values(selectedItems).some(
-      (item) => item.checked
-    );
+    const hasSelectedItems = Object.values(selectedItems).some((item) => item.checked);
     if (hasSelectedItems) {
       setReturnStep("reason");
     } else {
@@ -191,9 +179,6 @@ const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     submitReturn(payload);
   };
 
-
-
-
   const reasons: { id: string; label: string }[] =
     order.items?.[0]?.product?.returnPolicy?.required_reasons
       ? JSON.parse(order.items[0].product.returnPolicy.required_reasons).map(
@@ -205,8 +190,6 @@ const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         { id: "Not as described", label: "Not as described" },
         { id: "Changed mind", label: "Changed mind" },
       ];
-
-
 
   const getItemReturnStatus = (item: OrderItem, order: Order) => {
     let canReturn = true;
@@ -247,387 +230,115 @@ const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     return { canReturn, disabled, tooltip };
   };
 
-
-
   const allItemsCanReturn = order.items?.some((item) => {
     const status = getItemReturnStatus(item, order);
-    return !status.disabled; // true if at least one item is selectable
+    return !status.disabled;
   }) ?? false;
+
   return (
-    <Modal open={isOpenModal} classesName="bg-white">
-      <AnimatePresence mode="wait">
-        {/* Policy Screen */}
-        {returnStep === "policy" && (
-          <motion.div
-            key="policy"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="p-8 w-full bg-white rounded-xl shadow-xl"
-          >
-            <motion.div className="text-center mb-6" variants={fadeIn}>
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {t("policyTitle")}
-              </h2>
-              <p className="text-gray-500">
-                {t("policySubtitle")}
-              </p>
-            </motion.div>
-
-            <motion.div className="space-y-4 mb-6" variants={fadeIn}>
-              {t.raw("policyPoints").map((policy: string, index: number) => (
-                <motion.div
-                  key={index}
-                  className={`flex items-start ${isRTL ? "flex-row-reverse" : ""}`}
-                  custom={index}
-                  variants={itemVariants}
-                >
-                  <div className={`flex-shrink-0 mt-0.5 ${isRTL ? "ml-3" : "mr-3"}`}>
-                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-3 h-3 text-blue-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">{policy}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <AnimatePresence>
-              {isPolicyExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-gray-50 p-4 rounded-lg mb-4 text-sm text-gray-600 overflow-hidden"
-                >
-                  <p className="mb-2">{t("additionalPolicyDetails")}</p>
-                  <ul className={`list-disc space-y-1 ${isRTL ? "pr-5" : "pl-5"}`}>
-                    {t.raw("policyDetails").map((detail: string, index: number) => (
-                      <li key={index}>{detail}</li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <motion.button
-              onClick={() => setIsPolicyExpanded(!isPolicyExpanded)}
-              className={`text-sm text-blue-600 hover:text-blue-700 mb-6 flex items-center ${isRTL ? "flex-row-reverse" : ""}`}
-              whileTap={{ scale: 0.98 }}
-            >
-              {isPolicyExpanded ? t("showLess") : t("viewCompletePolicy")}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={`h-4 w-4 transition-transform ${isRTL ? "mr-1" : "ml-1"} ${isPolicyExpanded ? "rotate-180" : ""
-                  }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </motion.button>
-
-            <motion.div className="flex gap-3" variants={fadeIn}>
-              <button
-                onClick={toggleOpenModal}
-                className="flex-1 px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
-              >
-                {t("back")}
-              </button>
-              <button
-                onClick={handleNextStep}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-              >
-                {t("iAgreeContinue")}
-
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Items Selection Screen */}
-      {/* Items Selection Screen */}
-        {returnStep === "items" && (
-          <motion.div
-            key="items"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="p-6 w-full  bg-white rounded-xl shadow-xl"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <motion.h2
-                className="text-xl font-bold text-gray-900"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                {t("selectItemsToReturn")}
-              </motion.h2>
-              <motion.button
-                onClick={toggleOpenModal}
-                className="text-gray-400 hover:text-gray-500"
-                whileHover={{ rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </motion.button>
-            </div>
-
+    <>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+      `}</style>
+      <Modal open={isOpenModal} classesName="bg-white">
+        <AnimatePresence mode="wait">
+          {/* Policy Screen */}
+          {returnStep === "policy" && (
             <motion.div
-              className="mb-4 flex items-center justify-between"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              key="policy"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="p-8 w-full rounded-xl shadow-xl"
+              style={{
+                backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'
+              }}
             >
-              <h3 className="font-medium text-gray-700">
-                {t("orderNumber", { number: order.order_id })}
-              </h3>
-              <label
-                className={`flex items-center gap-2 text-sm text-gray-600 cursor-pointer ${isRTL ? "flex-row-reverse" : ""
-                  }`}
-              >
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  checked={(() => {
-                    // Get all returnable items
-                    const returnableItems = order.items?.filter(item => {
-                      const status = getItemReturnStatus(item, order);
-                      return status.canReturn;
-                    }) || [];
-                    
-                    // Check if all returnable items are selected
-                    return returnableItems.length > 0 && returnableItems.every(item => 
-                      selectedItems[item.order_item_id]?.checked
-                    );
-                  })()}
-                  onChange={toggleSelectAll}
-                  disabled={!allItemsCanReturn}
-                />
-                {t("selectAll")}
-              </label>
-            </motion.div>
-
-            <motion.div
-              className="space-y-3 max-h-96  overflow-y-auto pr-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              {order.items?.map((item) => {
-                const status = getItemReturnStatus(item, order);
-                const isSelected = selectedItems[item.order_item_id]?.checked || false;
-
-                return (
-                  <motion.div
-                    key={item.order_item_id}
-                    className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
-                      !status.canReturn 
-                        ? "bg-gray-50 border-gray-200 opacity-70" 
-                        : "hover:bg-gray-50 border-gray-300"
-                    }`}
+              <motion.div className="text-center mb-6" variants={fadeIn}>
+                <div className="w-16 h-16 bg-white bg-opacity-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-black"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
                   >
-                    {/* Checkbox */}
-                    <input
-                      type="checkbox"
-                      className={`h-4 w-4 rounded border-gray-300 focus:ring-blue-500 ${
-                        status.canReturn 
-                          ? "text-blue-600 cursor-pointer" 
-                          : "text-gray-300 cursor-not-allowed"
-                      }`}
-                      checked={isSelected}
-                      disabled={status.disabled}
-                      title={status.tooltip}
-                      onChange={(e) => handleItemCheck(item.order_item_id, e.target.checked)}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                     />
-
-                    {/* Product Image */}
-                    <div className={`relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100 ${
-                      !status.canReturn ? "grayscale" : ""
-                    }`}>
-                      <Image
-                        src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
-                        alt={item.product_name || "Product Image"}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-medium truncate ${
-                        status.canReturn ? "text-gray-900" : "text-gray-500"
-                      }`}>
-                        {item.product_name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {t("sku", { sku: item.product?.sku ?? "N/A" })}
-                      </p>
-                      {!status.canReturn && status.tooltip && (
-                        <p className="text-xs mt-1 text-red-500 font-medium">
-                          {status.tooltip}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Price / Qty */}
-                    <div className="flex-shrink-0 flex flex-col items-end gap-1">
-                      <p className={`text-sm font-semibold ${
-                        status.canReturn ? "text-gray-900" : "text-gray-500"
-                      }`}>
-                        {item.product_price} {order.currency}
-                      </p>
-
-                      {/* Qty Selector */}
-                      <input
-                        type="number"
-                        min={1}
-                        max={item.qty}
-                        value={selectedItems[item.order_item_id]?.quantity || 1}
-                        disabled={!status.canReturn || !isSelected}
-                        onChange={(e) =>
-                          setSelectedItems((prev) => ({
-                            ...prev,
-                            [item.order_item_id]: {
-                              ...prev[item.order_item_id],
-                              quantity: Math.min(Math.max(Number(e.target.value), 1), item.qty),
-                            },
-                          }))
-                        }
-                        className={`w-16 text-sm border rounded px-2 py-1 ${
-                          status.canReturn && isSelected
-                            ? "text-blue-500 bg-white border-gray-300" 
-                            : "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                        }`}
-                      />
-
-                      <p className="text-xs text-gray-500">{t("qty", { quantity: item.qty })}</p>
-                    </div>
-                  </motion.div>
-                );
-              }) ?? null}
-            </motion.div>
-
-            <motion.div
-              className="mt-6 pt-4 border-t border-gray-200 flex justify-between"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <motion.button
-                onClick={() => setReturnStep("policy")}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                whileHover={{ x: isRTL ? 2 : -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {t("back")}
-              </motion.button>
-              <motion.button
-                onClick={handleNextStep}
-                disabled={
-                  !Object.values(selectedItems).some((item) => item.checked)
-                }
-                className={`px-4 py-2 rounded-md text-white ${Object.values(selectedItems).some((item) => item.checked)
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-300 cursor-not-allowed"
-                  }`}
-                whileHover={{
-                  scale: Object.values(selectedItems).some(
-                    (item) => item.checked
-                  )
-                    ? 1.02
-                    : 1,
-                }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {t("continue")}
-              </motion.button>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Reason Screen */}
-        {returnStep === "reason" && (
-          <motion.div
-            key="reason"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="p-6 w-full bg-white rounded-xl shadow-xl"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <motion.div
-                initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <h2 className="text-xl font-bold text-gray-900">
-                  {t("returnDetails")}
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-black mb-2" style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}>
+                  {t("policyTitle")}
                 </h2>
-                <p className="text-sm text-gray-500">{t("orderNumber", { number: order.order_id })}</p>
+                <p className="text-gray-600">
+                  {t("policySubtitle")}
+                </p>
               </motion.div>
+
+              <motion.div className="space-y-4 mb-6" variants={fadeIn}>
+                {t.raw("policyPoints").map((policy: string, index: number) => (
+                  <motion.div
+                    key={index}
+                    className={`flex items-start ${isRTL ? "flex-row-reverse" : ""}`}
+                    custom={index}
+                    variants={itemVariants}
+                  >
+                    <div className={`flex-shrink-0 mt-0.5 ${isRTL ? "ml-3" : "mr-3"}`}>
+                      <div className="w-5 h-5 bg-white bg-opacity-60 rounded-full flex items-center justify-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-3 h-3 text-black"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 text-sm leading-relaxed">{policy}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <AnimatePresence>
+                {isPolicyExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-white bg-opacity-30 p-4 rounded-lg mb-4 text-sm text-gray-700 overflow-hidden"
+                  >
+                    <p className="mb-2">{t("additionalPolicyDetails")}</p>
+                    <ul className={`list-disc space-y-1 ${isRTL ? "pr-5" : "pl-5"}`}>
+                      {t.raw("policyDetails").map((detail: string, index: number) => (
+                        <li key={index}>{detail}</li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <motion.button
-                onClick={toggleOpenModal}
-                className="text-gray-400 hover:text-gray-500"
-                whileHover={{ rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsPolicyExpanded(!isPolicyExpanded)}
+                className={`text-sm text-black hover:text-gray-800 mb-6 flex items-center ${isRTL ? "flex-row-reverse" : ""}`}
+                whileTap={{ scale: 0.98 }}
               >
+                {isPolicyExpanded ? t("showLess") : t("viewCompletePolicy")}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className={`h-4 w-4 transition-transform ${isRTL ? "mr-1" : "ml-1"} ${isPolicyExpanded ? "rotate-180" : ""}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -636,131 +347,405 @@ const toggleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
+                    d="M19 9l-7 7-7-7"
                   />
                 </svg>
               </motion.button>
-            </div>
 
+              <motion.div className="flex gap-3" variants={fadeIn}>
+                <button
+                  onClick={toggleOpenModal}
+                  className="flex-1 px-4 py-2 text-gray-700 bg-white bg-opacity-50 hover:bg-opacity-70 rounded-lg font-medium transition-colors"
+                >
+                  {t("back")}
+                </button>
+                <button
+                  onClick={handleNextStep}
+                  className="flex-1 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
+                >
+                  {t("iAgreeContinue")}
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Items Selection Screen */}
+          {returnStep === "items" && (
             <motion.div
-              className="mb-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              key="items"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="p-6 w-full rounded-xl shadow-xl"
+              style={{
+                backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'
+              }}
             >
-              <h3 className="font-medium text-gray-700 mb-3">{t("selectedItems")}</h3>
-              <div className="space-y-2 mb-4">
-                {order.items
-                  ?.filter((item) => selectedItems[item.order_item_id]?.checked)
-                  .map((item, index) => (
-                    <motion.div
-                      key={item.order_item_id}
-                      className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"} p-2 bg-gray-50 rounded`}
-                      variants={itemVariants}
-                      custom={index}
-                      initial="hidden"
-                      animate="visible"
-                    >
-                      <div className={`flex items-center ${isRTL ? "flex-row-reverse" : ""}`}>
-                        <div className={`relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 ${isRTL ? "ml-3" : "mr-3"}`}>
-                          <Image
-                            src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
-                            alt={item.product_name || "Product Image"}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-
-                        <span className="text-sm font-medium">{item.product_name}</span>
-                      </div>
-                      <span className="text-sm text-gray-600">
-                        {t("qty", { quantity: selectedItems[item.order_item_id]?.quantity })}
-                      </span>
-                    </motion.div>
-                  )) ?? null}
+              <div className="flex justify-between items-center mb-6">
+                <motion.h2
+                  className="text-xl font-bold text-black"
+                  style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {t("selectItemsToReturn")}
+                </motion.h2>
+                <motion.button
+                  onClick={toggleOpenModal}
+                  className="text-gray-600 hover:text-black"
+                  whileHover={{ rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </motion.button>
               </div>
 
-
-              <h3 className="font-medium text-gray-700 mb-3">
-                {t("reasonForReturn")}
-              </h3>
               <motion.div
-                className="grid grid-cols-2 gap-3 mb-4"
+                className="mb-4 flex items-center justify-between"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h3 className="font-medium text-black" style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}>
+                  {t("orderNumber", { number: order.order_id })}
+                </h3>
+                <label
+                  className={`flex items-center gap-2 text-sm text-gray-700 cursor-pointer ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-black rounded border-gray-400 focus:ring-black"
+                    checked={(() => {
+                      const returnableItems = order.items?.filter(item => {
+                        const status = getItemReturnStatus(item, order);
+                        return status.canReturn;
+                      }) || [];
+                      
+                      return returnableItems.length > 0 && returnableItems.every(item => 
+                        selectedItems[item.order_item_id]?.checked
+                      );
+                    })()}
+                    onChange={toggleSelectAll}
+                    disabled={!allItemsCanReturn}
+                  />
+                  {t("selectAll")}
+                </label>
+              </motion.div>
+
+              <motion.div
+                className="space-y-3 max-h-96 overflow-y-auto pr-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                {reasons.map((reason, index) => (
-                  <motion.button
-                    key={reason.id}
-                    className={`py-2 px-3 rounded-md border text-sm font-medium ${returnReason === reason.id
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300 text-gray-700"
-                      }`}
-                    onClick={() => setReturnReason(reason.id)}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    custom={index}
-                    variants={itemVariants}
-                  >
-                    {reason.label}
-                  </motion.button>
-                ))}
-              </motion.div>
+                {order.items?.map((item) => {
+                  const status = getItemReturnStatus(item, order);
+                  const isSelected = selectedItems[item.order_item_id]?.checked || false;
 
+                  return (
+                    <motion.div
+                      key={item.order_item_id}
+                      className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
+                        !status.canReturn 
+                          ? "bg-white bg-opacity-30 border-gray-300 opacity-70" 
+                          : "hover:bg-white hover:bg-opacity-40 border-gray-400"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className={`h-4 w-4 rounded border-gray-400 focus:ring-black ${
+                          status.canReturn 
+                            ? "text-black cursor-pointer" 
+                            : "text-gray-400 cursor-not-allowed"
+                        }`}
+                        checked={isSelected}
+                        disabled={status.disabled}
+                        title={status.tooltip}
+                        onChange={(e) => handleItemCheck(item.order_item_id, e.target.checked)}
+                      />
+
+                      <div className={`relative w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100 ${
+                        !status.canReturn ? "grayscale" : ""
+                      }`}>
+                        <Image
+                          src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
+                          alt={item.product_name || "Product Image"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium truncate ${
+                          status.canReturn ? "text-black" : "text-gray-500"
+                        }`}>
+                          {item.product_name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {t("sku", { sku: item.product?.sku ?? "N/A" })}
+                        </p>
+                        {!status.canReturn && status.tooltip && (
+                          <p className="text-xs mt-1 text-red-600 font-medium">
+                            {status.tooltip}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex-shrink-0 flex flex-col items-end gap-1">
+                        <p className={`text-sm font-semibold ${
+                          status.canReturn ? "text-black" : "text-gray-500"
+                        }`}>
+                          {item.product_price} {order.currency}
+                        </p>
+
+                        <input
+                          type="number"
+                          min={1}
+                          max={item.qty}
+                          value={selectedItems[item.order_item_id]?.quantity || 1}
+                          disabled={!status.canReturn || !isSelected}
+                          onChange={(e) =>
+                            setSelectedItems((prev) => ({
+                              ...prev,
+                              [item.order_item_id]: {
+                                ...prev[item.order_item_id],
+                                quantity: Math.min(Math.max(Number(e.target.value), 1), item.qty),
+                              },
+                            }))
+                          }
+                          className={`w-16 text-sm border rounded px-2 py-1 ${
+                            status.canReturn && isSelected
+                              ? "text-black bg-white border-gray-400" 
+                              : "bg-gray-200 text-gray-500 cursor-not-allowed border-gray-300"
+                          }`}
+                        />
+
+                        <p className="text-xs text-gray-600">{t("qty", { quantity: item.qty })}</p>
+                      </div>
+                    </motion.div>
+                  );
+                }) ?? null}
+              </motion.div>
 
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                className="mt-6 pt-4 border-t border-gray-300 flex justify-between"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <label
-                  htmlFor="return-note"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                <motion.button
+                  onClick={() => setReturnStep("policy")}
+                  className="px-4 py-2 border border-gray-400 text-gray-700 rounded-md hover:bg-white hover:bg-opacity-50"
+                  whileHover={{ x: isRTL ? 2 : -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {t("additionalNotes")}
-                </label>
-                <textarea
-                  id="return-note"
-                  rows={3}
-                  className="w-full text-black p-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder={t("returnNotePlaceholder")}
-                  value={returnNote}
-                  onChange={(e) => setReturnNote(e.target.value)}
-                />
+                  {t("back")}
+                </motion.button>
+                <motion.button
+                  onClick={handleNextStep}
+                  disabled={
+                    !Object.values(selectedItems).some((item) => item.checked)
+                  }
+                  className={`px-4 py-2 rounded-md text-white ${Object.values(selectedItems).some((item) => item.checked)
+                    ? "bg-black hover:bg-gray-800"
+                    : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                  whileHover={{
+                    scale: Object.values(selectedItems).some(
+                      (item) => item.checked
+                    )
+                      ? 1.02
+                      : 1,
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {t("continue")}
+                </motion.button>
               </motion.div>
             </motion.div>
+          )}
 
+          {/* Reason Screen */}
+          {returnStep === "reason" && (
             <motion.div
-              className="pt-4 border-t border-gray-200 flex justify-between"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              key="reason"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="p-6 w-full rounded-xl shadow-xl"
+              style={{
+                backgroundImage: 'linear-gradient(180deg, #FFEDE4 70%, #FFFFFF 100%)'
+              }}
             >
-              <motion.button
-                onClick={() => setReturnStep("items")}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                whileHover={{ x: isRTL ? 2 : -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {t("back")}
-              </motion.button>
-              <motion.button
-                onClick={handleSubmitReturn}
-                disabled={!returnReason || isSubmitting}
-                className={`px-4 py-2 rounded-md text-white ${returnReason
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-300 cursor-not-allowed"
-                  }`}
-              >
-                {isSubmitting ? t("submitting") : t("submitReturnRequest")}
-              </motion.button>
+              <div className="flex justify-between items-center mb-6">
+                <motion.div
+                  initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <h2 className="text-xl font-bold text-black" style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}>
+                    {t("returnDetails")}
+                  </h2>
+                  <p className="text-sm text-gray-600">{t("orderNumber", { number: order.order_id })}</p>
+                </motion.div>
+                <motion.button
+                  onClick={toggleOpenModal}
+                  className="text-gray-600 hover:text-black"
+                  whileHover={{ rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </motion.button>
+              </div>
 
+              <motion.div
+                className="mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h3 className="font-medium text-black mb-3" style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}>
+                  {t("selectedItems")}
+                </h3>
+                <div className="space-y-2 mb-4">
+                  {order.items
+                    ?.filter((item) => selectedItems[item.order_item_id]?.checked)
+                    .map((item, index) => (
+                      <motion.div
+                        key={item.order_item_id}
+                        className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"} p-2 bg-white bg-opacity-30 rounded`}
+                        variants={itemVariants}
+                        custom={index}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <div className={`flex items-center ${isRTL ? "flex-row-reverse" : ""}`}>
+                          <div className={`relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 ${isRTL ? "ml-3" : "mr-3"}`}>
+                            <Image
+                              src={item.product?.images?.[0]?.origin_image || "/placeholder-product.jpg"}
+                              alt={item.product_name || "Product Image"}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <span className="text-sm font-medium text-black">{item.product_name}</span>
+                        </div>
+                        <span className="text-sm text-gray-700">
+                          {t("qty", { quantity: selectedItems[item.order_item_id]?.quantity })}
+                        </span>
+                      </motion.div>
+                    )) ?? null}
+                </div>
+
+                <h3 className="font-medium text-black mb-3" style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}>
+                  {t("reasonForReturn")}
+                </h3>
+                <motion.div
+                  className="grid grid-cols-2 gap-3 mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {reasons.map((reason, index) => (
+                    <motion.button
+                      key={reason.id}
+                      className={`py-2 px-3 rounded-md border text-sm font-medium ${returnReason === reason.id
+                        ? "border-black bg-white bg-opacity-50 text-black"
+                        : "border-gray-400 hover:border-black text-gray-700 hover:bg-white hover:bg-opacity-30"
+                      }`}
+                      onClick={() => setReturnReason(reason.id)}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      custom={index}
+                      variants={itemVariants}
+                    >
+                      {reason.label}
+                    </motion.button>
+                  ))}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <label
+                    htmlFor="return-note"
+                    className="block text-sm font-medium text-black mb-1"
+                    style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic' }}
+                  >
+                    {t("additionalNotes")}
+                  </label>
+                  <textarea
+                    id="return-note"
+                    rows={3}
+                    className="w-full text-black p-2 border-gray-400 bg-white bg-opacity-50 rounded-md shadow-sm focus:border-black focus:ring-black"
+                    placeholder={t("returnNotePlaceholder")}
+                    value={returnNote}
+                    onChange={(e) => setReturnNote(e.target.value)}
+                  />
+                </motion.div>
+              </motion.div>
+
+              <motion.div
+                className="pt-4 border-t border-gray-300 flex justify-between"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <motion.button
+                  onClick={() => setReturnStep("items")}
+                  className="px-4 py-2 border border-gray-400 text-gray-700 rounded-md hover:bg-white hover:bg-opacity-50"
+                  whileHover={{ x: isRTL ? 2 : -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {t("back")}
+                </motion.button>
+                <motion.button
+                  onClick={handleSubmitReturn}
+                  disabled={!returnReason || isSubmitting}
+                  className={`px-4 py-2 rounded-md text-white ${returnReason
+                    ? "bg-black hover:bg-gray-800"
+                    : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  {isSubmitting ? t("submitting") : t("submitReturnRequest")}
+                </motion.button>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Modal>
+          )}
+        </AnimatePresence>
+      </Modal>
+    </>
   );
 };
 
