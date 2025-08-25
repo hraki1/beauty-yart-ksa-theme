@@ -39,23 +39,10 @@ const FilterSidebar = ({
   organizedBrands,
   selectedBrandIds,
   toggleBrandId,
-  // selectedColors = [],
-  // toggleColor,
   resetFilters,
   MAX_PRICE,
 }: FilterSidebarProps) => {
   const t = useTranslations("shopGrid.FilterSidebar");
-
-  // const COLORS = [
-  //   { id: 1, name: "Black", value: "#000000" },
-  //   { id: 2, name: "Blue", value: "#3B82F6" },
-  //   { id: 3, name: "Green", value: "#10B981" },
-  //   { id: 4, name: "Pink", value: "#EC4899" },
-  //   { id: 5, name: "Red", value: "#EF4444" },
-  //   { id: 6, name: "Yellow", value: "#FACC15" },
-  // ];
-
-
 
   return (
     <div className="hidden md:block w-full flex-shrink-0 ml-6 mr-6">
@@ -81,11 +68,13 @@ const FilterSidebar = ({
               {t("Price")}
             </h4>
             <div className="border-t border-gray-200 pt-4">
-              <PriceRangeSlider
-                priceRange={priceRange}
-                setPriceRange={setPriceRange}
-                MAX_PRICE={MAX_PRICE}
-              />
+              <div className="custom-range">
+                <PriceRangeSlider
+                  priceRange={priceRange}
+                  setPriceRange={setPriceRange}
+                  MAX_PRICE={MAX_PRICE}
+                />
+              </div>
               <div className="flex justify-between items-center mt-3">
                 <span
                   className="text-sm text-black"
@@ -102,22 +91,6 @@ const FilterSidebar = ({
               </div>
             </div>
           </div>
-
-          {/* Colors
-          <FilterSection
-            title={t("Colors")}
-            items={COLORS}
-            selectedIds={selectedColors.map(
-              (color) => COLORS.find((c) => c.name === color)?.id || 0
-            )}
-            toggleId={(id) => {
-              const color = COLORS.find((c) => c.id === id)?.name;
-              if (color && toggleColor) toggleColor(color);
-            }}
-            getItemName={(item) => item.name}
-            isColorSection
-            getColorValue={(item) => item.value}
-          /> */}
 
           {/* Brands */}
           {organizedBrands?.length > 0 && (
@@ -174,6 +147,78 @@ const FilterSidebar = ({
           </div>
         </div>
       </div>
+
+      {/* 🎨 Custom CSS for the range slider */}
+     <style jsx>{`
+  .custom-range input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px; /* thin bar */
+    background: black; /* fallback */
+    border-radius: 2px;
+    outline: none;
+  }
+
+  /* Track (Chrome/Safari) */
+  .custom-range input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px;
+    background: black;
+    border-radius: 2px;
+  }
+
+  /* Track (Firefox) */
+  .custom-range input[type="range"]::-moz-range-track {
+    height: 2px;
+    background: black;
+    border-radius: 2px;
+  }
+
+  /* Filled-in part before thumb (Firefox only) */
+  .custom-range input[type="range"]::-moz-range-progress {
+    background: black;
+    height: 2px;
+  }
+
+  /* Remove default blue fill (Edge/IE) */
+  .custom-range input[type="range"]::-ms-fill-lower {
+    background: black;
+  }
+  .custom-range input[type="range"]::-ms-fill-upper {
+    background: black;
+  }
+
+  /* Thumb (Chrome/Safari) */
+  .custom-range input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+    margin-top: -6px; /* aligns thumb with bar */
+  }
+
+  /* Thumb (Firefox) */
+  .custom-range input[type="range"]::-moz-range-thumb {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+  }
+
+  /* Thumb (Edge/IE) */
+  .custom-range input[type="range"]::-ms-thumb {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+  }
+`}</style>
+
     </div>
   );
 };
